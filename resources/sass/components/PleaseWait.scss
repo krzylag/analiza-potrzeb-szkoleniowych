@@ -1,0 +1,16 @@
+.PleaseWait {
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 1em;
+    width: 1em;
+    display: inline-block;
+    animation-name: spinRotator;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+}
+
+@keyframes spinRotator {
+    from {transform:rotate(0deg);}
+    to {transform:rotate(360deg);}
+}

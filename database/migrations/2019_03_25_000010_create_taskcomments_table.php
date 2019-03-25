@@ -4,31 +4,36 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateExamCompetencesTable extends Migration
+class CreateTaskcommentsTable extends Migration
 {
     /**
      * Schema table name to migrate
      * @var string
      */
-    public $tableName = 'exam_competences';
+    public $set_schema_table = 'taskcomments';
 
     /**
      * Run the migrations.
-     * @table exam_competences
+     * @table taskcomments
      *
      * @return void
      */
     public function up()
     {
-        Schema::create($this->tableName, function (Blueprint $table) {
+        if (Schema::hasTable($this->set_schema_table)) return;
+        Schema::create($this->set_schema_table, function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->bigIncrements('id');
             $table->unsignedBigInteger('exam_id');
-            $table->unsignedBigInteger('competence_id');
+            $table->unsignedBigInteger('task_id');
+            $table->unsignedBigInteger('user_id');
+            $table->text('comment');
 
             $table->index(["exam_id"], 'IDX_EXAMID');
 
-            $table->index(["competence_id"], 'IDX_COMPETENCEID');
+            $table->index(["user_id"], 'IDX_USERID');
+
+            $table->index(["task_id"], 'IDX_TASKID');
         });
     }
 
@@ -39,6 +44,6 @@ class CreateExamCompetencesTable extends Migration
      */
      public function down()
      {
-       Schema::dropIfExists($this->tableName);
+       Schema::dropIfExists($this->set_schema_table);
      }
 }

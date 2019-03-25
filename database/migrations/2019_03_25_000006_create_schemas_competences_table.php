@@ -4,31 +4,32 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCompetencesTasksTable extends Migration
+class CreateSchemasCompetencesTable extends Migration
 {
     /**
      * Schema table name to migrate
      * @var string
      */
-    public $tableName = 'competences_tasks';
+    public $set_schema_table = 'schemas_competences';
 
     /**
      * Run the migrations.
-     * @table competences_tasks
+     * @table schemas_competences
      *
      * @return void
      */
     public function up()
     {
-        Schema::create($this->tableName, function (Blueprint $table) {
+        if (Schema::hasTable($this->set_schema_table)) return;
+        Schema::create($this->set_schema_table, function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->bigIncrements('id');
+            $table->unsignedBigInteger('schema_id');
             $table->unsignedBigInteger('competence_id');
-            $table->unsignedBigInteger('task_id');
 
-            $table->index(["task_id"], 'IDX_TASKS');
+            $table->index(["competence_id"], 'IDX_COPETENCEID');
 
-            $table->index(["competence_id"], 'IDX_COMPETENCIES');
+            $table->index(["schema_id"], 'IDX_SCHEMAID');
         });
     }
 
@@ -39,6 +40,6 @@ class CreateCompetencesTasksTable extends Migration
      */
      public function down()
      {
-       Schema::dropIfExists($this->tableName);
+       Schema::dropIfExists($this->set_schema_table);
      }
 }

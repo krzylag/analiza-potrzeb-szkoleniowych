@@ -10,7 +10,7 @@ class CreateExamsTable extends Migration
      * Schema table name to migrate
      * @var string
      */
-    public $tableName = 'exams';
+    public $set_schema_table = 'exams';
 
     /**
      * Run the migrations.
@@ -20,7 +20,8 @@ class CreateExamsTable extends Migration
      */
     public function up()
     {
-        Schema::create($this->tableName, function (Blueprint $table) {
+        if (Schema::hasTable($this->set_schema_table)) return;
+        Schema::create($this->set_schema_table, function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->bigIncrements('id');
             $table->unsignedBigInteger('schema_id');
@@ -28,12 +29,10 @@ class CreateExamsTable extends Migration
             $table->string('surname');
             $table->string('dealer')->nullable();
             $table->string('city');
-            $table->string('result_json')->nullable();
-            $table->unsignedBigInteger('created_by');
+            $table->text('comment')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable();
             $table->dateTime('created_at')->nullable();
             $table->dateTime('modified_at')->nullable();
-
-            $table->index(["created_by"], 'IDX_CREATEDBY');
 
             $table->index(["schema_id"], 'IDX_SCHEMAID');
         });
@@ -46,6 +45,6 @@ class CreateExamsTable extends Migration
      */
      public function down()
      {
-       Schema::dropIfExists($this->tableName);
+       Schema::dropIfExists($this->set_schema_table);
      }
 }

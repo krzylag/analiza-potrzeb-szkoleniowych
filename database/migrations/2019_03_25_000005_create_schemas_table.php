@@ -10,7 +10,7 @@ class CreateSchemasTable extends Migration
      * Schema table name to migrate
      * @var string
      */
-    public $tableName = 'schemas';
+    public $set_schema_table = 'schemas';
 
     /**
      * Run the migrations.
@@ -20,7 +20,8 @@ class CreateSchemasTable extends Migration
      */
     public function up()
     {
-        Schema::create($this->tableName, function (Blueprint $table) {
+        if (Schema::hasTable($this->set_schema_table)) return;
+        Schema::create($this->set_schema_table, function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->bigIncrements('id');
             $table->string('fullname');
@@ -29,10 +30,6 @@ class CreateSchemasTable extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('modified_at')->nullable();
             $table->unsignedBigInteger('deleted_by')->nullable();
-
-            $table->index(["deleted_by"], 'IDX_DELETEDBY');
-
-            $table->index(["created_by"], 'IDX_CREATEDBY');
             $table->softDeletes();
         });
     }
@@ -44,6 +41,6 @@ class CreateSchemasTable extends Migration
      */
      public function down()
      {
-       Schema::dropIfExists($this->tableName);
+       Schema::dropIfExists($this->set_schema_table);
      }
 }

@@ -4,37 +4,33 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateScoresTable extends Migration
+class CreateExamCompetencesTable extends Migration
 {
     /**
      * Schema table name to migrate
      * @var string
      */
-    public $tableName = 'scores';
+    public $set_schema_table = 'exam_competences';
 
     /**
      * Run the migrations.
-     * @table scores
+     * @table exam_competences
      *
      * @return void
      */
     public function up()
     {
-        Schema::create($this->tableName, function (Blueprint $table) {
+        if (Schema::hasTable($this->set_schema_table)) return;
+        Schema::create($this->set_schema_table, function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->bigIncrements('id');
             $table->unsignedBigInteger('exam_id');
-            $table->unsignedBigInteger('question_id');
-            $table->unsignedBigInteger('user_id');
-            $table->decimal('score', 12, 4);
-            $table->dateTime('created_at')->nullable();
-            $table->dateTime('modified_at')->nullable();
-
-            $table->index(["user_id"], 'IDX_USERID');
+            $table->unsignedBigInteger('competence_id');
+            $table->decimal('result', 12, 4)->nullable();
 
             $table->index(["exam_id"], 'IDX_EXAMID');
 
-            $table->index(["question_id"], 'IDX_QUESTIONID');
+            $table->index(["competence_id"], 'IDX_COMPETENCEID');
         });
     }
 
@@ -45,6 +41,6 @@ class CreateScoresTable extends Migration
      */
      public function down()
      {
-       Schema::dropIfExists($this->tableName);
+       Schema::dropIfExists($this->set_schema_table);
      }
 }

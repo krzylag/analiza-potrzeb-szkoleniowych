@@ -4,44 +4,36 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable
-{
+class User extends Authenticatable {
+
     use Notifiable;
+    use SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'firstname', 'surname', 'email', 'password',
-    ];
+    // The table associated with the model.
+    protected $table = 'users';
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
+    // The attributes that are mass assignable.
+    protected $fillable = [ 'firstname', 'surname', 'email', 'password', 'is_admin', 'capabilities_json' ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    // The attributes that should be hidden for arrays.
+    protected $hidden = [ 'password', 'remember_token' ];
 
 
-    public function examcomments() {
-        return $this->hasMany('App\Examcomment');
-    }
+
+
     public function taskcomments() {
         return $this->hasMany('App\Taskcomment');
     }
+
+    public function scores() {
+        return $this->hasMany('App\Score');
+    }
+
+    public function exams() {
+        return $this->belongsToMany('App\Exam', 'users_exams', 'user_id', 'exam_id')->withPivot('role');
+    }
+
 }

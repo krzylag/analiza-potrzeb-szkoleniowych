@@ -11,10 +11,15 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Auth::routes([
+    'register' => false
+]);
+Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
+
+Route::group(['prefix'=>'api2', 'middleware' => 'auth'], function() {
+
+    Route::get('/user', 'ApiUserController@getCurrentUser');
+
 });
 
-Auth::routes();
-
-Route::get('/home', 'HomeController@index')->name('home');
+Route::fallback('ReactController@index');

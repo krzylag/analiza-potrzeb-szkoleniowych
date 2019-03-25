@@ -4,35 +4,32 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTaskCommentsTable extends Migration
+class CreateTasksQuestionsTable extends Migration
 {
     /**
      * Schema table name to migrate
      * @var string
      */
-    public $tableName = 'task_comments';
+    public $set_schema_table = 'tasks_questions';
 
     /**
      * Run the migrations.
-     * @table task_comments
+     * @table tasks_questions
      *
      * @return void
      */
     public function up()
     {
-        Schema::create($this->tableName, function (Blueprint $table) {
+        if (Schema::hasTable($this->set_schema_table)) return;
+        Schema::create($this->set_schema_table, function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('exam_id');
             $table->unsignedBigInteger('task_id');
-            $table->unsignedBigInteger('user_id');
-            $table->text('comment');
-
-            $table->index(["exam_id"], 'IDX_EXAMID');
-
-            $table->index(["user_id"], 'IDX_USERID');
+            $table->unsignedBigInteger('question_id');
 
             $table->index(["task_id"], 'IDX_TASKID');
+
+            $table->index(["question_id"], 'IDX_QUESTIONID');
         });
     }
 
@@ -43,6 +40,6 @@ class CreateTaskCommentsTable extends Migration
      */
      public function down()
      {
-       Schema::dropIfExists($this->tableName);
+       Schema::dropIfExists($this->set_schema_table);
      }
 }

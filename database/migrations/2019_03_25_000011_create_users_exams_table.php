@@ -4,34 +4,33 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMembersTable extends Migration
+class CreateUsersExamsTable extends Migration
 {
     /**
      * Schema table name to migrate
      * @var string
      */
-    public $tableName = 'members';
+    public $set_schema_table = 'users_exams';
 
     /**
      * Run the migrations.
-     * @table members
+     * @table users_exams
      *
      * @return void
      */
     public function up()
     {
-        Schema::create($this->tableName, function (Blueprint $table) {
+        if (Schema::hasTable($this->set_schema_table)) return;
+        Schema::create($this->set_schema_table, function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->bigIncrements('id');
             $table->unsignedBigInteger('exam_id');
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('role_id');
+            $table->string('role', 45);
 
             $table->index(["user_id"], 'IDX_USERID');
 
             $table->index(["exam_id"], 'IDX_EXAMID');
-
-            $table->index(["role_id"], 'IDX_ROLEID');
         });
     }
 
@@ -42,6 +41,6 @@ class CreateMembersTable extends Migration
      */
      public function down()
      {
-       Schema::dropIfExists($this->tableName);
+       Schema::dropIfExists($this->set_schema_table);
      }
 }

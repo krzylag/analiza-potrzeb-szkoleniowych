@@ -10,7 +10,7 @@ class CreatePasswordResetsTable extends Migration
      * Schema table name to migrate
      * @var string
      */
-    public $tableName = 'password_resets';
+    public $set_schema_table = 'password_resets';
 
     /**
      * Run the migrations.
@@ -20,7 +20,8 @@ class CreatePasswordResetsTable extends Migration
      */
     public function up()
     {
-        Schema::create($this->tableName, function (Blueprint $table) {
+        if (Schema::hasTable($this->set_schema_table)) return;
+        Schema::create($this->set_schema_table, function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->string('email');
             $table->string('token');
@@ -37,6 +38,6 @@ class CreatePasswordResetsTable extends Migration
      */
      public function down()
      {
-       Schema::dropIfExists($this->tableName);
+       Schema::dropIfExists($this->set_schema_table);
      }
 }
