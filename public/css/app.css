@@ -10675,6 +10675,10 @@ a.text-dark:focus {
   flex: 1;
 }
 
+.TopMenu .dropdown-toggle {
+  list-style-type: none;
+}
+
 .Footer .copyright {
   padding: 0.5em;
   float: right;
@@ -10720,3 +10724,5 @@ a.text-dark:focus {
   }
 }
 
+
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiIvY3NzL2FwcC5jc3MiLCJzb3VyY2VSb290IjoiIn0=*/

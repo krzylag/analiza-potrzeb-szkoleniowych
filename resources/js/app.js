@@ -16,19 +16,23 @@ require('./bootstrap');
 import {BrowserRouter, Route} from 'react-router-dom';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import User from './types/User';
 
 import Topmenu from './components/TopMenu';
 import Footer from './components/Footer';
-import Axios from 'axios';
+import Perspective from './types/Perspective';
+import Settings from './perspectives/settings/Settings';
+
+export const PERSPECTIVE_DEFAULT = new Perspective('assessment', "Moje Egzaminy", 'usage', ['is_admin', 'can_lead', 'can_examine']);
 
 export const PERSPECTIVES = {
-    "assessment": { id: 'assessment', name: "Moje Egzaminy"},
-    "new": { id: 'new', name: "Nowy"},
-    "archive": { id: 'archive', name: "Zakończone"},
-    "users": { id: 'users', name: "Użytkownicy"},
-    "settings": { id: 'settings', name: "Ustawienia"}
+    'assessment':   PERSPECTIVE_DEFAULT,
+    'new':          new Perspective('new', "Nowy", 'usage', ['is_admin', 'can_lead']),
+    'archive':      new Perspective('archive', "Zakończone", 'usage', ['is_admin', 'can_lead', 'can_search']),
+    'users':        new Perspective('users', "Użytkownicy", 'management', ['is_admin', 'can_manage_users']),
+    'settings':     new Perspective('settings', "Schematy", 'management', ['is_admin', 'can_manage_schemas'])
 };
-export const PERSPECTIVE_DEFAULT = 'assessment';
+
 
 export default class App extends Component {
 
@@ -36,21 +40,36 @@ export default class App extends Component {
         super(props);
         this.state = {
             dictionary: {
-                user: null
+                user: null,
+                schemas: null
             }
         }
     }
 
     componentDidMount() {
-        // Axios.get('/api2/user').then((response)=>{
-        //     var oldDict = this.state.dictionary;
-        //     oldDict.user = response.data;
-        //     this.setState({dictionary: oldDict});
-        // });
+        new User().then((response) => {
+            var oldDict = this.state.dictionary;
+            oldDict.user = response;
+            this.setState({dictionary: oldDict});
+        })
     }
 
     render() {
-        var perspective = (typeof(this.props.perspective)!=='undefined' && typeof(PERSPECTIVES[this.props.perspective])!=='undefined') ? PERSPECTIVES[this.props.perspective] : PERSPECTIVES[PERSPECTIVE_DEFAULT];
+        var perspective = (typeof(this.props.perspective)!=='undefined' && typeof(PERSPECTIVES[this.props.perspective])!=='undefined') ? PERSPECTIVES[this.props.perspective] : PERSPECTIVE_DEFAULT;
+        var renderPerspective;
+        switch (perspective.id) {
+            case 'settings':
+                renderPerspective = (
+                    <Settings
+                        dictionary={this.state.dictionary}
+                    />
+                );
+                break;
+            default:
+                renderPerspective = (
+                    <div>{perspective.id}</div>
+                );
+        }
         return (
             <div className="App">
                 <Topmenu
@@ -58,7 +77,7 @@ export default class App extends Component {
                     dictionary={this.state.dictionary}
                 />
                 <div className="container content rounded border border-light">
-                    {perspective.id}
+                    {renderPerspective}
                 </div>
                 <Footer />
             </div>

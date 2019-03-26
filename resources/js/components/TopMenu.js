@@ -1,45 +1,83 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import {PERSPECTIVES } from '../app';
+import { PERSPECTIVES } from '../app';
 import PleaseWait from './PleaseWait';
 
 export default class Topmenu extends Component {
 
 
     render() {
-        console.log(this.props);
 
-        var renderedLinks = [];
-        for (var perId in PERSPECTIVES) {
-            var linkClass;
-            if (perId===this.props.perspective.id) {
-                linkClass = ' btn-light';
-            } else {
-                linkClass = ' btn-outline-light';
-            }
-            renderedLinks.push(
-                <Link key={PERSPECTIVES[perId].id} to={PERSPECTIVES[perId].id} className={"btn m-2 p-2 "+linkClass}>{PERSPECTIVES[perId].name}</Link>
-            )
-        }
+        var renderedMenu = [];
+        var renderedName = '';
 
-        var renderedUser;
-        if (this.props.dictionary.user===null) {
-            renderedUser = (
-                <PleaseWait size="2em"/>
+        if (typeof(this.props.dictionary.user)==='undefined' || this.props.dictionary.user===null) {
+            renderedMenu = (
+                <PleaseWait key="PleaseWait" />
             )
         } else {
-            renderedUser = (
-                <span>{this.props.dictionary.user.firstname} {this.props.dictionary.user.surname}</span>
-            )
+
+            var renderedLinksUsage = [];
+            var renderedLinksManagement = [];
+
+            for (var perId in PERSPECTIVES) {
+                var per = PERSPECTIVES[perId];
+                if (per.testUser(this.props.dictionary.user)) {
+                    var linkClass;
+                    if (perId===this.props.perspective.id) {
+                        linkClass = ' active';
+                    } else {
+                        linkClass = '';
+                    }
+                    var item = (
+                        <li key={perId} className="nav-item">
+                            <Link key={PERSPECTIVES[perId].id} to={PERSPECTIVES[perId].id} className={"nav-link"+linkClass}>{PERSPECTIVES[perId].name}</Link>
+                        </li>
+                    );
+                    if (per.group==='management') {
+                        renderedLinksManagement.push(item);
+                    } else {
+                        renderedLinksUsage.push(item);
+                    }
+                }
+            }
+
+            if (renderedLinksUsage.length > 0) {
+                renderedMenu = renderedLinksUsage;
+            }
+
+            if (renderedLinksManagement.length > 0) {
+
+                renderedMenu.push(
+                    <li key="management" className="nav-item dropdown">
+                        <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Administracja
+                        </a>
+                        <ul className="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
+                            {renderedLinksManagement}
+                        </ul>
+                    </li>
+                )
+            }
+
+            renderedName = (
+                <div key="user" className="navbar-text text-light">{this.props.dictionary.user.firstname} {this.props.dictionary.user.surname}</div>
+            );
+
         }
+
+
         return (
-            <nav className="Topmenu p-2 mb-3 bg-primary">
-                {renderedLinks}
-                <a href="/logout" className="btn btn-outline-light m-2 float-right" >Wyloguj się</a>
-                <div className="user-name text-light m-2 d-inline-block float-right">{renderedUser}</div>
+            <nav className="Topmenu navbar navbar-expand navbar-dark bg-dark justify-content-between mb-3">
+                <ul className="user-links navbar-nav">
+                    {renderedMenu}
+                </ul>
+                {renderedName}
+                <a href="/logout" className="nav-link align-right text-secondary" >Wyloguj się</a>
 
             </nav>
         );
+
     }
 
 }
