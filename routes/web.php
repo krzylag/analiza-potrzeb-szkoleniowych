@@ -20,6 +20,12 @@ Route::group(['prefix'=>'api2', 'middleware' => 'auth'], function() {
 
     Route::get('/user', 'ApiUserController@getCurrentUser');
 
+    Route::group(['prefix'=>'schema'], function() {
+
+        Route::post('/import', 'ApiSchemaController@import');
+
+    });
+
 });
 
 Route::fallback('ReactController@index');

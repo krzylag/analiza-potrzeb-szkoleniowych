@@ -12,6 +12,8 @@ class Question extends Model {
     // The attributes that are mass assignable.
     protected $fillable = [ 'hash', 'text', 'hint', 'score_min', 'score_max', 'score_step' ];
 
+    // Ten model nie obsługuje automatycznych "created_at" i "updated_at"
+    public $timestamps = false;
 
     public function scores() {
         return $this->hasMany('App\Score');
