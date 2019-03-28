@@ -28,6 +28,7 @@ class CreateCompetencesTable extends Migration
             $table->string('name', 1024);
             $table->string('description', 4096)->nullable();
             $table->decimal('score_threshold', 12, 4)->default('0.7');
+            $table->string('computed_summary', 4096)->default('{ }');
         });
     }
 

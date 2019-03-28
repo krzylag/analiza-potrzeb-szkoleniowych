@@ -27,10 +27,10 @@ class CreateSchemasTable extends Migration
             $table->string('fullname', 255);
             $table->string('shortname', 255);
             $table->unsignedBigInteger('created_by')->nullable();
-            $table->dateTime('created_at')->nullable();
-            $table->dateTime('modified_at')->nullable();
             $table->unsignedBigInteger('deleted_by')->nullable();
+            $table->string('computed_summary', 4096)->default('{ }');
             $table->softDeletes();
+            $table->nullableTimestamps();
         });
     }
 

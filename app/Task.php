@@ -15,6 +15,22 @@ class Task extends Model {
     // Ten model nie obsługuje automatycznych "created_at" i "updated_at"
     public $timestamps = false;
 
+    // MUTATORS
+
+    public function getComputedSummaryAttribute($value) {
+        $result = new \stdClass();
+        $existing = json_decode($value, $assoc=true);
+        if (json_last_error() !== JSON_ERROR_NONE) return $value;
+        if (!empty($existing)) {
+            foreach (array_keys($existing) AS $key) {
+                $result->{$key} = $existing[$key];
+            }
+        }
+        return $result;
+    }
+
+    // RELATIONS
+
     public function questions() {
         return $this->belongsToMany('App\Question', 'tasks_questions', 'task_id', 'question_id');
     }

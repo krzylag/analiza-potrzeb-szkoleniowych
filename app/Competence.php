@@ -10,11 +10,26 @@ class Competence extends Model {
     protected $table = 'competences';
 
     // The attributes that are mass assignable.
-    protected $fillable = [ 'hash', 'name', 'description', 'score_threshold' ];
+    protected $fillable = [ 'hash', 'name', 'description', 'score_threshold', 'computed_summary' ];
 
     // Ten model nie obsługuje automatycznych "created_at" i "updated_at"
     public $timestamps = false;
 
+    // MUTATORS
+
+    public function getComputedSummaryAttribute($value) {
+        $result = new \stdClass();
+        $existing = json_decode($value, $assoc=true);
+        if (json_last_error() !== JSON_ERROR_NONE) return $value;
+        if (!empty($existing)) {
+            foreach (array_keys($existing) AS $key) {
+                $result->{$key} = $existing[$key];
+            }
+        }
+        return $result;
+    }
+
+    // RELATIONS
 
     public function tasks() {
         return $this->belongsToMany('App\Task', 'competences_tasks', 'competence_id', 'task_id');
