@@ -22,7 +22,14 @@ Route::group(['prefix'=>'api2', 'middleware' => 'auth'], function() {
 
     Route::group(['prefix'=>'schema'], function() {
 
+        Route::get('/list', 'ApiSchemaController@list');
         Route::post('/import', 'ApiSchemaController@import');
+
+    });
+
+    Route::group(['prefix'=>'dictionary'], function() {
+
+        Route::get('/get', 'ApiDictionaryController@get');
 
     });
 

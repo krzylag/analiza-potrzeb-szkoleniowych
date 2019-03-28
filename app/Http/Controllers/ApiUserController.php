@@ -12,8 +12,6 @@ class ApiUserController extends Controller
     }
 
     public function getCurrentUser() {
-        $u = \Auth::user();
-        // $u->capabilities = $u->getCapabilities();
-        return $u;
+        return \Auth::user();
     }
 }

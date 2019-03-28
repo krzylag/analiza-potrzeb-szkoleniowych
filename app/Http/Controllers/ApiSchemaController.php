@@ -11,8 +11,11 @@ use App\Task;
 use App\Competence;
 use App\Schema;
 
-class ApiSchemaController extends Controller
-{
+class ApiSchemaController extends Controller {
+
+    function list() {
+        return Schema::all();
+    }
 
     function import(Request $request) {
         $file = $request->file('uploaded');
@@ -96,6 +99,7 @@ class ApiSchemaController extends Controller
                 }
             }
             $schema->computed_summary = '{ }';
+            $schema->created_by = Auth::user()->id;
             $schema->save();
         }
 
