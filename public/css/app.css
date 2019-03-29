@@ -10661,18 +10661,25 @@ a.text-dark:focus {
   top: 0;
   height: 100vh;
   width: 100vw;
+  overflow: hidden;
 }
 
 .App {
   height: 100%;
   width: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  overflow: hidden;
 }
 
 .App .content {
   flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .TopMenu .dropdown-toggle {

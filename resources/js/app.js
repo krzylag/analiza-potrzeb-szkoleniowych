@@ -107,8 +107,10 @@ export default class App extends Component {
                     perspective={perspective}
                     dictionary={this.state.dictionary}
                 />
-                <div className="container content rounded border border-light">
-                    {renderPerspective}
+                <div className="content">
+                    <div className="container rounded border border-light">
+                        {renderPerspective}
+                    </div>
                 </div>
                 <Footer />
             </div>

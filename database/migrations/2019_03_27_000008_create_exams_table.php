@@ -27,8 +27,10 @@ class CreateExamsTable extends Migration
             $table->unsignedBigInteger('schema_id');
             $table->string('firstname', 255);
             $table->string('surname', 255);
-            $table->string('dealer', 255)->nullable();
-            $table->string('city', 255);
+            $table->string('workplace', 255)->nullable();
+            $table->date('date')->nullable();
+            $table->string('city', 255)->nullable();
+            $table->string('results', 4096)->nullable();
             $table->text('comment')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
 

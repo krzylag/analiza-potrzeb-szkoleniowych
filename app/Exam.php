@@ -10,7 +10,7 @@ class Exam extends Model {
     protected $table = 'exams';
 
     // The attributes that are mass assignable.
-    protected $fillable = [ 'schema_id', 'firstname', 'surname', 'dealer', 'city', 'results_json', 'comment' ];
+    protected $fillable = [ 'schema_id', 'firstname', 'surname', 'workplace', 'date', 'city', 'results', 'comment' ];
 
     public function users() {
         return $this->belongsToMany('App\User', 'users_exams', 'exam_id', 'user_id')->withPivot('role');

@@ -33,6 +33,12 @@ Route::group(['prefix'=>'api2', 'middleware' => 'auth'], function() {
 
     });
 
+    Route::group(['prefix'=>'exam'], function() {
+
+        Route::post('/new', 'ApiExamController@createNew');
+
+    });
+
 });
 
 Route::fallback('ReactController@index');
