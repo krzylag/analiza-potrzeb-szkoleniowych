@@ -17,7 +17,7 @@ class Exam extends Model {
     }
 
     public function competences() {
-        return $this->belongsToMany('App\Competence', 'exams_competences', 'exam_id', 'competence_id')->withPivot('result');
+        return $this->belongsToMany('App\Competence', 'exams_competences', 'exam_id', 'competence_id')->withPivot(['result', 'allowed_users']);
     }
 
     public function schema() {
@@ -32,5 +32,8 @@ class Exam extends Model {
         return $this->hasMany('App\Score');
     }
 
+    public function tasks() {
+        return $this->belongsToMany('App\Task', 'exams_tasks', 'exam_id', 'task_id')->withPivot(['is_accepted', 'user_id']);
+    }
 
 }

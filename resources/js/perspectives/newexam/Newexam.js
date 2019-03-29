@@ -232,8 +232,9 @@ export default class Newexam extends Component {
         var payload = this.getFormPayload();
         this.setState({isSending: true});
         Axios.post("/api2/exam/new", payload).then((response) => {
-            console.log(response.data);
+            //console.log(response.data);
             this.saveToCookie();
+            document.location=document.location.origin+"/assessment";
         })
         //console.log(payload);
     }

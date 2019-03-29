@@ -42,4 +42,9 @@ class Task extends Model {
     public function taskcomments() {
         return $this->hasMany('App\Taskcomment');
     }
+
+    public function exams() {
+        return $this->belongsToMany('App\Exam', 'exams_tasks', 'task_id', 'exam_id')->withPivot(['is_accepted', 'user_id']);
+    }
+
 }

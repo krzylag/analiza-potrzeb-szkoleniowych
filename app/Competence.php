@@ -15,6 +15,9 @@ class Competence extends Model {
     // Ten model nie obsługuje automatycznych "created_at" i "updated_at"
     public $timestamps = false;
 
+    // Always load this relations with model
+    protected $with = ['tasks'];
+
     // MUTATORS
 
     public function getComputedSummaryAttribute($value) {

@@ -24,6 +24,8 @@ import Footer from './components/Footer';
 import Perspective from './types/Perspective';
 import Settings from './perspectives/settings/Settings';
 import Newexam from './perspectives/newexam/Newexam';
+import Assessment from './perspectives/assessment/Assessment';
+import PleaseWait from './components/PleaseWait';
 
 export const PERSPECTIVE_DEFAULT = new Perspective('assessment', "Moje Egzaminy", 'usage', ['is_admin', 'can_lead', 'can_examine']);
 
@@ -79,9 +81,19 @@ export default class App extends Component {
     }
 
     render() {
+        if (this.state.dictionary.user===null || this.state.dictionary.schemas===null) {
+            return ( <PleaseWait /> );
+        }
         var perspective = (typeof(this.props.perspective)!=='undefined' && typeof(PERSPECTIVES[this.props.perspective])!=='undefined') ? PERSPECTIVES[this.props.perspective] : PERSPECTIVE_DEFAULT;
         var renderPerspective;
         switch (perspective.id) {
+            case 'assessment':
+                renderPerspective = (
+                    <Assessment
+                        dictionary={this.state.dictionary}
+                    />
+                );
+                break;
             case 'newexam':
                 renderPerspective = (
                     <Newexam
