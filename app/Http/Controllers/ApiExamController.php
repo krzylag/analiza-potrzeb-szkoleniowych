@@ -162,7 +162,7 @@ class ApiExamController extends Controller {
     public function getTaskComment($examId, $competenceId, $taskId) {
         $creatorId = \Auth::user()->id;
         $comments = Taskcomment::where('exam_id','=',$examId)->where('task_id','=',$taskId)->where('user_id','=',$creatorId)->get();
-        return (empty($comments)) ? null : $comments[0];
+        return ($comments->count()===0) ? null : $comments[0];
     }
 
     public function setTaskComment(Request $request) {
@@ -170,7 +170,7 @@ class ApiExamController extends Controller {
         $creatorId = \Auth::user()->id;
 
         $existing = Taskcomment::where('exam_id','=',$payload['examId'])->where('task_id','=',$payload['taskId'])->where('user_id','=',$creatorId)->get();
-        if (sizeof($existing)==0) {
+        if ($existing->count()===0) {
             $tc = new Taskcomment();
             $tc->exam_id = $payload['examId'];
             $tc->task_id = $payload['taskId'];
