@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Competenceinfo from './Competenceinfo';
+import { Link } from 'react-router-dom';
 
 export default class Examinfo extends Component {
 
@@ -8,32 +9,31 @@ export default class Examinfo extends Component {
         this.state = {
             computedTime: []
         }
-        this.onCheckboxClick = this.onCheckboxClick.bind(this);
+        this.onScoreClick = this.onScoreClick.bind(this);
     }
 
     render() {
-
-
-        console.log(this.props);
 
         var renderedCompetences = [];
         for (var ckey in this.props.exam.competences) {
             var competence = this.props.exam.competences[ckey];
             var allowedUsers = JSON.parse(competence.pivot.allowed_users);
             var canScore = (allowedUsers.indexOf(this.props.dictionary.user.id) >= 0);
-            console.log({competence, allowedUsers, canScore});
-            renderedCompetences.push(
-                <Competenceinfo
-                    key={competence.id}
-                    exam={this.props.exam}
-                    competence={competence}
-                    canScore={canScore}
-                />
-            );
+            if (canScore) {
+                renderedCompetences.push(
+                    <div key={competence.id} className="row pl-4" >
+                        <div className="col-sm p-1">
+                            {competence.name}
+                        </div>
+                        <div className="col-sm p-1">
+                            <Link to={"/assessment/"+this.props.exam.id+"/"+competence.id} className="btn btn-sm btn-outline-primary">Oceniaj</Link>
+                        </div>
+                    </div>
+                );
+            }
         }
-        console.log(renderedCompetences);
         return (
-            <div className="Examinfo card mt-5">
+            <div className="Examinfo card mt-5" id={"exam"+this.props.exam.id}>
                 <h5 className="card-header">{this.props.exam.firstname} {this.props.exam.surname}</h5>
                 <div className="card-body">
                     <table className="table table-sm table-bordered">
@@ -53,15 +53,17 @@ export default class Examinfo extends Component {
                         </tbody>
                     </table>
                 </div>
-                {renderedCompetences}
+                <div className="container">
+                    {renderedCompetences}
+                </div>
             </div>
         );
     }
 
 
 
-    onCheckboxClick(exam, competence, task) {
-        console.log({e: exam.id, c: competence.id, t: task.id});
+    onScoreClick() {
+
     }
 
 

@@ -19,7 +19,6 @@ export default class Topmenu extends Component {
 
             var renderedLinksUsage = [];
             var renderedLinksManagement = [];
-
             for (var perId in PERSPECTIVES) {
                 var per = PERSPECTIVES[perId];
                 if (per.testUser(this.props.dictionary.user)) {
@@ -31,7 +30,7 @@ export default class Topmenu extends Component {
                     }
                     var item = (
                         <li key={perId} className="nav-item">
-                            <Link key={PERSPECTIVES[perId].id} to={PERSPECTIVES[perId].id} className={"nav-link"+linkClass}>{PERSPECTIVES[perId].name}</Link>
+                            <Link key={PERSPECTIVES[perId].id} to={"/"+PERSPECTIVES[perId].id} className={"nav-link"+linkClass}>{PERSPECTIVES[perId].name}</Link>
                         </li>
                     );
                     if (per.group==='management') {

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import Taskinfo from './Taskinfo';
 import Axios from 'axios';
 
@@ -10,6 +11,10 @@ export default class Competenceinfo extends Component {
             tasksActive: []
         }
         this.onCheckboxClick = this.onCheckboxClick.bind(this);
+    }
+
+    componentDidMount() {
+        this.getAcceptanceStates();
     }
 
     render() {
@@ -33,8 +38,16 @@ export default class Competenceinfo extends Component {
                 />
             )
         }
+
         return (
-            <div className="card-body">
+            <div className="Competenceinfo">
+                <p>
+                    <Link to={{pathname: "/assessment", hash: "exam-"+this.props.exam.id}} className="btn btn-outline-primary">Powrót do listy egzaminów</Link>
+                </p>
+                <br />
+                <h2>{this.props.exam.schema.shortname}</h2>
+                <h3>{this.props.exam.firstname} {this.props.exam.surname} ({this.props.exam.workplace})</h3>
+                <br />
                 <h3>{this.props.competence.name}</h3>
                 <small>{this.props.competence.description}</small>
                 <p>Przewidywany czas: {Math.floor(usedSeconds/60)} min</p>
@@ -44,7 +57,7 @@ export default class Competenceinfo extends Component {
                             <th>#</th>
                             <th>zadanie</th>
                             <th>czas</th>
-                            <th>czy użyć do oceny?</th>
+                            <th>czy wchodzi w zakres oceny?</th>
                             <th>ocenianie</th>
                         </tr>
                     </thead>
@@ -67,13 +80,12 @@ export default class Competenceinfo extends Component {
             var tasks = this.state.tasksActive;
             tasks[task.id]=(response.data.new_state===1);
             this.setState({tasksActive: tasks})
-        })
-        //this.getAcceptanceStates()
+        });
     }
 
     getAcceptanceStates() {
         Axios.get('/api2/exam/accepted-task/list/'+this.props.exam.id+"/"+this.props.competence.id).then((response)=>{
-            console.log(response.data);
-        })
+            this.setState({tasksActive: response.data});
+        });
     }
 }

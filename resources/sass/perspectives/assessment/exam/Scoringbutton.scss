@@ -1,0 +1,6 @@
+.Scoringbutton {
+    &.is-active {
+        color: $light;
+        background-color: $dark;
+    }
+}

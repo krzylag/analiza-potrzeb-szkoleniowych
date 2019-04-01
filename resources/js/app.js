@@ -85,12 +85,18 @@ export default class App extends Component {
             return ( <PleaseWait /> );
         }
         var perspective = (typeof(this.props.perspective)!=='undefined' && typeof(PERSPECTIVES[this.props.perspective])!=='undefined') ? PERSPECTIVES[this.props.perspective] : PERSPECTIVE_DEFAULT;
+        var params = [
+            (typeof(this.props.param1)!=='undefined') ? this.props.param1 : null,
+            (typeof(this.props.param2)!=='undefined') ? this.props.param2 : null,
+            (typeof(this.props.param3)!=='undefined') ? this.props.param3 : null
+        ];
         var renderPerspective;
         switch (perspective.id) {
             case 'assessment':
                 renderPerspective = (
                     <Assessment
                         dictionary={this.state.dictionary}
+                        params={params}
                     />
                 );
                 break;
@@ -98,6 +104,7 @@ export default class App extends Component {
                 renderPerspective = (
                     <Newexam
                         dictionary={this.state.dictionary}
+                        params={params}
                     />
                 );
                 break;
@@ -105,6 +112,7 @@ export default class App extends Component {
                 renderPerspective = (
                     <Settings
                         dictionary={this.state.dictionary}
+                        params={params}
                     />
                 );
                 break;

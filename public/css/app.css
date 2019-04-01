@@ -10739,8 +10739,36 @@ a.text-dark:focus {
   border: 1px solid black;
 }
 
-.Taskinfo .is-checked {
-  background-color: gray;
+.Taskinfo .custom-checkbox-use-task {
+  display: inline-block;
+  height: 2em;
+  width: 2em;
+  border: 1px solid #343a40;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.Exam .zegar {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.Exam .suma {
+  font-size: 1.4em;
+  font-weight: bold;
+  width: 6em;
+  text-align: center;
+}
+
+.Question .buttons {
+  white-space: nowrap;
+}
+
+.Scoringbutton.is-active {
+  color: #f8f9fa;
+  background-color: #343a40;
 }
 
 

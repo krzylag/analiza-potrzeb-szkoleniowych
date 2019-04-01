@@ -1,6 +1,14 @@
 .Taskinfo {
 
-    .is-checked {
-        background-color: gray;
+    .custom-checkbox-use-task {
+        display: inline-block;
+        height: 2em;
+        width: 2em;
+        border: 1px solid $dark;
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+        cursor: pointer;
+
     }
 }

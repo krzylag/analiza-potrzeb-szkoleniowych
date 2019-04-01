@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import {Link} from 'react-router-dom';
+import tick from '../../images/check.png';
 
 export default class Taskinfo extends Component {
 
@@ -9,6 +11,7 @@ export default class Taskinfo extends Component {
 
     render() {
         var isCheckedClass = (this.props.isChecked===true) ? ' is-checked' : '';
+        var isCheckedStyle = (this.props.isChecked===true) ? {backgroundImage: 'url('+tick+')'} : {};
         return (
             <tr className="Taskinfo">
                 <td>{this.props.task.order_signature}</td>
@@ -17,10 +20,16 @@ export default class Taskinfo extends Component {
                 <td className="text-center align-middle">
                     <div
                         className={"custom-checkbox-use-task"+isCheckedClass}
+                        style={isCheckedStyle}
                         onClick={this.onCheckboxClick}
                     />
                 </td>
-                <td><button type="button" className="btn btn-outline-primary btn-sm">Wejdź</button></td>
+                <td>
+                    <Link
+                        to={"/assessment/"+this.props.exam.id+"/"+this.props.competence.id+"/"+this.props.task.id}
+                        className="btn btn-outline-primary btn-sm"
+                    >Wejdź</Link>
+                </td>
             </tr>
         );
     }

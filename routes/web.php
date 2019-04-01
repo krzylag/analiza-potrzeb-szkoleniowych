@@ -43,6 +43,14 @@ Route::group(['prefix'=>'api2', 'middleware' => 'auth'], function() {
             Route::post('/toggle', 'ApiExamController@toggleAcceptedTask');
         });
 
+        Route::group(['prefix'=>'grading'], function() {
+            Route::get('/get-tasks/{examId}/{competenceId}/{taskId}', 'ApiExamController@listTasksDictionary');
+            Route::get('/get-scores/{examId}/{competenceId}/{taskId}', 'ApiExamController@listQuestionScores');
+            Route::post('/set-score', 'ApiExamController@setQuestionScore');
+            Route::get('/get-comment/{examId}/{competenceId}/{taskId}', 'ApiExamController@getTaskComment');
+            Route::post('/set-comment', 'ApiExamController@setTaskComment');
+        });
+
     });
 
 });
