@@ -184,4 +184,47 @@ class ApiExamController extends Controller {
         }
         return $tc;
     }
+
+    public function listCompetenceScores($examId, $competenceId) {
+        $activities = DB::select('
+            SELECT
+                q.id AS qid,
+                t.id AS tid,
+                c.id AS cid,
+                s.id AS sid,
+                s.score AS score
+            FROM questions AS q
+            LEFT JOIN tasks_questions AS tq ON tq.question_id=q.id
+            LEFT JOIN tasks AS t ON t.id=tq.task_id
+            LEFT JOIN competences_tasks AS ct ON ct.task_id = t.id
+            LEFT JOIN competences AS c ON c.id=ct.competence_id
+            LEFT JOIN exams_competences AS ec ON ec.competence_id=c.id
+            LEFT JOIN scores AS s ON q.id=s.question_id
+            WHERE ec.exam_id = ? AND c.id=?
+        ', array(
+            $examId,
+            $competenceId
+        ));
+        $result = array();
+        foreach ($activities AS $row) {
+            if (!isset($result[$row->cid])) {
+                $result[$row->cid]['cid'] = $row->cid;
+                $result[$row->cid]['tasks'] = array();
+            }
+            if (!isset($result[$row->cid]['tasks'][$row->tid])) {
+                $result[$row->cid]['tasks'][$row->tid]['tid'] = $row->tid;
+                $result[$row->cid]['tasks'][$row->tid]['q_all'] = 0;
+                $result[$row->cid]['tasks'][$row->tid]['q_filled'] = 0;
+                $result[$row->cid]['tasks'][$row->tid]['ans_sum'] = 0;
+            }
+            $result[$row->cid]['tasks'][$row->tid]['q_all']++;
+            if ($row->score!==null) {
+                $result[$row->cid]['tasks'][$row->tid]['q_filled']++;
+                $result[$row->cid]['tasks'][$row->tid]['ans_sum'] += floatVal($row->score);
+            }
+
+        }
+        return $result[$competenceId]['tasks'];
+    }
+
 }

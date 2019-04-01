@@ -44,6 +44,8 @@ Route::group(['prefix'=>'api2', 'middleware' => 'auth'], function() {
         });
 
         Route::group(['prefix'=>'grading'], function() {
+            Route::get('/get-competence-scores/{examId}/{competenceId}', 'ApiExamController@listCompetenceScores');
+
             Route::get('/get-tasks/{examId}/{competenceId}/{taskId}', 'ApiExamController@listTasksDictionary');
             Route::get('/get-scores/{examId}/{competenceId}/{taskId}', 'ApiExamController@listQuestionScores');
             Route::post('/set-score', 'ApiExamController@setQuestionScore');

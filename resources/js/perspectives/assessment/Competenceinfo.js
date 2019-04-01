@@ -8,7 +8,9 @@ export default class Competenceinfo extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            tasksActive: []
+            tasksActive: [],
+            grading: null,
+            tasksStatuses: null
         }
         this.onCheckboxClick = this.onCheckboxClick.bind(this);
     }
@@ -19,20 +21,26 @@ export default class Competenceinfo extends Component {
 
     render() {
         var usedSeconds = 0;
+        var avgScoreSum = 0;
+        var avgScoreCount = 0;
 
         var renderedTasks = [];
         for(var tkey in this.props.competence.tasks) {
             var task = this.props.competence.tasks[tkey];
             var isChecked = (typeof(this.state.tasksActive[task.id])!=='undefined') ? this.state.tasksActive[task.id] : null;
-            if (isChecked) {
+            if (this.state.tasksStatuses!==null && isChecked) {
                 usedSeconds += task.time_available;
+                avgScoreSum += this.state.tasksStatuses[task.id].ans_sum/this.state.tasksStatuses[task.id].q_all;
+                avgScoreCount ++;
             }
+            var status = (this.state.tasksStatuses===null) ? null : this.state.tasksStatuses[task.id];
             renderedTasks.push(
                 <Taskinfo
                     key={task.id}
                     exam={this.props.exam}
                     competence={this.props.competence}
                     task={task}
+                    status={status}
                     isChecked={isChecked}
                     onCheckboxClickCallback={this.onCheckboxClick}
                 />
@@ -50,7 +58,10 @@ export default class Competenceinfo extends Component {
                 <br />
                 <h3>{this.props.competence.name}</h3>
                 <small>{this.props.competence.description}</small>
-                <p>Przewidywany czas: {Math.floor(usedSeconds/60)} min</p>
+                <div className="estimates d-flex flex-row justify-content-around font-weight-bold">
+                    <p>Przewidywany czas: {Math.floor(usedSeconds/60)} min</p>
+                    <p>Przewidywany wynik: {Math.floor(10000*avgScoreSum/avgScoreCount)/100} %</p>
+                </div>
                 <table className="table table-sm">
                     <thead>
                         <tr>
@@ -59,6 +70,7 @@ export default class Competenceinfo extends Component {
                             <th>czas</th>
                             <th>czy wchodzi w zakres oceny?</th>
                             <th>ocenianie</th>
+                            <th>status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -76,7 +88,6 @@ export default class Competenceinfo extends Component {
             taskId: task.id
         }
         Axios.post('/api2/exam/accepted-task/toggle', payload).then((response)=>{
-            console.log(response.data);
             var tasks = this.state.tasksActive;
             tasks[task.id]=(response.data.new_state===1);
             this.setState({tasksActive: tasks})
@@ -86,6 +97,9 @@ export default class Competenceinfo extends Component {
     getAcceptanceStates() {
         Axios.get('/api2/exam/accepted-task/list/'+this.props.exam.id+"/"+this.props.competence.id).then((response)=>{
             this.setState({tasksActive: response.data});
+        });
+        Axios.get('/api2/exam/grading/get-competence-scores/'+this.props.exam.id+"/"+this.props.competence.id).then((response)=>{
+            this.setState({tasksStatuses: response.data});
         });
     }
 }

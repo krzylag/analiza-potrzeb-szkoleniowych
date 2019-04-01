@@ -10750,6 +10750,11 @@ a.text-dark:focus {
   cursor: pointer;
 }
 
+.Taskinfo .lineheight11 {
+  font-size: 0.9em;
+  line-height: 1.2em;
+}
+
 .Exam .zegar {
   font-size: 2em;
   font-weight: bold;

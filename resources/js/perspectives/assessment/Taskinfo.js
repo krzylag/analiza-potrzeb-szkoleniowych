@@ -36,6 +36,17 @@ export default class Taskinfo extends Component {
                         className="btn btn-outline-primary btn-sm"
                     >Wejdź</Link>
                 </td>
+                <td>
+                    {this.props.status===null &&
+                            <PleaseWait />
+                    }
+                    {this.props.status!==null && this.props.status.q_filled>0 &&
+                        <div className="lineheight11">
+                            Ocenione {this.props.status.q_filled} / {this.props.status.q_all}, <br />
+                            wynik: {Math.round(1000*this.props.status.ans_sum/this.props.status.q_filled)/10}%
+                        </div>
+                    }
+                </td>
             </tr>
         );
     }
