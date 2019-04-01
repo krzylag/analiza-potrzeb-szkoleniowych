@@ -23,7 +23,7 @@ export default class Competenceinfo extends Component {
         var renderedTasks = [];
         for(var tkey in this.props.competence.tasks) {
             var task = this.props.competence.tasks[tkey];
-            var isChecked = (typeof(this.state.tasksActive[task.id])!=='undefined') ? this.state.tasksActive[task.id] : false;
+            var isChecked = (typeof(this.state.tasksActive[task.id])!=='undefined') ? this.state.tasksActive[task.id] : null;
             if (isChecked) {
                 usedSeconds += task.time_available;
             }

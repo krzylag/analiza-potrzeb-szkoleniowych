@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {Link} from 'react-router-dom';
+import PleaseWait from '../../components/PleaseWait';
 import tick from '../../images/check.png';
 
 export default class Taskinfo extends Component {
@@ -18,11 +19,16 @@ export default class Taskinfo extends Component {
                 <td>{this.props.task.name}</td>
                 <td>{Math.floor(this.props.task.time_available/60)} min</td>
                 <td className="text-center align-middle">
-                    <div
-                        className={"custom-checkbox-use-task"+isCheckedClass}
-                        style={isCheckedStyle}
-                        onClick={this.onCheckboxClick}
-                    />
+                    {this.props.isChecked!==null &&
+                        <div
+                            className={"custom-checkbox-use-task"+isCheckedClass}
+                            style={isCheckedStyle}
+                            onClick={this.onCheckboxClick}
+                        />
+                    }
+                    {this.props.isChecked===null &&
+                        <PleaseWait />
+                    }
                 </td>
                 <td>
                     <Link

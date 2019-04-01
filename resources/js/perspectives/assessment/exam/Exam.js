@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Axios from 'axios';
 import Question from './Question';
 import Taskcomment from './Taskcomment';
+import PleaseWait from '../../../components/PleaseWait';
 
 export default class Exam extends Component {
 
@@ -73,22 +74,27 @@ export default class Exam extends Component {
                     </p>
                 </div>
                 <div className="card-body sticky-top bg-light border-top border-bottom">
-                    <div className="d-flex flex-row justify-content-between align-items-center">
-                        {this.state.timeStart===null &&
-                            <button type="button" className="btn btn-outline-primary" onClick={this.onStartZegaraClicked}>
-                                START ZEGARA
-                            </button>
-                        }
-                        {this.state.timeStart!==null &&
-                            <div className="zegar">
-                                {this.state.timeString}
+                    {this.state.scores !== null &&
+                        <div className="d-flex flex-row justify-content-between align-items-center">
+                            {this.state.timeStart===null &&
+                                <button type="button" className="btn btn-outline-primary" onClick={this.onStartZegaraClicked}>
+                                    START ZEGARA
+                                </button>
+                            }
+                            {this.state.timeStart!==null &&
+                                <div className="zegar">
+                                    {this.state.timeString}
+                                </div>
+                            }
+                            <div className="suma">
+                                {pointsSum} / {this.props.task.computed_summary.points_max}
+                                <br /><small>( {Math.round(10000*pointsSum/this.props.task.computed_summary.points_max)/100} % )</small>
                             </div>
-                        }
-                        <div className="suma">
-                            {pointsSum} / {this.props.task.computed_summary.points_max}
-                            <br /><small>( {Math.round(10000*pointsSum/this.props.task.computed_summary.points_max)/100} % )</small>
                         </div>
-                    </div>
+                    }
+                    {this.state.scores === null &&
+                        <PleaseWait />
+                    }
                 </div>
                 <div className="card-body">
                     <table className="table">
