@@ -19,6 +19,17 @@ export default class Examinfo extends Component {
             var competence = this.props.exam.competences[ckey];
             var allowedUsers = JSON.parse(competence.pivot.allowed_users);
             var canScore = (allowedUsers.indexOf(this.props.dictionary.user.id) >= 0);
+
+            var renderedStatsByUser = [];
+            for (var uid in this.props.statistics[competence.id]) {
+                var examiner = this.props.dictionary.examiners[uid];
+                var allTasks = this.props.statistics[competence.id][uid].all_count;
+                var usedTasks = this.props.statistics[competence.id][uid].accepted_count;
+                var avgScore = (usedTasks>0) ? this.props.statistics[competence.id][uid].accepted_sum/usedTasks : 0;
+                renderedStatsByUser.push(
+                    <div key={uid}>{examiner.firstname} {examiner.lastname}: <strong>{Math.ceil(avgScore*10000)/100} %</strong> ({usedTasks} / {allTasks})</div>
+                )
+            }
             if (canScore) {
                 renderedCompetences.push(
                     <div key={competence.id} className="row pl-4" >
@@ -27,6 +38,9 @@ export default class Examinfo extends Component {
                         </div>
                         <div className="col-sm p-1">
                             <Link to={"/assessment/"+this.props.exam.id+"/"+competence.id} className="btn btn-sm btn-outline-primary">Oceniaj</Link>
+                        </div>
+                        <div className="col-sm p-1">
+                            {renderedStatsByUser}
                         </div>
                     </div>
                 );

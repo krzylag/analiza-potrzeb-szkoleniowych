@@ -59,8 +59,69 @@ class ApiExamController extends Controller {
 
     function listUnfinishedForMember($forUid) {
         $user = User::find($forUid);
-        $exams = $user->exams()->where('results', '=', null)->wherePivot('role', '=', 'member')->with('schema')->with('competences')->get();
-        return $exams;
+        $rawStatistics=DB::select("
+            SELECT
+                e.id AS eid,
+                c.id AS cid,
+                t.id AS tid,
+                ue.user_id AS uid,
+                t.computed_summary AS t_summary,
+                COUNT(q.id) AS questions_count,
+                COUNT(sco.score) AS scores_count,
+                SUM(sco.score) AS scores_sum,
+                et.id AS et_id,
+                et.is_accepted AS t_accepted
+            FROM exams AS e
+                LEFT JOIN users_exams AS ue ON ue.exam_id=e.id
+                LEFT JOIN `schemas` AS s ON s.id=e.schema_id
+                LEFT JOIN schemas_competences AS sc ON sc.schema_id=s.id
+                LEFT JOIN competences AS c ON c.id=sc.competence_id
+                LEFT JOIN competences_tasks AS ct ON ct.competence_id=c.id
+                LEFT JOIN tasks AS t ON t.id=ct.task_id
+                LEFT JOIN tasks_questions AS tq ON tq.task_id=t.id
+                LEFT JOIN questions AS q ON q.id=tq.question_id
+                LEFT JOIN scores AS sco ON sco.exam_id=e.id AND sco.question_id=q.id
+                LEFT JOIN exams_tasks AS et ON et.exam_id=e.id AND et.task_id=t.id AND et.user_id=ue.user_id
+            WHERE e.results IS NULL
+                AND ue.user_id=?
+                AND ue.role='member'
+            GROUP BY e.id, c.id, t.id, ue.user_id, t.computed_summary, et.is_accepted, et.id
+        ", array(
+            $user->id
+        ));
+        $stat = array();
+        foreach($rawStatistics AS $row) {
+            if(!isset($stat[$row->eid])) {
+                $stat[$row->eid]=array();
+            }
+            if(!isset($stat[$row->eid][$row->cid])) {
+                $stat[$row->eid][$row->cid]=array();
+            }
+            if(!isset($stat[$row->eid][$row->cid][$row->uid])) {
+                $stat[$row->eid][$row->cid][$row->uid]=array();
+                $stat[$row->eid][$row->cid][$row->uid]['all_count']=0;
+                $stat[$row->eid][$row->cid][$row->uid]['accepted_count']=0;
+                $stat[$row->eid][$row->cid][$row->uid]['accepted_sum']=0;
+                $stat[$row->eid][$row->cid][$row->uid]['tasks']=array();
+            }
+            $summ=json_decode($row->t_summary);
+            $row->points_max=$summ->points_max;
+            $row->points_min=$summ->points_min;
+            $row->points_threshold=$summ->points_threshold;
+            unset($row->t_summary);
+            $row->scores_sum=floatval($row->scores_sum);
+            $row->t_accepted=(bool) $row->t_accepted;
+            $stat[$row->eid][$row->cid][$row->uid]['all_count']++;
+            if ($row->t_accepted) {
+                $stat[$row->eid][$row->cid][$row->uid]['accepted_count']++;
+                $stat[$row->eid][$row->cid][$row->uid]['accepted_sum'] += ($row->scores_sum-$row->points_min)/($row->points_max-$row->points_min);
+            }
+            $stat[$row->eid][$row->cid][$row->uid]['tasks'][$row->tid]=$row;
+        }
+        return array(
+            'exams'         => $user->exams()->where('results', '=', null)->wherePivot('role', '=', 'member')->with('schema')->with('competences')->get(),
+            'statistics'    => $stat
+        );
     }
 
     // Zwraca bieżącą listę zadań używanych/nieużywanych do końcowej oceny,

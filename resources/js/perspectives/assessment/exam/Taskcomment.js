@@ -6,6 +6,10 @@ import PleaseWait from '../../../components/PleaseWait';
 
 const COMMENT_SEND_DELAY = 1500;
 
+export const CKEDITOR_CONFIGURATION = {
+    toolbar: [ 'bold', 'italic', 'bulletedList', 'numberedList' ]
+}
+
 export default class Taskcomment extends Component {
 
     constructor(props) {
@@ -25,15 +29,16 @@ export default class Taskcomment extends Component {
     render() {
         return (
             <div className="Taskcomment">
+                {this.state.isSaving &&
+                    <PleaseWait size="2em" styles={{"position": "absolute", "right":"1em"}} />
+                }
                 {this.state.comment!==null &&
                     <CKEditor
                         editor={ ClassicEditor }
+                        config={CKEDITOR_CONFIGURATION}
                         data={this.state.comment}
                         onChange={this.pushChangedComment}
                     />
-                }
-                {this.state.isSaving &&
-                    <PleaseWait />
                 }
             </div>
         );

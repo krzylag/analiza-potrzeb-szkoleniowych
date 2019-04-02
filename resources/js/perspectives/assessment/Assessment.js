@@ -10,15 +10,16 @@ export default class Assessment extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            memberExams: null
+            memberExams: null,
+            examStatistics: null
         }
     }
 
     componentDidMount() {
         Axios.get("/api2/exam/list-unfinished-for-member/"+this.props.dictionary.user.id).then((response) => {
             var memberExams = {};
-            for(var ekey in response.data) {
-                var exam = response.data[ekey];
+            for(var ekey in response.data.exams) {
+                var exam = response.data.exams[ekey];
                 for (var ckey in exam.competences) {
                     exam.competences[ckey].tasks.sort(function(a,b) {
                         return a.order_signature > b.order_signature;
@@ -26,12 +27,13 @@ export default class Assessment extends Component {
                 }
                 memberExams[exam.id] = exam;
             }
-            this.setState({memberExams});
+            var examStatistics = response.data.statistics;
+            this.setState({memberExams, examStatistics});
         });
     }
 
     render() {
-        if (this.state.memberExams===null) {
+        if (this.state.memberExams===null || this.state.examStatistics===null) {
             return ( <PleaseWait /> );
         }
 
@@ -92,11 +94,13 @@ export default class Assessment extends Component {
         var renderedExamsList = [];
         for (var key in this.state.memberExams) {
             var exam = this.state.memberExams[key];
+            var statistics = this.state.examStatistics[key];
             renderedExamsList.push(
                 <Examinfo
                     key={exam.id}
                     dictionary={this.props.dictionary}
                     exam={exam}
+                    statistics={statistics}
                 />
             )
         }

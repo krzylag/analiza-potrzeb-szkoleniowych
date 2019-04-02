@@ -58,9 +58,9 @@ export default class Competenceinfo extends Component {
                 <br />
                 <h3>{this.props.competence.name}</h3>
                 <small>{this.props.competence.description}</small>
-                <div className="estimates d-flex flex-row justify-content-around font-weight-bold">
-                    <p>Przewidywany czas: {Math.floor(usedSeconds/60)} min</p>
-                    <p>Przewidywany wynik: {Math.floor(10000*avgScoreSum/avgScoreCount)/100} %</p>
+                <div className="estimates d-flex flex-row justify-content-around text-primary mt-4 mb-4">
+                    <h5>Przewidywany czas: <strong>{Math.floor(usedSeconds/60)} min</strong></h5>
+                    <h5>Przewidywany wynik: <strong>{Math.floor(10000*avgScoreSum/avgScoreCount)/100} %</strong></h5>
                 </div>
                 <table className="table table-sm">
                     <thead>
