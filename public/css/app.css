@@ -10776,5 +10776,10 @@ a.text-dark:focus {
   background-color: #343a40;
 }
 
+.Examslist .button-image {
+  height: 2em;
+  width: auto;
+}
+
 
 /*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiIvY3NzL2FwcC5jc3MiLCJzb3VyY2VSb290IjoiIn0=*/

@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use PhpOffice\PhpSpreadsheet\Writer\Exception;
 
 class Exam extends Model {
 
@@ -15,6 +16,20 @@ class Exam extends Model {
     public function users() {
         return $this->belongsToMany('App\User', 'users_exams', 'exam_id', 'user_id')->withPivot('role');
     }
+
+    // MUTATORS
+
+    public function getResultsAttribute($value) {
+        $result = new \stdClass();
+        try {
+            $result = json_decode($value, $assoc=true);
+        } catch (\Exception $e) {
+
+        }
+        return $result;
+    }
+
+    // RELATIONSHIPS
 
     public function competences() {
         return $this->belongsToMany('App\Competence', 'exams_competences', 'exam_id', 'competence_id')->withPivot(['result', 'allowed_users']);

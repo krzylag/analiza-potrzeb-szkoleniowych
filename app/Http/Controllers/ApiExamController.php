@@ -288,4 +288,42 @@ class ApiExamController extends Controller {
         return $result[$competenceId]['tasks'];
     }
 
+
+    public function finalizeExam(Request $request) {
+        $payload = $request->all();
+        $user = \Auth::user();
+        $exam = Exam::find($payload['examId']);
+        if ($exam->created_by==$user->id) {
+            $examStats = $this->listUnfinishedForMember($user->id);
+            $result = array();
+            foreach(array_keys($examStats['statistics'][$exam->id]) AS $competId) {
+                if (!isset($result[$competId])) {
+                    $result[$competId]['competence_id']=intval($competId);
+                    $result[$competId]['count']=0;
+                    $result[$competId]['sum']=0;
+                    $result[$competId]['avg']=0;
+                }
+                foreach($examStats['statistics'][$payload['examId']][$competId] AS $byUser) {
+                    $result[$competId]['count'] += $byUser['accepted_count'];
+                    $result[$competId]['sum'] += $byUser['accepted_sum'];
+                    $result[$competId]['avg'] = ($result[$competId]['count']>0) ? $result[$competId]['sum']/$result[$competId]['count'] : 0;
+                }
+            }
+            $exam->results = json_encode($result);
+            $exam->save();
+        }
+        return $exam;
+    }
+
+    public function revertFinalizedExam(Request $request) {
+        $payload = $request->all();
+        $user = \Auth::user();
+        $exam = Exam::find($payload['examId']);
+
+        if ($exam->created_by==$user->id) {
+            $exam->results = null;
+            $exam->save();
+        }
+        return $exam;
+    }
 }

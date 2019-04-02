@@ -60,7 +60,7 @@ export default class Competenceinfo extends Component {
                 <small>{this.props.competence.description}</small>
                 <div className="estimates d-flex flex-row justify-content-around text-primary mt-4 mb-4">
                     <h5>Przewidywany czas: <strong>{Math.floor(usedSeconds/60)} min</strong></h5>
-                    <h5>Przewidywany wynik: <strong>{Math.floor(10000*avgScoreSum/avgScoreCount)/100} %</strong></h5>
+                    <h5>Przewidywany wynik: <strong>{Math.ceil(10000*avgScoreSum/avgScoreCount)/100} %</strong></h5>
                 </div>
                 <table className="table table-sm">
                     <thead>

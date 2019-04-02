@@ -13,6 +13,7 @@ export default class Assessment extends Component {
             memberExams: null,
             examStatistics: null
         }
+        this.onExamFinalized=this.onExamFinalized.bind(this);
     }
 
     componentDidMount() {
@@ -101,6 +102,7 @@ export default class Assessment extends Component {
                     dictionary={this.props.dictionary}
                     exam={exam}
                     statistics={statistics}
+                    onExamFinalizedCallback={this.onExamFinalized}
                 />
             )
         }
@@ -111,4 +113,9 @@ export default class Assessment extends Component {
         );
     }
 
+    onExamFinalized(exam) {
+        var memberExams = this.state.memberExams;
+        delete(memberExams[exam.id]);
+        this.setState({memberExams});
+    }
 }

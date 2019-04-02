@@ -26,6 +26,7 @@ import Settings from './perspectives/settings/Settings';
 import Newexam from './perspectives/newexam/Newexam';
 import Assessment from './perspectives/assessment/Assessment';
 import PleaseWait from './components/PleaseWait';
+import Archive from './perspectives/archive/Archive';
 
 export const PERSPECTIVE_DEFAULT = new Perspective('assessment', "Moje Egzaminy", 'usage', ['is_admin', 'can_lead', 'can_examine']);
 
@@ -103,6 +104,14 @@ export default class App extends Component {
             case 'newexam':
                 renderPerspective = (
                     <Newexam
+                        dictionary={this.state.dictionary}
+                        params={params}
+                    />
+                );
+                break;
+            case 'archive':
+                renderPerspective = (
+                    <Archive
                         dictionary={this.state.dictionary}
                         params={params}
                     />

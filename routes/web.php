@@ -38,6 +38,9 @@ Route::group(['prefix'=>'api2', 'middleware' => 'auth'], function() {
         Route::get('/list-unfinished-for-member/{id}', 'ApiExamController@listUnfinishedForMember');
         Route::post('/new', 'ApiExamController@createNew');
 
+        Route::post('/finalize', 'ApiExamController@finalizeExam');
+        Route::post('/revert', 'ApiExamController@revertFinalizedExam');
+
         Route::group(['prefix'=>'accepted-task'], function() {
             Route::get('/list/{examId}/{competenceId}', 'ApiExamController@listAcceptedTasks');
             Route::post('/toggle', 'ApiExamController@toggleAcceptedTask');
@@ -53,6 +56,13 @@ Route::group(['prefix'=>'api2', 'middleware' => 'auth'], function() {
             Route::post('/set-comment', 'ApiExamController@setTaskComment');
         });
 
+    });
+
+    Route::group(['prefix'=>'archive'], function() {
+        Route::get('/list', 'ApiArchiveController@listExams');
+        // Route::get('/report/short/{examId}', 'ApiArchiveController@createShortReportHtml');
+        // Route::get('/report/full/{examId}', 'ApiArchiveController@createFullReportHtml');
+        Route::get('/pdf/{type}/{examId}', 'ApiArchiveController@htmlToPdf');
     });
 
 });
