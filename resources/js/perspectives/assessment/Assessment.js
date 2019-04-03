@@ -50,6 +50,14 @@ export default class Assessment extends Component {
                     break;
                 }
             }
+            competence.tasks.sort(function(a,b) {
+                if (isNaN(a.order_signature)) return -1;
+                if (isNaN(b.order_signature)) return 1;
+                if (a.order_signature===b.order_signature)
+                    return a.hash > b.hash;
+                else
+                    return parseInt(a.order_signature) > parseInt(b.order_signature);
+            });
             var allowedUsers = JSON.parse(competence.pivot.allowed_users);
             var canScore = (allowedUsers.indexOf(this.props.dictionary.user.id) >= 0);
             return (

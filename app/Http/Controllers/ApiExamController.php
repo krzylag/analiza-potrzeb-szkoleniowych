@@ -65,6 +65,7 @@ class ApiExamController extends Controller {
                 c.id AS cid,
                 t.id AS tid,
                 ue.user_id AS uid,
+                sco.user_id AS sco_uid,
                 t.computed_summary AS t_summary,
                 COUNT(q.id) AS questions_count,
                 COUNT(sco.score) AS scores_count,
@@ -81,28 +82,29 @@ class ApiExamController extends Controller {
                 LEFT JOIN tasks_questions AS tq ON tq.task_id=t.id
                 LEFT JOIN questions AS q ON q.id=tq.question_id
                 LEFT JOIN scores AS sco ON sco.exam_id=e.id AND sco.question_id=q.id
-                LEFT JOIN exams_tasks AS et ON et.exam_id=e.id AND et.task_id=t.id AND et.user_id=ue.user_id
+                LEFT JOIN exams_tasks AS et ON et.exam_id=e.id AND et.task_id=t.id
             WHERE e.results IS NULL
                 AND ue.user_id=?
                 AND ue.role='member'
-            GROUP BY e.id, c.id, t.id, ue.user_id, t.computed_summary, et.is_accepted, et.id
+            GROUP BY e.id, c.id, t.id, ue.user_id, t.computed_summary, et.is_accepted, et.id, sco.user_id
         ", array(
             $user->id
         ));
         $stat = array();
         foreach($rawStatistics AS $row) {
+            $scoUID = ($row->sco_uid===null) ? 0 : intval($row->sco_uid);
             if(!isset($stat[$row->eid])) {
                 $stat[$row->eid]=array();
             }
             if(!isset($stat[$row->eid][$row->cid])) {
                 $stat[$row->eid][$row->cid]=array();
             }
-            if(!isset($stat[$row->eid][$row->cid][$row->uid])) {
-                $stat[$row->eid][$row->cid][$row->uid]=array();
-                $stat[$row->eid][$row->cid][$row->uid]['all_count']=0;
-                $stat[$row->eid][$row->cid][$row->uid]['accepted_count']=0;
-                $stat[$row->eid][$row->cid][$row->uid]['accepted_sum']=0;
-                $stat[$row->eid][$row->cid][$row->uid]['tasks']=array();
+            if(!isset($stat[$row->eid][$row->cid][$scoUID])) {
+                $stat[$row->eid][$row->cid][$scoUID]=array();
+                $stat[$row->eid][$row->cid][$scoUID]['all_count']=0;
+                $stat[$row->eid][$row->cid][$scoUID]['accepted_count']=0;
+                $stat[$row->eid][$row->cid][$scoUID]['accepted_sum']=0;
+                $stat[$row->eid][$row->cid][$scoUID]['tasks']=array();
             }
             $summ=json_decode($row->t_summary);
             $row->points_max=$summ->points_max;
@@ -111,12 +113,12 @@ class ApiExamController extends Controller {
             unset($row->t_summary);
             $row->scores_sum=floatval($row->scores_sum);
             $row->t_accepted=(bool) $row->t_accepted;
-            $stat[$row->eid][$row->cid][$row->uid]['all_count']++;
+            $stat[$row->eid][$row->cid][$scoUID]['all_count']++;
             if ($row->t_accepted) {
-                $stat[$row->eid][$row->cid][$row->uid]['accepted_count']++;
-                $stat[$row->eid][$row->cid][$row->uid]['accepted_sum'] += ($row->scores_sum-$row->points_min)/($row->points_max-$row->points_min);
+                $stat[$row->eid][$row->cid][$scoUID]['accepted_count']++;
+                $stat[$row->eid][$row->cid][$scoUID]['accepted_sum'] += ($row->scores_sum-$row->points_min)/($row->points_max-$row->points_min);
             }
-            $stat[$row->eid][$row->cid][$row->uid]['tasks'][$row->tid]=$row;
+            $stat[$row->eid][$row->cid][$scoUID]['tasks'][$row->tid]=$row;
         }
         return array(
             'exams'         => $user->exams()->where('results', '=', null)->wherePivot('role', '=', 'member')->with('schema')->with('competences')->get(),
@@ -260,11 +262,12 @@ class ApiExamController extends Controller {
             LEFT JOIN competences_tasks AS ct ON ct.task_id = t.id
             LEFT JOIN competences AS c ON c.id=ct.competence_id
             LEFT JOIN exams_competences AS ec ON ec.competence_id=c.id
-            LEFT JOIN scores AS s ON q.id=s.question_id
+            LEFT JOIN scores AS s ON q.id=s.question_id AND (s.exam_id = ec.exam_id OR s.exam_id IS NULL)
             WHERE ec.exam_id = ? AND c.id=?
         ', array(
             $examId,
-            $competenceId
+            $competenceId,
+            $examId
         ));
         $result = array();
         foreach ($activities AS $row) {

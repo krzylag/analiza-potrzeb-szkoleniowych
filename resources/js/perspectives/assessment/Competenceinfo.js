@@ -96,6 +96,7 @@ export default class Competenceinfo extends Component {
 
     getAcceptanceStates() {
         Axios.get('/api2/exam/accepted-task/list/'+this.props.exam.id+"/"+this.props.competence.id).then((response)=>{
+            //console.log(response.data);
             this.setState({tasksActive: response.data});
         });
         Axios.get('/api2/exam/grading/get-competence-scores/'+this.props.exam.id+"/"+this.props.competence.id).then((response)=>{
