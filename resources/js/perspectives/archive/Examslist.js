@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import moment from 'moment';
 import Axios from 'axios';
 
@@ -12,7 +13,7 @@ export default class Examslist extends Component {
     constructor(props) {
         super(props);
         this.onRevertClicked = this.onRevertClicked.bind(this);
-        this.onPdfClicked = this.onPdfClicked.bind(this);
+       // this.onPdfClicked = this.onPdfClicked.bind(this);
         this.onViewClicked = this.onViewClicked.bind(this);
     }
 
@@ -79,15 +80,18 @@ export default class Examslist extends Component {
         var canEditComment = (this.props.dictionary.user.id===exam.created_by || this.props.dictionary.user.capabilities.is_admin);
         var finishedDaysAgo = (moment.duration((new moment()).diff((new moment(exam.updated_at))))).get("days");
         var canRevertCompletion = ((this.props.dictionary.user.id===exam.created_by && finishedDaysAgo===0) || this.props.dictionary.user.capabilities.is_admin);
+// <button type="button" className="btn"><img className="button-image" src={pdf} onClick={(ev) => (this.onPdfClicked(ev, exam.id))} /></button>
+// <button type="button" className="btn"><img className="button-image" src={pdf} onClick={(ev) => (this.onPdfClicked(ev, exam.id))} /></button>
+
         return (
             <div>
                 {canEditComment &&
-                    <button type="button" className="btn " alt="Edytuj komentarz">
+                    <Link className="btn " alt="Edytuj komentarz" to={"/assessment/comment/edit/"+exam.id}>
                         <img className="button-image" src={edit} />
-                    </button>
+                    </Link>
                 }
-                <button type="button" className="btn"><img className="button-image" src={pdf} onClick={(ev) => (this.onPdfClicked(ev, exam.id))} /></button>
-                <button type="button" className="btn"><img className="button-image" src={view} onClick={(ev) => (this.onViewClicked(ev, exam.id))} /></button>
+                <a className="btn" href={"/api2/archive/preview/full/"+exam.id} target="_blank"><img className="button-image" src={view} /></a>
+                <a className="btn" href={"/api2/archive/pdf/short/"+exam.id} target="_blank"><img className="button-image" src={pdf} /></a>
                 {canRevertCompletion &&
                     <button type="button" className="btn btn-danger" onClick={(ev) => (this.onRevertClicked(ev, exam.id))}>
                         <img className="button-image" src={revert} />
@@ -95,12 +99,6 @@ export default class Examslist extends Component {
                 }
             </div>
         )
-    }
-
-    onPdfClicked(ev, eid) {
-        Axios.get('/api2/archive/pdf/short/'+eid).then((response)=>{
-            console.log(response.data);
-        });
     }
 
     onViewClicked(ev, eid) {

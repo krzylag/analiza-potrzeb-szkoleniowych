@@ -326,4 +326,21 @@ class ApiExamController extends Controller {
         }
         return $exam;
     }
+
+    public function setExamComment(Request $request) {
+        $payload = $request->all();
+        $user = \Auth::user();
+        $exam = Exam::find($payload['examId']);
+
+        if ($exam!==null && ($user->capabilities->is_admin || ($user->capabilities->can_lead && $exam->created_by===$user->id))) {
+            $exam->comment = $payload['comment'];
+            $exam->save();
+        }
+        return $exam;
+    }
+
+    public function getExam($examId) {
+        // $user = \Auth::user();
+        return Exam::with('schema')->with('taskcomments')->find($examId);
+    }
 }

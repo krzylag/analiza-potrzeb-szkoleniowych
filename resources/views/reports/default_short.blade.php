@@ -45,4 +45,7 @@
         </tbody>
     </table>
 </div>
+<div>
+    {!! $exam_comment !!}
+</div>
 @endsection

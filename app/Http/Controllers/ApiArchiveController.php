@@ -37,6 +37,7 @@ class ApiArchiveController extends Controller
         return array(
             "exam_city" => $exam->city,
             "exam_date" => (new \DateTime($exam->created_at))->format("Y-m-d"),
+            "exam_comment" => $exam->comment,
             "exam_header_text" => $exam->schema->fullname,
             "examinee_name" => $exam->surname." ".$exam->firstname,
             "examinee_workplace" => $exam->workplace,
@@ -45,7 +46,34 @@ class ApiArchiveController extends Controller
     }
 
     public function htmlToPdf($type, $examId) {
-        $pdf = PDF::loadView('reports.default_short', $this->getReportData($examId));
-        return $pdf->stream('raport.pdf');
+        $exam = Exam::find($examId);
+        $user = \Auth::user();
+        if (!$user->capabilities->can_search) {
+            return "Nie masz uprawnień dostępu do archiwum.";
+        } else if (!empty($exam)) {
+            $pdf = PDF::loadView('reports.default_short', $this->getReportData($examId));
+            $date = (\DateTime::createFromFormat("Y-m-d H:i:s", $exam->created_at))->format('Y-m-d');
+            $fname =  preg_replace("/[^a-zA-Z0-9ĄĆĘÓŚŹŻąćęóśźż_\.\-]/", "", $exam->surname."_".$exam->firstname."_".$date.".pdf");
+            return $pdf->download($fname);
+        } else {
+            return "Nie ma takiego egzaminu";
+        }
+
+    }
+
+    public function htmlToHtml($type, $examId) {
+        $exam = Exam::find($examId);
+        $user = \Auth::user();
+        if (!$user->capabilities->can_search) {
+            return "Nie masz uprawnień dostępu do archiwum.";
+        } else if (!empty($exam)) {
+            // $pdf = PDF::loadView('reports.default_short', $this->getReportData($examId));
+            // $date = (\DateTime::createFromFormat("Y-m-d H:i:s", $exam->created_at))->format('Y-m-d');
+            // $fname =  preg_replace("/[^a-zA-Z0-9ĄĆĘÓŚŹŻąćęóśźż_\.\-]/", "", $exam->surname."_".$exam->firstname."_".$date.".pdf");
+            // return $pdf->download($fname);
+        } else {
+            return "Nie ma takiego egzaminu";
+        }
+
     }
 }

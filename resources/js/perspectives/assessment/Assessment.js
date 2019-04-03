@@ -4,6 +4,7 @@ import PleaseWait from '../../components/PleaseWait';
 import Examinfo from './Examinfo';
 import Competenceinfo from './Competenceinfo';
 import Exam from './exam/Exam';
+import Examcomment from './examcomment/Examcomment';
 
 export default class Assessment extends Component {
 
@@ -89,6 +90,17 @@ export default class Assessment extends Component {
                     canScore={canScore}
                 />
             );
+        }
+
+        // Jeśli statycznie wskazano .../comment/edit/{examId}, - pokaż ekran edycji komentarza
+        if (this.props.params[0]!==null && this.props.params[1]!==null && this.props.params[2]!==null
+            && this.props.params[0]==='comment' && this.props.params[1]==='edit' && !isNaN(this.props.params[2])) {
+                return (
+                    <Examcomment
+                        examId={parseInt(this.props.params[2])}
+                        dictionary={this.props.dictionary}
+                    />
+                );
         }
 
         // W innych przypadkach, pokaż listę egzaminów.

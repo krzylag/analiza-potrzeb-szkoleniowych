@@ -4,7 +4,7 @@ import CKEditor from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import PleaseWait from '../../../components/PleaseWait';
 
-const COMMENT_SEND_DELAY = 1500;
+export const COMMENT_SEND_DELAY = 1500;
 
 export const CKEDITOR_CONFIGURATION = {
     toolbar: [ 'bold', 'italic', 'bulletedList', 'numberedList' ]

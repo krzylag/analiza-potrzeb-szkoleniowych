@@ -43,6 +43,9 @@ Route::group(['prefix'=>'api2', 'middleware' => 'auth'], function() {
         Route::post('/finalize', 'ApiExamController@finalizeExam');
         Route::post('/revert', 'ApiExamController@revertFinalizedExam');
 
+        Route::get('/get/{examId}', 'ApiExamController@getExam');
+        Route::post('/set-comment', 'ApiExamController@setExamComment');
+
         Route::group(['prefix'=>'accepted-task'], function() {
             Route::get('/list/{examId}/{competenceId}', 'ApiExamController@listAcceptedTasks');
             Route::post('/toggle', 'ApiExamController@toggleAcceptedTask');
@@ -65,6 +68,7 @@ Route::group(['prefix'=>'api2', 'middleware' => 'auth'], function() {
         // Route::get('/report/short/{examId}', 'ApiArchiveController@createShortReportHtml');
         // Route::get('/report/full/{examId}', 'ApiArchiveController@createFullReportHtml');
         Route::get('/pdf/{type}/{examId}', 'ApiArchiveController@htmlToPdf');
+        Route::get('/preview/{type}/{examId}', 'ApiArchiveController@htmlToHtml');
     });
 
 });
