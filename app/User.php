@@ -3,7 +3,7 @@
 namespace App;
 
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+//use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -37,7 +37,7 @@ class User extends Authenticatable {
         $existing = json_decode($value, $assoc=true);
         $isAdmin = (isset($existing['is_admin']) && $existing['is_admin']===true);
         foreach (array_keys(CAPABILITIES_DEFAULT) AS $cap) {
-            $hasCurrentCapability = (isset($existing->{$cap}) && $existing->{$cap}===true);
+            $hasCurrentCapability = (isset($existing[$cap]) && $existing[$cap]===true);
             $result->{$cap} = ($isAdmin || $hasCurrentCapability);
         }
         return $result;

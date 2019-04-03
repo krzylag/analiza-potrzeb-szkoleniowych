@@ -11,7 +11,7 @@ class ApiDictionaryController extends Controller {
     function get() {
         return array(
             "schemas"   => Schema::with('competences')->get(),
-            "examiners" => (User::all())->filter(function($user) { return $user->capabilities->can_examine; })
+            "examiners" => User::all()
         );
     }
 

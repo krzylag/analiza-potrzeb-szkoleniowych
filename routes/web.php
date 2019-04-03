@@ -19,6 +19,8 @@ Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
 Route::group(['prefix'=>'api2', 'middleware' => 'auth'], function() {
 
     Route::get('/user', 'ApiUserController@getCurrentUser');
+    Route::post('/user/add', 'ApiUserController@addUser');
+    Route::post('/user/delete', 'ApiUserController@deleteUser');
 
     Route::group(['prefix'=>'schema'], function() {
 
