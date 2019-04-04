@@ -14,7 +14,8 @@ export default class Examcomment extends Component {
         this.state = {
             examOriginal: null,
             comment: '',
-            isSaving: false
+            isSaving: false,
+            summaryHtml: null
         }
         this.pushChangedComment = this.pushChangedComment.bind(this);
         this.timeoutId = null;
@@ -22,10 +23,15 @@ export default class Examcomment extends Component {
 
     componentDidMount() {
         Axios.get('/api2/exam/get/'+this.props.examId).then((response)=>{
-            console.log(response.data);
             this.setState({
                 examOriginal: response.data,
                 comment: (response.data!==null && response.data.comment!==null) ? response.data.comment : ''
+            });
+        })
+        Axios.get('/api2/archive/preview/long/'+this.props.examId).then((response)=>{
+            //console.log(response.data);
+            this.setState({
+                summaryHtml: response.data
             });
         })
     }
@@ -55,6 +61,9 @@ export default class Examcomment extends Component {
                         />
                     }
                 </div>
+                {this.state.summaryHtml!==null &&
+                    <div className="mt-5 pt-5 border-top" dangerouslySetInnerHTML={{__html: this.state.summaryHtml}} />
+                }
             </div>
         );
     }

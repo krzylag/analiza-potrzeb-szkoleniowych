@@ -90,7 +90,7 @@ export default class Examslist extends Component {
                         <img className="button-image" src={edit} />
                     </Link>
                 }
-                <a className="btn" href={"/api2/archive/preview/full/"+exam.id} target="_blank"><img className="button-image" src={view} /></a>
+                <a className="btn" href={"/api2/archive/preview/long/"+exam.id} target="_blank"><img className="button-image" src={view} /></a>
                 <a className="btn" href={"/api2/archive/pdf/short/"+exam.id} target="_blank"><img className="button-image" src={pdf} /></a>
                 {canRevertCompletion &&
                     <button type="button" className="btn btn-danger" onClick={(ev) => (this.onRevertClicked(ev, exam.id))}>

@@ -6,54 +6,174 @@
 </div>
 <div class="footer">Tylko do użytku wewnętrznego</div>
 <div>
-    <p class="dateplace">{{$exam_city}}, {{$exam_date}}</p>
-    <h3 class="examheader">RAPORT Z ANALIZY POTRZEB SZKOLENIOWYCH</h3>
-    <table class="metryczka">
-        <tbody>
-            <tr>
-                <td class="name">uczestnik:</td>
-                <td class="value">{{$examinee_name}}</td>
-            </tr>
-            <tr>
-                <td class="name">dealer:</td>
-                <td class="value">{{$examinee_workplace}}</td>
-            </tr>
-            <tr>
-                <td class="name">data:</td>
-                <td class="value">{{$exam_date}}</td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="wyniki">
-        <thead>
-            <tr>
-                <td>#</td>
-                <td>analizowany zakres szkolenia</td>
-                <td>wynik %</td>
-                <td>dalsze kroki</td>
-            </tr>
-        </thead>
-        <tbody>
-@foreach ($competences AS $compet)
-            <tr>
-                <td>{{$compet['count']}}</td>
-                <td>{{$compet['name']}}</td>
-                <td>{{ceil($compet['scored']*10000)/100}}%</td>
-                <td>
-@if ($compet['required']<=$compet['scored'])
-                    <span class="color-good">szkolenie uznane</span>
-@else
-                    <span class="color-bad">szkolenie do realizacji</span>
-@endif
-                </td>
-            </tr>
-@endforeach
-        </tbody>
-    </table>
+    <p class="exam-date">{{$exam_city}}, {{$exam_date}}</p>
+    <h3 class="exam-header">RAPORT Z ANALIZY POTRZEB SZKOLENIOWYCH</h3>
+    <div class="exam-participant small-block nobreak-inside">
+        <table>
+            <tbody>
+                <tr>
+                    <td class="name">uczestnik:</td>
+                    <td class="value">{{$examinee_name}}</td>
+                </tr>
+                <tr>
+                    <td class="name">dealer:</td>
+                    <td class="value">{{$examinee_workplace}}</td>
+                </tr>
+                <tr>
+                    <td class="name">data:</td>
+                    <td class="value">{{$exam_date}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="exam-results small-block nobreak-inside">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>analizowany zakres szkolenia</th>
+                    <th>wynik %</th>
+                    <th>dalsze kroki</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($details['competences'] AS $competence)
+                    <tr>
+                        <th>{{$competence['order']}}</th>
+                        <td>{{$competence['name']}}</td>
+                        <td class="text-center"><strong>{{ceil(10000*$competence['taskpercents_sum'] / $competence['taskpercents_count'])/100}} %</strong></td>
+                        <td class="text-center">
+                            <strong>
+                                @if ($competence['threshold']<=($competence['taskpercents_sum'] / $competence['taskpercents_count']))
+                                    <span class="color-good">szkolenie uznane</span>
+                                @else
+                                    <span class="color-bad">szkolenie do realizacji</span>
+                                @endif
+                            </strong>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 </div>
-<div class="exam-comment">
+<div class="comment-text comment-exam small-block nobreak-inside">
     {!! $exam_comment !!}
 </div>
+@if ($report_type==='long')
+    <div class="competences-tasks-pivot small-block nobreak-inside break-before">
+        @foreach ($details['competences'] AS $competence)
+            <div class="nobreak-inside">
+                <h4 class="pivot-header">Kompetencja: {{$competence['name']}}</h4>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>zadanie</th>
+                            <th class="width10perc">uzyskał</th>
+                            <th class="width10perc">możliwych</th>
+                            <th class="width10perc">%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($competence['tasks'] AS $task)
+                            <tr>
+                                <th>{{$task['order']}}</th>
+                                <th class="text-left">{{$task['name']}}</th>
+                                <th>{{$task['scores_sum']}}</th>
+                                <th>
+                                    {{$task['scores_max']}}
+                                    @if ($task['scores_count'] != $task['scores_max'])
+                                        ({{$task['scores_count']}})
+                                    @endif
+                                </th>
+                                <th>{{ceil(10000*$task['scores_sum']/$task['questions_count'])/100}} %</th>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot>
+                        <td colspan="4" class="small-right">UWAGA: ten wynik procentowy powstaje przez uśrednienie wyników cząstkowych, a nie przez sumowanie punktów.</td>
+                        <td>{{ceil(10000*$competence['taskpercents_sum'] / $competence['taskpercents_count'])/100}} %</td>
+                    </tfoot>
+                </table>
+            </div>
+        @endforeach
+    </div>
+    <div class="exam-details break-before">
+        @foreach ($details['competences'] AS $competence)
+            @foreach ($competence['tasks'] AS $task)
+                <div class="nobreak-inside">
+                    <div class="task-details nobreak-inside">
+                        <h3>{{$competence['name']}} &rarr; {{$task['name']}}</h3>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th class="width4perc">#</th>
+                                    <th>zagadnienie</th>
+                                    @foreach($competence['users'] AS $cUser)
+                                        <th>{{$cUser['name']}}</th>
+                                    @endforeach
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($task['questions'] AS $question)
+                                    <tr>
+                                        <th>{{$question['order']}}</th>
+                                        <td>{{$question['name']}}</td>
+                                        @foreach($competence['users'] AS $cUser)
+                                            <td class="text-center">
+                                                @if (isset($question['users_scores'][$cUser['id']]))
+                                                    <strong>{{$question['users_scores'][$cUser['id']]}}</strong>
+                                                @endif
+                                            </td>
+                                        @endforeach
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <td></td>
+                                    @foreach($competence['users'] AS $cUser)
+                                        <td class="text-center width10perc overview">
+                                            @if (isset($task['users_scores_sums'][$cUser['id']]))
+                                                {{$task['users_scores_sums'][$cUser['id']]}} / {{$task['questions_count']}}
+                                                @if ($task['scores_count']>0)
+                                                    <br />
+                                                    <strong>
+                                                        {{ceil(10000*$task['users_scores_sums'][$cUser['id']] / $task['questions_count'])/100}} %
+                                                    </strong>
+                                                @endif
+                                            @else
+                                                0 / 0 <br /><strong>0 %</strong>
+                                            @endif
+                                        </td>
+                                    @endforeach
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    @if (isset($task['users_comments']) && sizeof($task['users_comments'])>0)
+                        <div class="task-comments nobreak-inside">
+                            <h5 colspan="2">Komentarze niepubliczne do: {{$competence['name']}} &rarr; {{$task['name']}}</h5>
+                            <table class="table table-sm">
+                                <tbody>
+                                    @foreach ($task['users_comments'] AS $comment)
+                                        <tr>
+                                            <td class="width20perc">{{$competence['users'][$comment['uid']]['name']}}</td>
+                                            <td class="comment-text">{!!$comment['comment']!!}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            @endforeach
+        @endforeach
+    </div>
+@endif
+
 @endsection
 
 
@@ -88,4 +208,8 @@
         border-top: 1px solid #4D5C63;
     }
 </style>
+@endsection
+
+@section('title')
+    <title>{{$examinee_name}}</title>
 @endsection
