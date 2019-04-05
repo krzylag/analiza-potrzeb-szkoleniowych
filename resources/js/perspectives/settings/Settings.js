@@ -13,22 +13,18 @@ export default class Settings extends Component {
     }
 
     render() {
-        console.log(this.props.dictionary);
-
+        var renderedSchemas = [];
+        for (var skey in this.props.dictionary.schemas) {
+            var schema = this.props.dictionary.schemas[skey];
+            renderedSchemas.push(this.renderSchema(schema));
+        }
         var stringFilename = (this.state.file!==null) ? this.state.file.name : "Wybierz plik";
         return (
             <div className="Settings">
                 <div className="card mt-4">
                     <h5 className="card-header">Istniejące schematy</h5>
                     <div className="card-body">
-                        <p className="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                    </div>
-                </div>
-                <div className="card mt-5">
-                    <h5 className="card-header">Eksport</h5>
-                    <div className="card-body">
-                        <p className="card-text">Eksportuj schematy egzaminów / APS-ów do pliku XLSX, w celu późniejszej edycji.</p>
-                        <button type="button" className="btn btn-outline-primary" >Eksportuj</button>
+                        {renderedSchemas}
                     </div>
                 </div>
                 <div className="card mt-5">
@@ -42,6 +38,34 @@ export default class Settings extends Component {
                         </div>
                         <button type="button" className="btn btn-outline-primary" onClick={this.onUploadClicked}>Wyślij</button>
                     </div>
+                </div>
+            </div>
+        );
+    }
+
+    renderSchema(schema) {
+        var renderedCompetences = [];
+        for (var ckey in schema.competences) {
+            var competence = schema.competences[ckey];
+            renderedCompetences.push(
+                <div key={competence.id} className="ml-2">
+                    {competence.description} <small className="text-secondary">{competence.tasks.length} możliwych zadań</small>
+                </div>
+            )
+        }
+        return (
+            <div key={schema.id} className="container mt-4 mb-4">
+                <div className="row">
+                    <div className="col-sm"><strong>{schema.fullname}</strong></div>
+                    <div className="col-sm">Utworzony:</div>
+                </div>
+                <div className="row">
+                    <div className="col-sm">{schema.shortname}</div>
+                    <div className="col-sm">{schema.created_at}</div>
+                </div>
+                <div className="row">
+                    <div className="col-sm"></div>
+                    <div className="col-sm">{renderedCompetences}</div>
                 </div>
             </div>
         );
