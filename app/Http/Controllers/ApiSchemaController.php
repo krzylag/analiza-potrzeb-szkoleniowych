@@ -99,7 +99,7 @@ class ApiSchemaController extends Controller {
                 }
             }
             $schema->computed_summary = '{ }';
-            $schema->created_by = Auth::user()->id;
+            $schema->created_by = \Auth::user()->id;
             $schema->save();
         }
 
