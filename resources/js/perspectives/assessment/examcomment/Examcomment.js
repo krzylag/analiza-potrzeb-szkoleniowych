@@ -2,10 +2,8 @@ import React, { Component } from 'react';
 import Axios from 'axios';
 import CKEditor from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import moment from 'moment';
 import PleaseWait from '../../../components/PleaseWait';
 import {CKEDITOR_CONFIGURATION,COMMENT_SEND_DELAY} from '../exam/Taskcomment';
-import { format } from 'url';
 
 export default class Examcomment extends Component {
 
@@ -13,10 +11,15 @@ export default class Examcomment extends Component {
         super(props);
         this.state = {
             examOriginal: null,
-            comment: '',
             isSaving: false,
-            summaryHtml: null
+            isWaitingForSave: false,
+            summaryHtmlBefore: null,
+            comment: null,
+            summaryHtmlAfter: null
         }
+
+        this.saveClicked = this.saveClicked.bind(this);
+        this.commentChanged = this.commentChanged.bind(this);
         this.pushChangedComment = this.pushChangedComment.bind(this);
         this.timeoutId = null;
     }
@@ -24,69 +27,104 @@ export default class Examcomment extends Component {
     componentDidMount() {
         Axios.get('/api2/exam/get/'+this.props.examId).then((response)=>{
             this.setState({
-                examOriginal: response.data,
-                comment: (response.data!==null && response.data.comment!==null) ? response.data.comment : ''
+                examOriginal: response.data
             });
         })
         Axios.get('/api2/archive/preview/long/'+this.props.examId).then((response)=>{
-            //console.log(response.data);
+            var summaryHtmlOriginal = response.data.split(/<!-- EXAM COMMENT SEPARATOR -->/);
             this.setState({
-                summaryHtml: response.data
+                summaryHtmlBefore: summaryHtmlOriginal[0],
+                comment: summaryHtmlOriginal[1].trim(),
+                summaryHtmlAfter: summaryHtmlOriginal[2]
             });
         })
     }
 
     render() {
-        if (this.state.examOriginal===null) {
+        if (this.state.examOriginal===null || this.state.summaryHtmlBefore===null) {
             return (
-                <PleaseWait size="2em" />
+                <PleaseWait />
             )
         }
+        var canEditComment = (this.props.dictionary.user.capabilities.is_admin || this.state.examOriginal.created_by==this.props.dictionary.user.id);
         return (
             <div className="Examcomment">
-                {this.state.isSaving &&
-                    <PleaseWait size="2em" styles={{"position": "absolute", "right":"1em"}} />
+                {this.state.summaryHtmlBefore!==null &&
+                    <div dangerouslySetInnerHTML={{__html: this.state.summaryHtmlBefore}} />
                 }
-                <h2>Egzaminowany: <strong>{this.state.examOriginal.surname} {this.state.examOriginal.firstname} ({this.state.examOriginal.workplace})</strong></h2>
-                <h3><strong>{this.state.examOriginal.city}, {(new moment(this.state.examOriginal.created_at)).format('YYYY-MM-DD')}</strong></h3>
-                <h3>Schemat: <strong>{this.state.examOriginal.schema.shortname}</strong></h3>
-                <div>
-                    <h3>Feedback dla uczestnika:</h3>
-                    {this.state.comment!==null &&
-                        <CKEditor
-                            editor={ ClassicEditor }
-                            config={CKEDITOR_CONFIGURATION}
-                            data={this.state.comment}
-                            onChange={this.pushChangedComment}
-                        />
+                <div className="mt-5 mb-5 ">
+                    {this.state.comment!==null && canEditComment &&
+                        <div>
+                            <CKEditor
+                                editor={ ClassicEditor }
+                                config={CKEDITOR_CONFIGURATION}
+                                data={this.state.comment}
+                                onChange={this.commentChanged}
+                            />
+                            <div className="text-center m-2 position-relative">
+                                {this.state.isSaving &&
+                                    <PleaseWait size="2.5em" prefix="Zapisywanie" />
+                                }
+                                {!this.state.isSaving &&
+                                    <button type="button" className="btn btn-outline-success btn-lg" onClick={this.saveClicked}>Zapisz zmiany</button>
+                                }
+                            </div>
+                        </div>
+                    }
+                    {this.state.comment!==null && !canEditComment &&
+                        <div dangerouslySetInnerHTML={{__html: this.state.comment}} />
                     }
                 </div>
-                {this.state.summaryHtml!==null &&
-                    <div className="mt-5 pt-5 border-top" dangerouslySetInnerHTML={{__html: this.state.summaryHtml}} />
+                {this.state.summaryHtmlAfter!==null &&
+                    <div dangerouslySetInnerHTML={{__html: this.state.summaryHtmlAfter}} />
                 }
             </div>
         );
     }
 
-    pushChangedComment(event, editor) {
-        this.setState({comment: editor.getData(), isSaving: true});
-        if (this.timeoutId!==null) {
-            clearTimeout(this.timeoutId);
-            this.timeoutId=null;
+    commentChanged(event, editor) {
+        if (this.state.isSaving===false) {
+
+            this.setState({
+                comment: editor.getData(),
+                isWaitingForSave: true
+            });
+            if (this.timeoutId!==null) {
+                clearTimeout(this.timeoutId);
+                this.timeoutId=null;
+            }
+
+            this.timeoutId = setTimeout(()=>{
+                this.pushChangedComment();
+            },COMMENT_SEND_DELAY);
         }
-        this.timeoutId = setTimeout(()=>{
+    }
+
+    pushChangedComment() {
+
+            this.setState({
+                isWaitingForSave: false,
+                isSaving: true
+            });
             Axios.post("/api2/exam/set-comment", {
                 examId: this.state.examOriginal.id,
                 comment: this.state.comment
             }).then((response)=>{
-                console.log(response.data)
+                //console.log(response.data)
             }).catch((error)=>{
 
             }).then(()=>{
                 this.timeoutId=null;
-                this.setState({isSaving: false});
+                this.setState({
+                    isWaitingForSave: false,
+                    isSaving: false
+                });
                 // console.log('timeout cleared');
             });
-        },COMMENT_SEND_DELAY);
+
+    }
+
+    saveClicked() {
+        this.pushChangedComment();
     }
 }

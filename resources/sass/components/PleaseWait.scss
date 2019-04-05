@@ -1,13 +1,40 @@
 .PleaseWait {
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    height: 1em;
-    width: 1em;
+
     display: inline-block;
-    animation-name: spinRotator;
-    animation-duration: 2s;
-    animation-iteration-count: infinite;
+
+    .layout {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+
+        .prefix, .suffix {
+            color: #BCBDBE;
+            font-size: 1em;
+        }
+        .prefix {
+            margin-right: 0.5em;
+            text-align: right;
+        }
+        .suffix {
+            margin-left: 0.5em;
+            text-align: left;
+        }
+        .rotator {
+            display: block;
+            height: 2em;
+            width: 2em;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            animation-name: spinRotator;
+            animation-duration: 2s;
+            animation-iteration-count: infinite;
+        }
+
+    }
+
+
 }
 
 @keyframes spinRotator {

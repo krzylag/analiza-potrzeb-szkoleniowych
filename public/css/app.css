@@ -10693,12 +10693,39 @@ a.text-dark:focus {
 }
 
 .PleaseWait {
+  display: inline-block;
+}
+
+.PleaseWait .layout {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.PleaseWait .layout .prefix,
+.PleaseWait .layout .suffix {
+  color: #BCBDBE;
+  font-size: 1em;
+}
+
+.PleaseWait .layout .prefix {
+  margin-right: 0.5em;
+  text-align: right;
+}
+
+.PleaseWait .layout .suffix {
+  margin-left: 0.5em;
+  text-align: left;
+}
+
+.PleaseWait .layout .rotator {
+  display: block;
+  height: 2em;
+  width: 2em;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  height: 1em;
-  width: 1em;
-  display: inline-block;
   -webkit-animation-name: spinRotator;
           animation-name: spinRotator;
   -webkit-animation-duration: 2s;

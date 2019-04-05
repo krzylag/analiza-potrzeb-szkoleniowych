@@ -11,7 +11,6 @@ export default class Examinfo extends Component {
             computedTime: []
         }
         this.clickedFinalizeExam = this.clickedFinalizeExam.bind(this);
-        this.clickedPrevievProtocol = this.clickedPrevievProtocol.bind(this);
     }
 
     render() {
@@ -50,6 +49,7 @@ export default class Examinfo extends Component {
                 </div>
             );
         }
+        console.log(this.props);
         return (
             <div className="Examinfo card mt-5" id={"exam"+this.props.exam.id}>
                 <h5 className="card-header">{this.props.exam.firstname} {this.props.exam.surname}</h5>
@@ -80,7 +80,9 @@ export default class Examinfo extends Component {
                      <div className="card-body">
                         <div className="row pl-4" >
                             <div className="col-sm p-1">
-                                <button type="button" className="btn btn-outline-success" onClick={this.clickedPrevievProtocol}>Podglądnij roboczy raport</button>
+                                <Link className="btn btn-outline-primary" to={"/assessment/comment/edit/"+this.props.exam.id}>
+                                    Raport wstępny<br />/ edycja feedbacku
+                                </Link>
                             </div>
                             <div className="col-sm p-1">
                                 <button type="button" className="btn btn-danger" onClick={this.clickedFinalizeExam}>Zakończ proces ewaluacji</button>
@@ -104,10 +106,6 @@ export default class Examinfo extends Component {
                 this.props.onExamFinalizedCallback(response.data);
             })
         }
-    }
-
-    clickedPrevievProtocol() {
-
     }
 
 }

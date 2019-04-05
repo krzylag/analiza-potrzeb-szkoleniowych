@@ -58,7 +58,9 @@
     </div>
 </div>
 <div class="comment-text comment-exam small-block nobreak-inside">
+<!-- EXAM COMMENT SEPARATOR -->
     {!! $exam_comment !!}
+<!-- EXAM COMMENT SEPARATOR -->
 </div>
 @if ($report_type==='long')
     <div class="competences-tasks-pivot small-block nobreak-inside break-before">

@@ -27,7 +27,7 @@ export default class Taskinfo extends Component {
                         />
                     }
                     {this.props.isChecked===null &&
-                        <PleaseWait />
+                        <PleaseWait prefix={null} />
                     }
                 </td>
                 <td>
@@ -38,7 +38,7 @@ export default class Taskinfo extends Component {
                 </td>
                 <td>
                     {this.props.status===null &&
-                            <PleaseWait />
+                            <PleaseWait prefix={null} />
                     }
                     {this.props.status!==null && this.props.status.q_filled>0 &&
                         <div className="lineheight11">

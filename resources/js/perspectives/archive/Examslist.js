@@ -80,8 +80,6 @@ export default class Examslist extends Component {
         var canEditComment = (this.props.dictionary.user.id===exam.created_by || this.props.dictionary.user.capabilities.is_admin);
         var finishedDaysAgo = (moment.duration((new moment()).diff((new moment(exam.updated_at))))).get("days");
         var canRevertCompletion = ((this.props.dictionary.user.id===exam.created_by && finishedDaysAgo===0) || this.props.dictionary.user.capabilities.is_admin);
-// <button type="button" className="btn"><img className="button-image" src={pdf} onClick={(ev) => (this.onPdfClicked(ev, exam.id))} /></button>
-// <button type="button" className="btn"><img className="button-image" src={pdf} onClick={(ev) => (this.onPdfClicked(ev, exam.id))} /></button>
 
         return (
             <div>
