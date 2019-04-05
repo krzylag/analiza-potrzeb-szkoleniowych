@@ -21,11 +21,11 @@ export default class PleaseWait extends Component {
             }
         }
         var prefix;
-        if (typeof(this.props.prefix)!=='undefined' && this.props.prefix!==null) {
+        if (typeof(this.props.prefix)!=='undefined' && this.props.prefix!==null && this.props.prefix!==false) {
             prefix = this.props.prefix;
         }
         var suffix;
-        if (typeof(this.props.suffix)!=='undefined' && this.props.suffix!==null) {
+        if (typeof(this.props.suffix)!=='undefined' && this.props.suffix!==null && this.props.suffix!==false) {
             suffix = this.props.suffix;
         }
         if (typeof(this.props.prefix)==='undefined' && typeof(this.props.suffix)==='undefined') {

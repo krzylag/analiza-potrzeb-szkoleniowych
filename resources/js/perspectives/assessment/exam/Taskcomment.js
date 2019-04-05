@@ -4,7 +4,7 @@ import CKEditor from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import PleaseWait from '../../../components/PleaseWait';
 
-export const COMMENT_SEND_DELAY = 1500;
+export const COMMENT_SEND_DELAY = 3000;
 
 export const CKEDITOR_CONFIGURATION = {
     toolbar: [ 'bold', 'italic', 'bulletedList', 'numberedList' ]
@@ -16,8 +16,11 @@ export default class Taskcomment extends Component {
         super(props);
         this.state = {
             comment: null,
-            isSaving: false
+            isSaving: false,
+            isWaitingForSave: false
         }
+        this.saveClicked = this.saveClicked.bind(this);
+        this.commentChanged = this.commentChanged.bind(this);
         this.pushChangedComment = this.pushChangedComment.bind(this);
         this.timeoutId = null;
     }
@@ -29,16 +32,23 @@ export default class Taskcomment extends Component {
     render() {
         return (
             <div className="Taskcomment">
-                {this.state.isSaving &&
-                    <PleaseWait size="2em" styles={{"position": "absolute", "right":"1em"}} />
-                }
                 {this.state.comment!==null &&
-                    <CKEditor
-                        editor={ ClassicEditor }
-                        config={CKEDITOR_CONFIGURATION}
-                        data={this.state.comment}
-                        onChange={this.pushChangedComment}
-                    />
+                    <div>
+                        <CKEditor
+                            editor={ ClassicEditor }
+                            config={CKEDITOR_CONFIGURATION}
+                            data={this.state.comment}
+                            onChange={this.commentChanged}
+                        />
+                        <div className="text-center m-2 position-relative">
+                            {this.state.isSaving &&
+                                <PleaseWait size="2.5em" prefix="Zapisywanie" />
+                            }
+                            {!this.state.isSaving &&
+                                <button type="button" className="btn btn-outline-success btn-lg" onClick={this.saveClicked}>Zapisz zmiany</button>
+                            }
+                        </div>
+                    </div>
                 }
             </div>
         );
@@ -54,13 +64,30 @@ export default class Taskcomment extends Component {
         })
     }
 
-    pushChangedComment(event, editor) {
-        this.setState({comment: editor.getData(), isSaving: true});
-        if (this.timeoutId!==null) {
-            clearTimeout(this.timeoutId);
-            this.timeoutId=null;
+    commentChanged(event, editor) {
+        if (this.state.isSaving===false) {
+
+            this.setState({
+                comment: editor.getData(),
+                isWaitingForSave: true
+            });
+            if (this.timeoutId!==null) {
+                clearTimeout(this.timeoutId);
+                this.timeoutId=null;
+            }
+
+            this.timeoutId = setTimeout(()=>{
+                this.pushChangedComment();
+            },COMMENT_SEND_DELAY);
         }
-        this.timeoutId = setTimeout(()=>{
+    }
+
+    pushChangedComment() {
+
+            this.setState({
+                isWaitingForSave: false,
+                isSaving: true
+            });
             Axios.post("/api2/exam/grading/set-comment", {
                 examId: this.props.exam.id,
                 competenceId: this.props.competence.id,
@@ -72,9 +99,16 @@ export default class Taskcomment extends Component {
 
             }).then(()=>{
                 this.timeoutId=null;
-                this.setState({isSaving: false});
+                this.setState({
+                    isWaitingForSave: false,
+                    isSaving: false
+                });
                 // console.log('timeout cleared');
             });
-        },COMMENT_SEND_DELAY);
+
+    }
+
+    saveClicked() {
+        this.pushChangedComment();
     }
 }

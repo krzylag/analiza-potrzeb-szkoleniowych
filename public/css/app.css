@@ -10796,6 +10796,7 @@ a.text-dark:focus {
 
 .Question .buttons {
   white-space: nowrap;
+  text-align: center;
 }
 
 .Scoringbutton.is-active {

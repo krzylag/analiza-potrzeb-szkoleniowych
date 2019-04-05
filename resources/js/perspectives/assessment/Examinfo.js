@@ -29,7 +29,7 @@ export default class Examinfo extends Component {
                 var avgScore = (usedTasks>0) ? this.props.statistics[competence.id][uid].accepted_sum/usedTasks : 0;
                 if (this.props.statistics[competence.id][uid].accepted_sum > 0) {
                     renderedStatsByUser.push(
-                        <div key={uid}>{examiner.firstname} {examiner.lastname}: <strong>{Math.ceil(avgScore*10000)/100} %</strong> ({usedTasks} / {allTasks})</div>
+                        <div key={uid}>{examiner.firstname.substring(0,1)}. {examiner.surname}: <strong>{Math.ceil(avgScore*10000)/100} %</strong> ({usedTasks} / {allTasks})</div>
                     )
                 }
             }
@@ -49,7 +49,6 @@ export default class Examinfo extends Component {
                 </div>
             );
         }
-        console.log(this.props);
         return (
             <div className="Examinfo card mt-5" id={"exam"+this.props.exam.id}>
                 <h5 className="card-header">{this.props.exam.firstname} {this.props.exam.surname}</h5>

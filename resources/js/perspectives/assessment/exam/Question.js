@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
 import Scoringbutton from './Scoringbutton';
 import Axios from 'axios';
+import PleaseWait from '../../../components/PleaseWait';
 
 export default class Question extends Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            isSaving: false
+        }
         this.onScoringButtonClicked = this.onScoringButtonClicked.bind(this);
     }
 
@@ -18,7 +22,12 @@ export default class Question extends Component {
                     <strong>{this.props.question.text}</strong>
                     {hintHtml!==null && <small dangerouslySetInnerHTML={{__html: hintHtml}} /> }
                 </td>
-                <td className="buttons">{this.renderButtons()}</td>
+                <td className="buttons">
+                    {!this.state.isSaving && this.renderButtons() }
+                    {this.state.isSaving &&
+                        <PleaseWait prefix={null} />
+                    }
+                </td>
             </tr>
         );
     }
@@ -48,7 +57,7 @@ export default class Question extends Component {
     }
 
     onScoringButtonClicked(value) {
-        // console.log({qid:this.props.question.id, value});
+        this.setState({isSaving: true});
         var callParams = {
             examId: this.props.exam.id,
             competenceId: this.props.competence.id,
@@ -60,6 +69,10 @@ export default class Question extends Component {
             var qId = parseInt(response.data.question_id)
             var score = parseFloat(response.data.score)
             this.props.onScoringButtonClickedCallback(qId, score);
+        }).catch((error)=>{
+
+        }).then(()=>{
+            this.setState({isSaving: false});
         });
     }
 
