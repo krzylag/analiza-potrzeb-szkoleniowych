@@ -11,7 +11,7 @@ export default class Archive extends Component {
         this.state = {
             exams: null,
             filters: {
-                lastname: null,
+                surname: null,
                 schema_name: null,
                 not_before: null,
                 not_after: null,
@@ -24,23 +24,7 @@ export default class Archive extends Component {
     }
 
     componentDidMount() {
-        Axios.get('/api2/archive/list', {
-            params: {
-                filters: this.state.filters
-            }
-        }).then((response)=>{
-            var exams = [];
-            for (var key in response.data) {
-                var exam = response.data[key];
-                var competences = {};
-                for (var ckey in exam.competences) {
-                    competences[exam.competences[ckey].id]=exam.competences[ckey];
-                }
-                exam.competences = competences;
-                exams[exam.id] = exam;
-            }
-            this.setState({exams});
-        })
+        this.pullNewArchive();
     }
 
     render() {
@@ -63,12 +47,44 @@ export default class Archive extends Component {
     }
 
     onFiltersChanged(newFilters) {
-        this.setState({filters: newFilters});
+        this.setState({
+            filters: {
+                surname: (newFilters.surname==='') ? null : newFilters.surname,
+                schema_name: (newFilters.schema_name==='') ? null : newFilters.schema_name,
+                not_before: (newFilters.not_before==='') ? null : newFilters.not_before,
+                not_after: (newFilters.not_after==='') ? null : newFilters.not_after,
+                only_failed: (newFilters.only_failed===true),
+                only_succeed: (newFilters.only_succeed===true)
+            }
+        },() => {
+            this.pullNewArchive();
+        });
     }
 
     onExamReverted(exam) {
         var exams = this.state.exams;
         delete(exams[exam.id]);
         this.setState({exams});
+    };
+
+    pullNewArchive() {
+        this.setState({exams: null})
+        Axios.get('/api2/archive/list', {
+            params: {
+                filters: this.state.filters
+            }
+        }).then((response)=>{
+            var exams = [];
+            for (var key in response.data) {
+                var exam = response.data[key];
+                var competences = {};
+                for (var ckey in exam.competences) {
+                    competences[exam.competences[ckey].id]=exam.competences[ckey];
+                }
+                exam.competences = competences;
+                exams[exam.id] = exam;
+            }
+            this.setState({exams});
+        })
     }
 }

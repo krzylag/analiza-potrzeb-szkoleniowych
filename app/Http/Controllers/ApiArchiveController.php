@@ -13,12 +13,60 @@ class ApiArchiveController extends Controller
     public function listExams(Request $request) {
         $filters = $request->query('filters');
         if ($filters!=='' && $filters!==null) $filters = json_decode($filters);
-        if ($filters->not_before !==null) $filters->not_before = new \DateTime($filters->not_before);
-        if ($filters->not_after !==null) $filters->not_after = new \DateTime($filters->not_after);
+        if ($filters->not_before !==null && $filters->not_before!=='') $filters->not_before = new \DateTime($filters->not_before); else $filters->not_before=null;
+        if ($filters->not_after !==null && $filters->not_after!=='') $filters->not_after = new \DateTime($filters->not_after); else $filters->not_after=null;
+        //dd($filters);
 
         $exams = Exam::with('schema')->with('competences')->where('results', '<>', null)->get();
+        $output = array();
+        foreach($exams AS $exam) {
+            $toRemove = false;
 
-        return $exams;
+            if ($filters->only_succeed) {
+                $toRemove2 = false;
+                foreach($exam->results AS $key=>$result) {
+                    if ($result['avg'] < floatval($exam->competences->find($result['competence_id'])->score_threshold)) {
+                        $toRemove2=true;
+                        break;
+                    }
+                }
+                if ($toRemove2) $toRemove = true;
+            }
+
+            if ($filters->only_failed) {
+                $toRemove2 = true;
+                foreach($exam->results AS $key=>$result) {
+                    if ($result['avg'] < floatval($exam->competences->find($result['competence_id'])->score_threshold)) {
+                        $toRemove2=false;
+                        break;
+                    }
+                }
+                if ($toRemove2) $toRemove = true;
+            }
+
+            if ($filters->not_before!==null) {
+                $examDate = \DateTime::createFromFormat("Y-m-d H:i:s", $exam->created_at);
+                if ($examDate < $filters->not_before) $toRemove = true;
+            }
+
+            if ($filters->not_after!==null) {
+                $examDate = \DateTime::createFromFormat("Y-m-d H:i:s", $exam->created_at);
+                if ($examDate > $filters->not_after) $toRemove = true;
+            }
+
+            if ($filters->surname!==null) {
+                if (stripos($exam->surname, $filters->surname)===false) $toRemove = true;
+            }
+
+            if ($filters->schema_name!==null) {
+                if (stripos($exam->schema->shortname, $filters->schema_name)===false) $toRemove = true;
+            }
+
+            if (!$toRemove) {
+                $output[$exam->id]=$exam;
+            }
+        }
+        return $output;
     }
 
 
