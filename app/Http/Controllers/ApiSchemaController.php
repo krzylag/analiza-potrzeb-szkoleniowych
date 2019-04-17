@@ -24,13 +24,14 @@ class ApiSchemaController extends Controller {
         $pytaniaExistingId = (Question::max('id')===null) ? 0 : Question::max('id');
         $pytaniaImport = new XlsxImport();
         $pytaniaImport->onlySheets('PYTANIA');
-        Excel::import($pytaniaImport, $file->path());
+//dd($file);
+        Excel::import($pytaniaImport, $file);
 
         // IMPORT TASKS
         $zadaniaExistingId = (Task::max('id')===null) ? 0 : Task::max('id');
         $zadaniaImport = new XlsxImport();
         $zadaniaImport->onlySheets('ZADANIA');
-        Excel::import($zadaniaImport, $file->path());
+        Excel::import($zadaniaImport, $file);
 
         // POWIĄZANIE TASKS-QUESTIONS, WYLICZENIE PÓL POCHODNYCH DLA TASKS
         foreach( Task::where('id', '>', $zadaniaExistingId)->get() AS $task) {
@@ -60,7 +61,7 @@ class ApiSchemaController extends Controller {
         $kompetencjeExistingId = (Competence::max('id')===null) ? 0 : Competence::max('id');
         $kompetencjeImport = new XlsxImport();
         $kompetencjeImport->onlySheets('KOMPETENCJE');
-        Excel::import($kompetencjeImport, $file->path());
+        Excel::import($kompetencjeImport, $file);
 
         // POWIĄZANIE COMPETENCES-TASKS
         foreach( Competence::where('id', '>', $kompetencjeExistingId)->get() AS $competence) {
@@ -83,7 +84,7 @@ class ApiSchemaController extends Controller {
         $apsExistingId = (Schema::max('id')===null) ? 0 : Schema::max('id');
         $apsImport = new XlsxImport();
         $apsImport->onlySheets('APSY');
-        Excel::import($apsImport, $file->path());
+        Excel::import($apsImport, $file);
 
         // POWIĄZANIE COMPETENCES-SCHEMAS
         foreach( Schema::where('id', '>', $apsExistingId)->get() AS $schema) {
