@@ -21,6 +21,7 @@ export default class Examcomment extends Component {
         this.saveClicked = this.saveClicked.bind(this);
         this.commentChanged = this.commentChanged.bind(this);
         this.pushChangedComment = this.pushChangedComment.bind(this);
+        this.importClicked = this.importClicked.bind(this);
         this.timeoutId = null;
     }
 
@@ -53,6 +54,7 @@ export default class Examcomment extends Component {
                     <div dangerouslySetInnerHTML={{__html: this.state.summaryHtmlBefore}} />
                 }
                 <div className="mt-5 mb-5 ">
+                    <div className="text-right"><button type="button" className="btn btn-outline-primary" onClick={this.importClicked}>importuj komentarze cząstkowe</button></div>
                     {this.state.comment!==null && canEditComment &&
                         <div>
                             <CKEditor
@@ -126,5 +128,34 @@ export default class Examcomment extends Component {
 
     saveClicked() {
         this.pushChangedComment();
+    }
+
+    importClicked() {
+        if (confirm("Cały komentarz zostanie bezpowrotnie zastąpiony sumą komentarzy cząstkowych. Będą one wymagały dalszej obróbki. Czy kontynuować?")) {
+            Axios.get('/api2/exam/get-default-comment/'+this.props.examId).then((response)=>{
+                var newComments = [];
+                for (var ckey in response.data) {
+                    var competence = response.data[ckey];
+                    for (var ukey in competence.users) {
+                        var user = competence.users[ukey];
+                        var newComment = [
+                            '<strong>'+competence.competence_name+' ('+user.user_name+')</strong>'
+                        ];
+                        for (var tkey in user.tasks) {
+                            var task = user.tasks[tkey];
+                            newComment.push('<strong>'+task.task_name+':</strong>');
+                            newComment.push(task.task_comment);
+                        }
+                        newComments.push(newComment.join('<br />'));
+                    }
+                }
+                if (newComments.length>0) {
+                    this.setState({
+                        comment: newComments.join('<br />')
+                    })
+                }
+
+            })
+        }
     }
 }

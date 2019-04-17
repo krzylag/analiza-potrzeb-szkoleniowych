@@ -346,4 +346,48 @@ class ApiExamController extends Controller {
         // $user = \Auth::user();
         return Exam::with('schema')->with('taskcomments')->find($examId);
     }
+
+    public function getDefaultExamComment($examId) {
+        $exam = Exam::find($examId);
+        $comments = DB::select('
+            SELECT
+                tc.task_id AS task_id,
+                CONCAT(t.order_signature, " ",t.name) AS task_name,
+                tc.`comment` AS task_comment,
+                c.id AS competence_id,
+                c.name AS competence_name,
+                tc.user_id AS user_id,
+                CONCAT(u.firstname," ",u.surname) AS user_name
+            FROM taskcomments AS tc
+            LEFT JOIN users AS u ON u.id=tc.user_id
+            LEFT JOIN tasks AS t ON t.id=tc.task_id
+            LEFT JOIN competences_tasks AS ct ON ct.task_id = t.id
+            LEFT JOIN competences AS c ON c.id = ct.competence_id
+            LEFT JOIN exams_tasks AS et ON et.exam_id=tc.exam_id AND et.task_id=tc.task_id AND et.user_id=tc.user_id
+            WHERE tc.exam_id = ? AND et.is_accepted=1
+        ', array(
+            $exam->id
+        ));
+        $result = array();
+        foreach ($comments AS $comment) {
+            if (!isset($result[$comment->competence_id])) {
+                $result[$comment->competence_id]=array();
+                $result[$comment->competence_id]['competence_id']=$comment->competence_id;
+                $result[$comment->competence_id]['competence_name']=$comment->competence_name;
+                $result[$comment->competence_id]['users']=array();
+            }
+            if (!isset($result[$comment->competence_id]['users'][$comment->user_id])) {
+                $result[$comment->competence_id]['users'][$comment->user_id]=array();
+                $result[$comment->competence_id]['users'][$comment->user_id]['user_id']=$comment->user_id;
+                $result[$comment->competence_id]['users'][$comment->user_id]['user_name']=$comment->user_name;
+                $result[$comment->competence_id]['users'][$comment->user_id]['tasks']=array();
+            }
+            if (!isset($result[$comment->competence_id]['users'][$comment->user_id]['tasks'][$comment->task_id])) {
+                $result[$comment->competence_id]['users'][$comment->user_id]['tasks'][$comment->task_id]['task_id']=$comment->task_id;
+                $result[$comment->competence_id]['users'][$comment->user_id]['tasks'][$comment->task_id]['task_name']=$comment->task_name;
+            }
+            $result[$comment->competence_id]['users'][$comment->user_id]['tasks'][$comment->task_id]['task_comment']=$comment->task_comment;
+        }
+        return $result;
+    }
 }
