@@ -45,6 +45,7 @@ Route::group(['prefix'=>'api2', 'middleware' => 'auth'], function() {
 
         Route::get('/get/{examId}', 'ApiExamController@getExam');
         Route::post('/set-comment', 'ApiExamController@setExamComment');
+        Route::get('/get-default-comment/{examId}', 'ApiExamController@getDefaultExamComment');
 
         Route::group(['prefix'=>'accepted-task'], function() {
             Route::get('/list/{examId}/{competenceId}', 'ApiExamController@listAcceptedTasks');
