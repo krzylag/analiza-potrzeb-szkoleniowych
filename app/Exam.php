@@ -11,7 +11,7 @@ class Exam extends Model {
     protected $table = 'exams';
 
     // The attributes that are mass assignable.
-    protected $fillable = [ 'schema_id', 'firstname', 'surname', 'workplace', 'date', 'city', 'results', 'comment' ];
+    protected $fillable = [ 'schema_id', 'firstname', 'surname', 'workplace', 'date', 'city', 'results', 'comment', 'config' ];
 
     public function users() {
         return $this->belongsToMany('App\User', 'users_exams', 'exam_id', 'user_id')->withPivot('role');
@@ -32,7 +32,7 @@ class Exam extends Model {
     // RELATIONSHIPS
 
     public function competences() {
-        return $this->belongsToMany('App\Competence', 'exams_competences', 'exam_id', 'competence_id')->withPivot(['result', 'allowed_users']);
+        return $this->belongsToMany('App\Competence', 'exams_competences', 'exam_id', 'competence_id')->withPivot(['result', 'allowed_users', 'config']);
     }
 
     public function schema() {

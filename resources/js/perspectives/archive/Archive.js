@@ -74,6 +74,7 @@ export default class Archive extends Component {
                 filters: this.state.filters
             }
         }).then((response)=>{
+            console.log(response.data);
             var exams = [];
             for (var key in response.data) {
                 var exam = response.data[key];
@@ -83,7 +84,19 @@ export default class Archive extends Component {
                 }
                 exam.competences = competences;
                 exams[exam.id] = exam;
+                exam.results_competences = {};
+                exam.results_flags = {};
+                for (var rkey in exam.results) {
+                    var result = exam.results[rkey];
+                    if (!isNaN(rkey)) {
+                        exam.results_competences[rkey]=result;
+                    } else {
+                        exam.results_flags[rkey]=result;
+                    }
+                }
+                delete(exam.results);
             }
+            console.log(exams);
             this.setState({exams});
         })
     }

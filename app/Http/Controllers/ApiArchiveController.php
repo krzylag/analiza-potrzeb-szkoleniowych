@@ -79,6 +79,7 @@ class ApiArchiveController extends Controller
                 c.id AS c_id,
                 c.`name` AS c_name,
                 c.score_threshold AS c_threshold,
+                ec.config AS ec_config,
                 t.id AS t_id,
                 t.order_signature AS t_order,
                 t.`name` AS t_name,
@@ -105,6 +106,7 @@ class ApiArchiveController extends Controller
                 LEFT JOIN exams_tasks AS et ON et.exam_id=e.id AND et.task_id=t.id
                 LEFT JOIN users AS u ON u.id=sco.user_id
                 LEFT JOIN taskcomments AS tc ON tc.exam_id=e.id AND tc.task_id=t.id
+                LEFT JOIN exams_competences AS ec ON ec.exam_id=e.id AND ec.competence_id=c.id
             WHERE
                 e.id = ?
                 AND et.is_accepted = 1
@@ -126,6 +128,7 @@ class ApiArchiveController extends Controller
                 $result['competences'][$row->c_id]['order']=sizeof($result['competences']);
                 $result['competences'][$row->c_id]['name']=$row->c_name;
                 $result['competences'][$row->c_id]['threshold']=floatval($row->c_threshold);
+                $result['competences'][$row->c_id]['config']=($row->ec_config==null) ? array() : json_decode($row->ec_config, $assoc=true);
                 $result['competences'][$row->c_id]['users_taskpercents_sums']=array();
                 $result['competences'][$row->c_id]['taskpercents_sum']=0;
                 $result['competences'][$row->c_id]['taskpercents_count']=0;

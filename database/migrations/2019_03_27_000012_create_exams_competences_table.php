@@ -28,6 +28,7 @@ class CreateExamsCompetencesTable extends Migration
             $table->unsignedBigInteger('competence_id');
             $table->string('allowed_users', 1024)->default('[]');
             $table->decimal('result', 12, 4)->nullable();
+            $table->string('config', 4096)->nullable();
 
             $table->index(["exam_id"], 'IDX_EXAMID');
 

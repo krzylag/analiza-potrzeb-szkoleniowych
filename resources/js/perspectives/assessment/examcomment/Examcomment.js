@@ -4,6 +4,7 @@ import CKEditor from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import PleaseWait from '../../../components/PleaseWait';
 import {CKEDITOR_CONFIGURATION,COMMENT_SEND_DELAY} from '../exam/Taskcomment';
+import Flags from './Flags';
 
 export default class Examcomment extends Component {
 
@@ -22,11 +23,17 @@ export default class Examcomment extends Component {
         this.commentChanged = this.commentChanged.bind(this);
         this.pushChangedComment = this.pushChangedComment.bind(this);
         this.importClicked = this.importClicked.bind(this);
+        this.onFlagUpdated = this.onFlagUpdated.bind(this);
         this.timeoutId = null;
     }
 
     componentDidMount() {
+        this.updateContents();
+    }
+
+    updateContents() {
         Axios.get('/api2/exam/get/'+this.props.examId).then((response)=>{
+            console.log(response.data);
             this.setState({
                 examOriginal: response.data
             });
@@ -54,15 +61,21 @@ export default class Examcomment extends Component {
                     <div dangerouslySetInnerHTML={{__html: this.state.summaryHtmlBefore}} />
                 }
                 <div className="mt-5 mb-5 ">
-                    <div className="text-right"><button type="button" className="btn btn-outline-primary" onClick={this.importClicked}>importuj komentarze cząstkowe</button></div>
                     {this.state.comment!==null && canEditComment &&
                         <div>
+                            <div className="text-right"><button type="button" className="btn btn-outline-primary" onClick={this.importClicked}>importuj komentarze cząstkowe</button></div>
                             <CKEditor
                                 editor={ ClassicEditor }
                                 config={CKEDITOR_CONFIGURATION}
                                 data={this.state.comment}
                                 onChange={this.commentChanged}
                             />
+                            <div className="m-5">
+                                <Flags
+                                    exam={this.state.examOriginal}
+                                    onFlagUpdatedCallback={this.onFlagUpdated}
+                                />
+                            </div>
                             <div className="text-center m-2 position-relative">
                                 {this.state.isSaving &&
                                     <PleaseWait size="2.5em" prefix="Zapisywanie" />
@@ -157,5 +170,9 @@ export default class Examcomment extends Component {
 
             })
         }
+    }
+
+    onFlagUpdated() {
+        this.updateContents();
     }
 }

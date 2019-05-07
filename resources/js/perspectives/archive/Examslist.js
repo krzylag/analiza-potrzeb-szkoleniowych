@@ -60,7 +60,7 @@ export default class Examslist extends Component {
         var renderedByCompetence = [];
         for(var ckey in exam.competences) {
             var competence = exam.competences[ckey];
-            var result = exam.results[ckey];
+            var result = exam.results_competences[ckey];
             var scoringClass = (parseFloat(competence.score_threshold)<=result.avg) ? ' text-success' : ' text-danger';
             renderedByCompetence.push(
                 <div key={competence.id} className={"d-flex flex-row justify-content-start align-items-center"+scoringClass}>

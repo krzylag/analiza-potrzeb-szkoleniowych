@@ -31,6 +31,7 @@ class CreateExamsTable extends Migration
             $table->date('date')->nullable();
             $table->string('city', 255)->nullable();
             $table->string('results', 4096)->nullable();
+            $table->string('config', 4096)->nullable();
             $table->text('comment')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
 

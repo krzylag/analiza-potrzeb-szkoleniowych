@@ -63,6 +63,9 @@
             .color-bad {
                 color: #900000;
             }
+            .color-grayout {
+                color: #909090;
+            }
             .width4perc {
                 width: 4%;
             }

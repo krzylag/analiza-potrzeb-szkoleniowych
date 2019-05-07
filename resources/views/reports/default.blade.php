@@ -38,20 +38,32 @@
             </thead>
             <tbody>
                 @foreach ($details['competences'] AS $competence)
-                    <tr>
-                        <th>{{$competence['order']}}</th>
-                        <td>{{$competence['name']}}</td>
-                        <td class="text-center"><strong>{{ceil(10000*$competence['taskpercents_sum'] / $competence['taskpercents_count'])/100}} %</strong></td>
-                        <td class="text-center">
-                            <strong>
-                                @if ($competence['threshold']<=($competence['taskpercents_sum'] / $competence['taskpercents_count']))
-                                    <span class="color-good">szkolenie uznane</span>
+                    @if (!isset($competence['config']['flag_name']) || $competence['config']['flag_name']!='flag_hidden')
+                        <tr>
+                            <th>{{$competence['order']}}</th>
+                            <td>{{$competence['name']}}</td>
+                            <td class="text-center"
+                                @if (isset($competence['config']['flag_name']) && $competence['config']['flag_name']=='flag_notrelevant')
+                                    <strong>--</strong>
                                 @else
-                                    <span class="color-bad">szkolenie do realizacji</span>
+                                    <strong>{{ceil(10000*$competence['taskpercents_sum'] / $competence['taskpercents_count'])/100}} %</strong>
                                 @endif
-                            </strong>
-                        </td>
-                    </tr>
+                            </td>
+                            <td class="text-center">
+                                <strong>
+                                    @if (isset($competence['config']['flag_name']) && $competence['config']['flag_name']=='flag_forcepass')
+                                        <span class="color-good">szkolenie uznane</span>
+                                    @elseif (isset($competence['config']['flag_name']) && $competence['config']['flag_name']=='flag_notrelevant')
+                                        <span class="color-grayout">nie podlega</span>
+                                    @elseif ($competence['threshold']<=($competence['taskpercents_sum'] / $competence['taskpercents_count']))
+                                        <span class="color-good">szkolenie uznane</span>
+                                    @else
+                                        <span class="color-bad">szkolenie do realizacji</span>
+                                    @endif
+                                </strong>
+                            </td>
+                        </tr>
+                    @endif
                 @endforeach
             </tbody>
         </table>

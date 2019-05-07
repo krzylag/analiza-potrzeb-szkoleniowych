@@ -39,7 +39,7 @@ class Competence extends Model {
     }
 
     public function exams() {
-        return $this->belongsToMany('App\Exam', 'exams_competences', 'competence_id', 'exam_id')->withPivot('result');
+        return $this->belongsToMany('App\Exam', 'exams_competences', 'competence_id', 'exam_id')->withPivot('result', );
     }
 
     public function schemas() {

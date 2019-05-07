@@ -344,7 +344,7 @@ class ApiExamController extends Controller {
 
     public function getExam($examId) {
         // $user = \Auth::user();
-        return Exam::with('schema')->with('taskcomments')->find($examId);
+        return Exam::with('schema')->with('taskcomments')->with("competences")->find($examId);
     }
 
     public function getDefaultExamComment($examId) {
@@ -390,4 +390,27 @@ class ApiExamController extends Controller {
         }
         return $result;
     }
+
+    public function setCompetenceFlag(Request $request) {
+        $payload = $request->all();
+        $exam = Exam::with('competences')->find($payload['examId']);
+        $competence = $exam->competences->find($payload['competenceId']);
+        //dd($payload);
+        //return $competence;
+        $config = $competence->pivot->config;
+        if ($config==null) {
+            $config = array();
+        } else {
+            $config = json_decode($config, $assoc=true);
+        }
+        $config['flag_name'] = $payload['flagName'];
+
+        $exam->competences()->updateExistingPivot($payload['competenceId'], ['config'=>json_encode($config)]);
+        $exam->save();
+
+        return array(
+            "result" => true
+        );
+    }
+
 }
