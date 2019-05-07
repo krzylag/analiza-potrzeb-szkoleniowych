@@ -8,6 +8,8 @@ import edit from '../../images/edit.png';
 import pdf from '../../images/pdf.png';
 import revert from '../../images/revert.png';
 
+import FLAGS from '../assessment/examcomment/Flags';
+
 export default class Examslist extends Component {
 
     constructor(props) {
@@ -23,6 +25,7 @@ export default class Examslist extends Component {
             var exam = this.props.exams[key];
             renderedExams.push(this.renderExam(exam));
         }
+        console.log(this.props.exams);
         return (
             <div className="Examslist">
                 <table className="table table-sm">
@@ -61,10 +64,16 @@ export default class Examslist extends Component {
         for(var ckey in exam.competences) {
             var competence = exam.competences[ckey];
             var result = exam.results_competences[ckey];
+            var config = (competence.pivot.config!==null) ? JSON.parse(competence.pivot.config) : {};
+            var configFlag = (typeof(config['flag_name'])!=='undefined') ? config['flag_name'] : null;
+            console.log(configFlag);
             var scoringClass = (parseFloat(competence.score_threshold)<=result.avg) ? ' text-success' : ' text-danger';
+            if (configFlag=='flag_forcepass' || configFlag=='flag_notrelevant') {
+                scoringClass = ' text-primary';
+            }
             renderedByCompetence.push(
                 <div key={competence.id} className={"d-flex flex-row justify-content-start align-items-center"+scoringClass}>
-                    <div><strong>{Math.ceil(result.avg*10000)/100} / {Math.ceil(parseFloat(competence.score_threshold)*10000)/100} %</strong></div>
+                    <div><strong>{Math.ceil(result.avg*10000)/100}%</strong></div>
                     <div className="ml-3">{competence.name}</div>
                 </div>
             )
