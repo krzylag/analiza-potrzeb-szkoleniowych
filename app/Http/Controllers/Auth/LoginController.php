@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends Controller
@@ -20,20 +21,17 @@ class LoginController extends Controller
 
     use AuthenticatesUsers;
 
-    /**
-     * Where to redirect users after login.
-     *
-     * @var string
-     */
+    // Where to redirect users after login.
     protected $redirectTo = '/';
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
+    // Create a new controller instance.
+    public function __construct() {
         $this->middleware('guest')->except('logout');
+    }
+
+    // Do every time the user has been authenticated.
+    protected function authenticated($request, $user) {
+        $user->api_token = Str::random(60);
+        $user->save();
     }
 }
