@@ -11,11 +11,10 @@ class SchemasImport implements ToCollection, WithHeadingRow {
 
     public function collection(Collection $rows) {
         foreach ($rows AS $row) {
-            Schema::create([
-                'fullname'          => $row['nazwa_pelna'],
-                'shortname'         => $row['nazwa_skrocona'],
-                'computed_summary'  => $row['identyfikatory_kompetencji_rozdzielone_przecinkami']
-            ]);
+            // Schema::create([
+            //     'fullname'          => $row['nazwa_formalna'],
+            //     'shortname'         => $row['nazwa_skrocona']
+            // ]);
         }
     }
 

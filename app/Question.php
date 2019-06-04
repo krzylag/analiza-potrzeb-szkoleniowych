@@ -10,7 +10,7 @@ class Question extends Model {
     protected $table = 'questions';
 
     // The attributes that are mass assignable.
-    protected $fillable = [ 'hash', 'text', 'hint', 'score_min', 'score_max', 'score_step' ];
+    protected $fillable = [ 'hash', 'text', 'hint', 'score_min', 'score_max', 'score_step', 'order_signature' ];
 
     // Ten model nie obsługuje automatycznych "created_at" i "updated_at"
     public $timestamps = false;

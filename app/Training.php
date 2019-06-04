@@ -4,13 +4,13 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Competence extends Model {
+class Training extends Model {
 
     // The table associated with the model.
-    protected $table = 'competences';
+    protected $table = 'trainings';
 
     // The attributes that are mass assignable.
-    protected $fillable = [ 'hash', 'order_signature', 'name', 'description', 'score_threshold', 'computed_summary' ];
+    protected $fillable = [ 'hash', 'order_signature', 'shortname', 'fullname', 'description', 'computed_summary' ];
 
     // Ten model nie obsługuje automatycznych "created_at" i "updated_at"
     public $timestamps = false;
@@ -35,14 +35,12 @@ class Competence extends Model {
     // RELATIONS
 
     public function tasks() {
-        return $this->belongsToMany('App\Task', 'competences_tasks', 'competence_id', 'task_id');
-    }
-
-    public function exams() {
-        return $this->belongsToMany('App\Exam', 'exams_competences', 'competence_id', 'exam_id')->withPivot('result', );
+        return $this->belongsToMany('App\Task', 'trainings_tasks', 'training_id', 'task_id');
     }
 
     public function schemas() {
         return $this->belongsToMany('App\Schema', 'schemas_competences', 'competence_id', 'schema_id');
     }
+
+
 }

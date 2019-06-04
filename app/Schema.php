@@ -36,6 +36,10 @@ class Schema extends Model {
         return $this->belongsToMany('App\Competence', 'schemas_competences', 'schema_id', 'competence_id');
     }
 
+    public function trainings() {
+        return $this->belongsToMany('App\Training', 'schemas_trainings', 'schema_id', 'training_id');
+    }
+
     public function exams() {
         return $this->hasMany('App\Exam');
     }

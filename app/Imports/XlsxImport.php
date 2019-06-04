@@ -6,6 +6,7 @@ use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\WithConditionalSheets;
 use App\Imports\SchemasImport;
 use App\Imports\CompetencesImport;
+use App\Imports\TrainingsImport;
 use App\Imports\TasksImport;
 use App\Imports\QuestionsImport;
 
@@ -17,6 +18,7 @@ class XlsxImport implements WithMultipleSheets {
         return [
             'APSY'          => new SchemasImport(),
             'KOMPETENCJE'   => new CompetencesImport(),
+            'RAPORTY'       => new TrainingsImport(),
             'ZADANIA'       => new TasksImport(),
             'PYTANIA'       => new QuestionsImport()
         ];

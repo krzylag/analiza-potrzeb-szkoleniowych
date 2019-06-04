@@ -25,9 +25,10 @@ class CreateTrainingsTable extends Migration
             $table->engine = 'InnoDB';
             $table->bigIncrements('id');
             $table->string('hash', 45);
+            $table->string('order_signature', 45);
             $table->string('shortname',1024);
             $table->string('fullname',1024);
-            $table->string('description',4096)->nullable();
+            $table->decimal('score_threshold', 12, 4)->default('0.7');
             $table->string('computed_summary',4096)->default('{}');
         });
     }

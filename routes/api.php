@@ -16,3 +16,12 @@ use Illuminate\Http\Request;
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+
+Route::group(['prefix'=>'schema'], function() {
+
+    Route::get('/list',                 'ApiSchemaController@list');
+    Route::get('/list/{withDeleted?}',  'ApiSchemaController@list');
+
+    Route::get('/{schemaId}/get',       'ApiSchemaController@get');
+
+});

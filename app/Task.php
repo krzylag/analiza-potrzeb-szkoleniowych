@@ -39,6 +39,10 @@ class Task extends Model {
         return $this->belongsToMany('App\Competence', 'competences_tasks', 'task_id', 'competence_id');
     }
 
+    public function trainings() {
+        return $this->belongsToMany('App\Training', 'trainings_tasks', 'task_id', 'training_id');
+    }
+
     public function taskcomments() {
         return $this->hasMany('App\Taskcomment');
     }
