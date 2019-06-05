@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ReactController extends Controller {
 
@@ -14,7 +15,9 @@ class ReactController extends Controller {
     // Show the application dashboard.
 
     public function index() {
-        return view('react');
+        return view('react', [
+            "api_token" => Auth::user()->api_token
+        ]);
     }
 
 }

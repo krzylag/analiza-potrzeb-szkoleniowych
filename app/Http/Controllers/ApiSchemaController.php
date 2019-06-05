@@ -18,13 +18,24 @@ class ApiSchemaController extends Controller {
     use GetSchema;
 
     function list($withDeleted=false) {
-        return $this->getSchemasListArray(
-            ($withDeleted=='with-deleted')
-        );
+        return $this->getSchemasListArray(null, ($withDeleted=='with-deleted'));
     }
 
     public function get($schemaId) {
         return $this->getSchemaStructureArray($schemaId);
+    }
+
+    public function delete(Request $request) {
+        $payload = $request->all();
+        $schema = Schema::find($payload['schema_id']);
+        if ($schema!==null) {
+            $schema->deleted_by = \Auth::user()->id;
+            $schema->save();
+            $schema->delete();
+            return [ "result" => true ];
+        } else {
+            return [ "result" => false ];
+        }
     }
 
     function import(Request $request) {

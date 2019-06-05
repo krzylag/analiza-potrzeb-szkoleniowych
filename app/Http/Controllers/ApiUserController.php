@@ -85,4 +85,18 @@ class ApiUserController extends Controller
             );
         }
     }
+
+    public function list($withDeleted=false) {
+        if ($withDeleted=='with-deleted') {
+            $users = User::withTrashed()->all();
+        } else {
+            $users = User::all();
+        }
+        $result = [];
+        foreach ($users AS $user) {
+            $result[$user->id]=$user;
+        }
+        return $result;
+    }
+
 }

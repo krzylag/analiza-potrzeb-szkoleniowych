@@ -17,11 +17,19 @@ use Illuminate\Http\Request;
 //     return $request->user();
 // });
 
-Route::group(['prefix'=>'schema'], function() {
+Route::group(['prefix'=>'schema', 'middleware' => 'auth:api'], function() {
 
-    Route::get('/list',                 'ApiSchemaController@list');
-    Route::get('/list/{withDeleted?}',  'ApiSchemaController@list');
+    Route::get ('/list',                 'ApiSchemaController@list');
+    Route::get ('/list/{withDeleted?}',  'ApiSchemaController@list');
 
-    Route::get('/{schemaId}/get',       'ApiSchemaController@get');
+    Route::get ('/{schemaId}/get',       'ApiSchemaController@get');
+    Route::post('/{schemaId}/delete',    'ApiSchemaController@delete');
+
+});
+
+Route::group(['prefix'=>'user', 'middleware' => 'auth:api'], function() {
+
+    Route::get ('/list',                 'ApiUserController@list');
+    Route::get ('/list/{withDeleted?}',  'ApiUserController@list');
 
 });
