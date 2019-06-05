@@ -10,12 +10,11 @@ export default class UsersList extends Component {
 
     render() {
         var renderedRows = [];
-        for (var ukey in this.props.dictionary.examiners) {
-            var user = this.props.dictionary.examiners[ukey];
+        for (var ukey in this.props.usersList) {
+            var user = this.props.usersList[ukey];
             renderedRows.push(
                 <UsersListRow
                     key={user.id}
-                    dictionary={this.props.dictionary}
                     user={user}
                     clickedCapabilityChangeCallback={this.props.clickedCapabilityChangeCallback}
                 />

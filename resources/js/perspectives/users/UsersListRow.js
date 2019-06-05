@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Axios from 'axios';
 import {CAPABILITIES_NAMES} from './Users';
 
 export default class UsersListRow extends Component {
