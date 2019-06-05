@@ -28,7 +28,7 @@ class User extends Authenticatable {
     protected $fillable = [ 'firstname', 'surname', 'email', 'password', 'capabilities' ];
 
     // The attributes that should be hidden for arrays.
-    protected $hidden = [ 'password', 'remember_token' ];
+    protected $hidden = [ 'password', 'remember_token', 'api_token' ];
 
     // MUTATORS
 

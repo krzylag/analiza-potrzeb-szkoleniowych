@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import Select from 'react-select';
 import Cookie from 'js-cookie';
-import Examinerselect from './Examinerselect';
+import moment from 'moment';
+import PleaseWait from '../../components/PleaseWait';
 import Axios from 'axios';
+import CardExam from './CardExam';
+import CardExaminers from './CardExaminers';
+import CardExaminee from './CardExaminee';
 
 const COOKIE_NAME = 'saved_exam';
 
@@ -11,6 +14,9 @@ export default class Newexam extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            schemasList: null,
+            usersList: null,
+
             firstname: '',
             surname: '',
             workplace:  '',
@@ -34,9 +40,33 @@ export default class Newexam extends Component {
     }
 
     componentDidMount() {
-        if (this.triedToRestore===false
-            && this.state.firstname==='' && this.state.surname==='' && this.state.city===''
-            && this.props.dictionary.user!==null && this.props.dictionary.schemas!==null && this.props.dictionary.examiners!==null) {
+        this.pullSchemasList();
+        this.pullUsersList();
+    }
+
+    pullSchemasList() {
+        Axios.get("/api/schema/list").then((response)=>{
+            this.setState({schemasList: response.data}, ()=>{
+                this.tryToRestore();
+            });
+        }).catch((error)=>{
+            console.error(error);
+        });
+    }
+
+    pullUsersList() {
+        Axios.get("/api/user/list").then((response)=>{
+            this.setState({usersList: response.data}, ()=>{
+                this.tryToRestore();
+            });
+        }).catch((error)=>{
+            console.error(error);
+        });
+    }
+
+    tryToRestore() {
+        if (this.state.schemasList!==null && this.state.usersList!==null && this.triedToRestore===false
+            && this.state.firstname==='' && this.state.surname==='' && this.state.city==='') {
             this.restoreFromCookie();
             this.triedToRestore = true;
         }
@@ -44,137 +74,50 @@ export default class Newexam extends Component {
 
     render() {
 
-        //console.log(this.props.dictionary);
-
-        if (this.props.dictionary.schemas===null) {
-            return 'Brak łączności z serwerem.';
+        if (this.state.schemasList===null || this.state.usersList===null) {
+            return <PleaseWait />
         }
 
-        var schemaOptions = [];
-        for (var key in this.props.dictionary.schemas) {
-            schemaOptions.push({
-                value: this.props.dictionary.schemas[key].id,
-                label: this.props.dictionary.schemas[key].shortname
-            });
-        }
-
-
+        console.log({
+            s: this.state.schemasList,
+            u: this.state.usersList
+        })
 
         return (
             <div className="Newexam">
                 <h3>Rozpoczynasz nowy egzamin</h3>
                 <form>
-                    {this.renderCardSchema()}
-                    {this.state.schemaOptionSelected!==null && this.renderCardExaminers()}
-                    {this.renderCardExaminee()}
+                    <CardExam
+                        schemasList={this.state.schemasList}
+                        date={this.state.date}
+                        city={this.state.city}
+                        schemaOptionSelected={this.state.schemaOptionSelected}
+                        onDateChangedCallback={this.onDateChanged}
+                        onCityChangedCallback={this.onCityChanged}
+                        onSchemaOptionSelectedCallback={this.onSchemaOptionSelected}
+                        onSchemaSelectedCallback={this.onSchemaSelected}
+                    />
+                    <CardExaminers
+                        schemasList={this.state.schemasList}
+                        usersList={this.state.usersList}
+                        schemaOptionSelected={this.state.schemaOptionSelected}
+                        onExaminerChangedCallback={this.onExaminerChanged}
+                        examinersOptionsSelected={this.state.examinersOptionsSelected}
+                    />
+                    <CardExaminee
+                        firstname={this.state.firstname}
+                        surname={this.state.surname}
+                        workplace={this.state.workplace}
+                        onFirstnameChangedCallback={this.onFirstnameChanged}
+                        onSurnameChangedCallback={this.onSurnameChanged}
+                        onWorkplaceChangedCallback={this.onWorkplaceChanged}
+                    />
                     <div className="text-center p-5">
-                        <button type="button" className="btn btn-primary btn-lg" disabled={!this.state.startIsEnabled} onClick={this.onStartClicked}>Start</button>
+                        <button type="button" className="btn btn-primary btn-lg" disabled={!this.isFormComplete} onClick={this.onStartClicked}>Start</button>
                     </div>
                 </form>
             </div>
         );
-    }
-
-    renderCardExaminee() {
-        return (
-            <div className="card mt-4">
-                <h5 className="card-header">Dane osobowe egzaminowanego:</h5>
-                <div className="card-body">
-                    <div className="form-row">
-                        <div className="form-group col-md-6">
-                            <label htmlFor="inputFirstname">Imię</label>
-                            <input type="text" className="form-control" id="inputFirstname" placeholder="imię" value={this.state.firstname} onChange={this.onFirstnameChanged} />
-                        </div>
-                        <div className="form-group col-md-6">
-                            <label htmlFor="inputLastname">Nazwisko</label>
-                            <input type="text" className="form-control" id="inputLastname" placeholder="nazwisko" value={this.state.surname} onChange={this.onSurnameChanged} />
-                        </div>
-                    </div>
-                    <div className="form-row">
-                        <label htmlFor="inputLastname">Miejsce pracy (dealer)</label>
-                        <input type="text" className="form-control" id="inputWorkplace" placeholder="dealer" value={this.state.workplace} onChange={this.onWorkplaceChanged} />
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    renderCardSchema() {
-        var schemaOptions = [];
-        for (var key in this.props.dictionary.schemas) {
-            schemaOptions.push({
-                value: this.props.dictionary.schemas[key].id,
-                label: this.props.dictionary.schemas[key].shortname
-            });
-        }
-        return (
-            <div className="card mt-4">
-                <h5 className="card-header">Egzamin:</h5>
-                <div className="card-body">
-                    <div className="form-row">
-                        <div className="form-group col-md-6">
-                            <label htmlFor="inputCity">Miejscowość</label>
-                            <input type="text" className="form-control" id="inputCity" placeholder="miejscowość" value={this.state.city} onChange={this.onCityChanged} />
-                        </div>
-                        <div className="form-group col-md-6">
-                            <label htmlFor="inputDate">Data</label>
-                            <input type="date" className="form-control" id="inputDate" placeholder="data" value={this.state.date} onChange={this.onDateChanged} />
-                        </div>
-                    </div>
-                    <div className="form-row ">
-                        <div className="form-group col-md-6">
-                            <label htmlFor="inputCity">Wybierz schemat egzaminu:</label>
-                            <Select
-                                value={this.state.schemaOptionSelected}
-                                options={schemaOptions}
-                                onChange={this.onSchemaSelected}
-                            />
-                        </div>
-                    </div>
-                    <small>Miejscowość i data egzaminu pojawią się na protokole końcowym.</small>
-                </div>
-            </div>
-        );
-    }
-
-    renderCardExaminers() {
-        if (this.state.schemaOptionSelected===null) {
-            return '';
-        }
-        var renderAttachExaminers = [];
-        if (this.state.schemaOptionSelected!==null && this.props.dictionary.schemas[this.state.schemaOptionSelected.value]!==null) {
-            var schema = this.props.dictionary.schemas[this.state.schemaOptionSelected.value];
-            for (var cKey in schema.competences) {
-                var competence = schema.competences[cKey];
-                var thisExaminerOptionsSelected = (typeof(this.state.examinersOptionsSelected[competence.id])!=='undefined') ? this.state.examinersOptionsSelected[competence.id] : [];
-                renderAttachExaminers.push(
-                    <Examinerselect
-                        key={competence.id}
-                        dictionary={this.props.dictionary}
-                        competence={competence}
-                        selected={thisExaminerOptionsSelected}
-                        onExaminerChangedCallback={this.onExaminerChanged}
-                    />
-                );
-            }
-        }
-        var renderAttachExaminersContainer;
-        if(renderAttachExaminers.length>0) {
-            renderAttachExaminersContainer = (
-                <div className="card mt-4">
-                        <h5 className="card-header">Egzaminatorzy:</h5>
-                        <div className="card-body">
-                            {renderAttachExaminers}
-                            <small>
-                                Pola wielokrotnego wyboru. Możesz wybrać więcej niż jednego egzaminatora do każdej kompetencji.
-                                To pole steruje wyłącznie widocznością egzaminu dla poszczególnych osób. Jeśli jakiś egzaminator w ogóle nie przyzna ocen,
-                                to nie wpłynie na końcową średnią uczestnika.
-                            </small>
-                        </div>
-                </div>
-            );
-        }
-        return renderAttachExaminersContainer;
     }
 
     onFirstnameChanged(ev) {
@@ -212,8 +155,8 @@ export default class Newexam extends Component {
         var schemaId = (this.state.schemaOptionSelected!==null && typeof(this.state.schemaOptionSelected.value)!=='undefined' && !isNaN(parseInt(this.state.schemaOptionSelected.value))) ? parseInt(this.state.schemaOptionSelected.value) : null;
         if (schemaId===null) return false;
         var allCompetencesPlanted = true;
-        for(var cKey in this.props.dictionary.schemas[schemaId].competences) {
-            var competence = this.props.dictionary.schemas[schemaId].competences[cKey];
+        for(var cKey in this.state.schemasList[schemaId].competences) {
+            var competence = this.state.schemasList[schemaId].competences[cKey];
             if (typeof(this.state.examinersOptionsSelected[competence.id])==='undefined' || this.state.examinersOptionsSelected[competence.id]===null) {
                 allCompetencesPlanted=false;
                 break;
@@ -232,19 +175,17 @@ export default class Newexam extends Component {
         var payload = this.getFormPayload();
         this.setState({isSending: true});
         Axios.post("/api2/exam/new", payload).then((response) => {
-            //console.log(response.data);
             this.saveToCookie();
             document.location=document.location.origin+"/assessment";
         })
-        //console.log(payload);
     }
 
     getFormPayload() {
         var schemaId = (this.state.schemaOptionSelected!==null && typeof(this.state.schemaOptionSelected.value)!=='undefined' && !isNaN(parseInt(this.state.schemaOptionSelected.value))) ? parseInt(this.state.schemaOptionSelected.value) : null;
         var examinersByCompetence = {};
         if (schemaId!==null) {
-            for (var compKey in this.props.dictionary.schemas[schemaId].competences) {
-                var competence = this.props.dictionary.schemas[schemaId].competences[compKey];
+            for (var compKey in this.state.schemasList[schemaId].competences) {
+                var competence = this.state.schemasList[schemaId].competences[compKey];
                 examinersByCompetence[competence.id] = [];
                 for (var eKey in this.state.examinersOptionsSelected[competence.id]) {
                     examinersByCompetence[competence.id].push(this.state.examinersOptionsSelected[competence.id][eKey].value);
@@ -259,7 +200,7 @@ export default class Newexam extends Component {
             date: this.state.date,
             schemaId: schemaId,
             examiners : examinersByCompetence,
-            chairmanId: this.props.dictionary.user.id
+            chairmanId: this.props.user.id
         };
     }
 
@@ -269,7 +210,7 @@ export default class Newexam extends Component {
 
     restoreFromCookie() {
         var fromCookie = Cookie.get(COOKIE_NAME);
-        if (typeof(fromCookie)!=='undefined' && this.props.dictionary.user!==null && this.props.dictionary.schemas!==null && this.props.dictionary.examiners!==null) {
+        if (typeof(fromCookie)!=='undefined' && this.props.user!==null && this.state.schemasList!==null && this.state.usersList!==null) {
             var payload = JSON.parse(fromCookie);
             var examinersOptions = [];
             for (var cKey in payload.examiners) {
@@ -279,7 +220,7 @@ export default class Newexam extends Component {
                     var eId = parseInt(payload.examiners[cKey][e]);
                     examinersOptions[cId][eId] = {
                         value: eId,
-                        label: this.props.dictionary.examiners[eId].surname+" "+this.props.dictionary.examiners[eId].firstname
+                        label: this.state.usersList[eId].surname+" "+this.state.usersList[eId].firstname
                     }
                 }
             }
@@ -292,12 +233,13 @@ export default class Newexam extends Component {
                 date: payload.date,
                 schemaOptionSelected: {
                     value: schemaId,
-                    label: this.props.dictionary.schemas[schemaId].shortname
+                    label: this.state.schemasList[schemaId].shortname+" ("+moment(this.state.schemasList[schemaId].created_at).format('YYYY-MM-DD')+")"
                 },
                 examinersOptionsSelected: examinersOptions,
                 startIsEnabled: false
+            }, ()=>{
+                console.log(this.state);
             })
         }
-        //console.log(payload);
     }
 }

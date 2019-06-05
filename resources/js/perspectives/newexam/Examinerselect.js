@@ -11,10 +11,10 @@ export default class Examinerselect extends Component {
     render() {
 
         var examinersOptions = [];
-        for (var key in this.props.dictionary.examiners) {
+        for (var key in this.props.usersList) {
             examinersOptions.push({
-                value: this.props.dictionary.examiners[key].id,
-                label: this.props.dictionary.examiners[key].surname+" "+this.props.dictionary.examiners[key].firstname
+                value: this.props.usersList[key].id,
+                label: this.props.usersList[key].surname+" "+this.props.usersList[key].firstname
             });
         }
 

@@ -106,6 +106,7 @@ export default class App extends Component {
                 renderPerspective = (
                     <Newexam
                         dictionary={this.state.dictionary}
+                        user={this.state.dictionary.user}
                         params={params}
                     />
                 );
