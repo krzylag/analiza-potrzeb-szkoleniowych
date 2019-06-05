@@ -98,6 +98,7 @@ export default class App extends Component {
                 renderPerspective = (
                     <Assessment
                         dictionary={this.state.dictionary}
+                        user={this.state.dictionary.user}
                         params={params}
                     />
                 );

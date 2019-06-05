@@ -7,32 +7,30 @@ export default class Examinfo extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            computedTime: []
-        }
         this.clickedFinalizeExam = this.clickedFinalizeExam.bind(this);
     }
 
     render() {
+        console.log(this.props);
+
         var renderedCompetences = [];
-        for (var ckey in this.props.exam.competences) {
-            var competence = this.props.exam.competences[ckey];
-            var allowedUsers = JSON.parse(competence.pivot.allowed_users);
-            var canScore = (allowedUsers.indexOf(this.props.dictionary.user.id) >= 0);
+        for (var ckey in this.props.schema.competences) {
+            var competence = this.props.schema.competences[ckey];
+            var canScore = this.props.exam.allowed_competences[competence.id];
 
             var renderedStatsByUser = [];
 
-            for (var uid in this.props.statistics[competence.id]) {
-                var examiner = this.props.dictionary.examiners[uid];
-                var allTasks = this.props.statistics[competence.id][uid].all_count;
-                var usedTasks = this.props.statistics[competence.id][uid].accepted_count;
-                var avgScore = (usedTasks>0) ? this.props.statistics[competence.id][uid].accepted_sum/usedTasks : 0;
-                if (this.props.statistics[competence.id][uid].accepted_sum > 0) {
-                    renderedStatsByUser.push(
-                        <div key={uid}>{examiner.firstname.substring(0,1)}. {examiner.surname}: <strong>{Math.ceil(avgScore*10000)/100} %</strong> ({usedTasks} / {allTasks})</div>
-                    )
-                }
-            }
+            // for (var uid in this.props.statistics[competence.id]) {
+            //     var examiner = this.props.dictionary.examiners[uid];
+            //     var allTasks = this.props.statistics[competence.id][uid].all_count;
+            //     var usedTasks = this.props.statistics[competence.id][uid].accepted_count;
+            //     var avgScore = (usedTasks>0) ? this.props.statistics[competence.id][uid].accepted_sum/usedTasks : 0;
+            //     if (this.props.statistics[competence.id][uid].accepted_sum > 0) {
+            //         renderedStatsByUser.push(
+            //             <div key={uid}>{examiner.firstname.substring(0,1)}. {examiner.surname}: <strong>{Math.ceil(avgScore*10000)/100} %</strong> ({usedTasks} / {allTasks})</div>
+            //         )
+            //     }
+            // }
             renderedCompetences.push(
                 <div key={competence.id} className="row pl-4 border-top" >
                     <div className="col-sm p-1">
@@ -61,7 +59,7 @@ export default class Examinfo extends Component {
                             </tr>
                             <tr>
                                 <td>Schemat:</td>
-                                <td>{this.props.exam.schema.fullname}</td>
+                                <td>{this.props.schema.fullname}</td>
                             </tr>
                             <tr>
                                 <td>Miejscowość, data:</td>
@@ -75,7 +73,7 @@ export default class Examinfo extends Component {
                         {renderedCompetences}
                     </div>
                 </div>
-                {(this.props.exam.created_by===this.props.dictionary.user.id) && (
+                {(this.props.exam.created_by===this.props.user.id) && (
                      <div className="card-body">
                         <div className="row pl-4" >
                             <div className="col-sm p-1">

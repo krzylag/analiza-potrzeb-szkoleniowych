@@ -19,17 +19,25 @@ use Illuminate\Http\Request;
 
 Route::group(['prefix'=>'schema', 'middleware' => 'auth:api'], function() {
 
-    Route::get ('/list',                 'ApiSchemaController@list');
-    Route::get ('/list/{withDeleted?}',  'ApiSchemaController@list');
+    Route::get ('/list',                    'ApiSchemaController@list');
+    Route::get ('/list/{withDeleted?}',     'ApiSchemaController@list');
 
-    Route::get ('/{schemaId}/get',       'ApiSchemaController@get');
-    Route::post('/{schemaId}/delete',    'ApiSchemaController@delete');
+    Route::get ('/{schemaId}/get',          'ApiSchemaController@get');
+    Route::post('/{schemaId}/delete',       'ApiSchemaController@delete');
 
 });
 
 Route::group(['prefix'=>'user', 'middleware' => 'auth:api'], function() {
 
-    Route::get ('/list',                 'ApiUserController@list');
-    Route::get ('/list/{withDeleted?}',  'ApiUserController@list');
+    Route::get ('/list',                    'ApiUserController@list');
+    Route::get ('/list/{withDeleted?}',     'ApiUserController@list');
+
+});
+
+Route::group(['prefix'=>'exam'], function() {
+//Route::group(['prefix'=>'exam', 'middleware' => 'auth:api'], function() {
+
+    Route::get ('/list/for/{memberId}',         'ApiExamController@listUnfinishedExamsForMember');
+    Route::get ('/scoring/{examIds}',           'ApiExamController@listExamsScoring');
 
 });

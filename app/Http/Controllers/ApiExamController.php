@@ -13,7 +13,11 @@ use App\Question;
 use App\Score;
 use App\Taskcomment;
 
+use App\Http\Traits\GetExam;
+
 class ApiExamController extends Controller {
+
+    use GetExam;
 
     function createNew(Request $request) {
         $payload = $request->all();
@@ -55,7 +59,19 @@ class ApiExamController extends Controller {
                 )
             ));
         }
-}
+    }
+
+    function listUnfinishedExamsForMember($forUid) {
+        return $this->getUnfinishedExamsForMember($forUid);
+    }
+
+    function listExamsScoring($examIds) {
+        $candidates = explode(",",$examIds);
+        array_walk($candidates, function($val) {
+            return (int) trim($val);
+        });
+        return $this->getExamsScoring($candidates);
+    }
 
     function listUnfinishedForMember($forUid) {
         $user = User::find($forUid);

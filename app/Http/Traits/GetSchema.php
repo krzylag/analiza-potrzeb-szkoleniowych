@@ -2,7 +2,6 @@
 
 namespace App\Http\Traits;
 use App\Schema;
-use Illuminate\Support\Facades\DB;
 use App\Task;
 
 trait GetSchema {
