@@ -28,7 +28,8 @@ trait GetExam {
                         "chairman"              => false,
                         "member"                => false
                     ],
-                    "allowed_competences"   => []
+                    "allowed_competences"   => [],
+                    "competences_users"     => []
                 ];
             }
             $result[$exam->id]['roles'][$exam->pivot->role]=true;
@@ -39,6 +40,7 @@ trait GetExam {
                     if ($allowedUserId==$user->id) {
                         $result[$exam->id]['allowed_competences'][$competence->id]=true;
                     }
+                    $result[$exam->id]['competences_users'][$competence->id][$allowedUserId]=$allowedUserId;
                 }
 
             }
@@ -109,8 +111,10 @@ trait GetExam {
                     "id"            => $row->t_id,
                     "threshold"     => (float) $row->t_threshold,
                     "accepted"      => ($row->t_accepted==true),
-                    "answers_sum"   => 0,
-                    "answers_count" => 0,
+                    "sum"           => 0,
+                    "count"         => 0,
+                    "count_max"     => 0,
+                    "avg"           => null,
                     "questions"     => []
                 ];
             }
@@ -120,17 +124,38 @@ trait GetExam {
                     "min"           => (float) $row->q_min,
                     "max"           => (float) $row->q_max,
                     "step"          => (float) $row->q_step,
+                    "sum"           => 0,
+                    "count"         => 0,
+                    "avg"           => null,
                     "users"         => []
                 ];
+                $result[$row->e_id]['tasks'][$row->t_id]['count_max']++;
             }
-            if (!isset($result[$row->e_id]['tasks'][$row->t_id]['questions'][$row->q_id]['users'][$row->u_id]) && $row->u_id!==null) {
-                $result[$row->e_id]['tasks'][$row->t_id]['users'][$row->u_id]=[
+            if ($row->u_id!==null) {
+                $result[$row->e_id]['tasks'][$row->t_id]['questions'][$row->q_id]['users'][$row->u_id]=[
                     "id"            => $row->u_id,
-                    "score"         => $row->score
+                    "score"         => (float) $row->score
                 ];
+                $result[$row->e_id]['tasks'][$row->t_id]['questions'][$row->q_id]['sum'] += (float) $row->score;
+                $result[$row->e_id]['tasks'][$row->t_id]['questions'][$row->q_id]['count']++;
             }
         }
 
+        // Obliczenie średnich ocen tasków na podstawie średnich ocen pytań
+        foreach ($result AS $eId => $exam) {
+            foreach ($exam['tasks'] AS $tId => $task) {
+                foreach ($task['questions'] AS $qId => $question) {
+                    if ($question['count'] > 0) {
+                        $result[$eId]['tasks'][$tId]['questions'][$qId]['avg'] = $question['sum'] / $question['count'];
+                        $result[$eId]['tasks'][$tId]['sum'] += $result[$eId]['tasks'][$tId]['questions'][$qId]['avg'];
+                        $result[$eId]['tasks'][$tId]['count']++;
+                    }
+                }
+                if ($result[$eId]['tasks'][$tId]['count'] > 0) {
+                    $result[$eId]['tasks'][$tId]['avg'] = $result[$eId]['tasks'][$tId]['sum'] / $result[$eId]['tasks'][$tId]['count'];
+                }
+            }
+        }
         return $result;
     }
 

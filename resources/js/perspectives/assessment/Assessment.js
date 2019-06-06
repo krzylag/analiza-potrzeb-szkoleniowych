@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Axios from 'axios';
 import PleaseWait from '../../components/PleaseWait';
-import Examinfo from './Examinfo';
+import ExamCard from './ExamCard';
 import Competenceinfo from './Competenceinfo';
 import Exam from './exam/Exam';
 import Examcomment from './examcomment/Examcomment';
@@ -16,27 +16,27 @@ export default class Assessment extends Component {
             examsList: null,
             statisticsList: null,
 
-            memberExams: null,
-            examStatistics: null
+            // memberExams: null,
+            // examStatistics: null
         }
         this.onExamFinalized=this.onExamFinalized.bind(this);
     }
 
     componentDidMount() {
-        Axios.get("/api2/exam/list-unfinished-for-member/"+this.props.dictionary.user.id).then((response) => {
-            var memberExams = {};
-            for(var ekey in response.data.exams) {
-                var exam = response.data.exams[ekey];
-                for (var ckey in exam.competences) {
-                    exam.competences[ckey].tasks.sort(function(a,b) {
-                        return a.order_signature > b.order_signature;
-                    })
-                }
-                memberExams[exam.id] = exam;
-            }
-            var examStatistics = response.data.statistics;
-            this.setState({memberExams, examStatistics});
-        });
+        // Axios.get("/api2/exam/list-unfinished-for-member/"+this.props.dictionary.user.id).then((response) => {
+        //     var memberExams = {};
+        //     for(var ekey in response.data.exams) {
+        //         var exam = response.data.exams[ekey];
+        //         for (var ckey in exam.competences) {
+        //             exam.competences[ckey].tasks.sort(function(a,b) {
+        //                 return a.order_signature > b.order_signature;
+        //             })
+        //         }
+        //         memberExams[exam.id] = exam;
+        //     }
+        //     var examStatistics = response.data.statistics;
+        //     this.setState({memberExams, examStatistics});
+        // });
         this.pullUsersList();
         this.pullSchemasList();
         this.pullUnfinishedExams();
@@ -69,22 +69,33 @@ export default class Assessment extends Component {
     }
 
     pullStatistics() {
-        var exams = '1,2,3,4';
-        Axios.get(`api/exam/scoring/${exams}`).then((response)=>{
-            this.setState({statisticsList: response.data});
-        }).catch((error)=>{
-            console.error(error);
-        });
+        var examsIds = [];
+        if (this.state.examsList!==null) {
+            for(var eId in this.state.examsList) {
+                examsIds.push(this.state.examsList[eId].id);
+            }
+        }
+        if (this.state.examsList!==null && examsIds.length>0) {
+            var exams = examsIds.join(",");
+            Axios.get(`api/exam/scoring/${exams}`).then((response)=>{
+                this.setState({statisticsList: response.data});
+            }).catch((error)=>{
+                console.error(error);
+            });
+        }
     }
 
     render() {
-        if (this.state.memberExams===null || this.state.examStatistics===null || this.state.usersList===null || this.state.schemasList===null || this.state.examsList===null) {
+        // if (this.state.memberExams===null || this.state.examStatistics===null || this.state.usersList===null || this.state.schemasList===null || this.state.examsList===null) {
+        //     return ( <PleaseWait /> );
+        // }
+        if (this.state.usersList===null || this.state.schemasList===null || this.state.examsList===null || this.state.statisticsList===null) {
             return ( <PleaseWait /> );
         }
 
-        console.log(this.state);
+        // console.log(this.state);
 
-        // Jeśli examId, competenceId podane jako parametry - pokaż listę zadań
+        // Jeśli examId, competenceId podane jako parametry - pokaż listę zadań dla egzaminu
         if (this.props.params[0]!==null && this.props.params[1]!==null && this.props.params[2]===null
                 && !isNaN(this.props.params[0]) && !isNaN(this.props.params[1])) {
             var exam = this.state.memberExams[this.props.params[0]];
@@ -160,15 +171,14 @@ export default class Assessment extends Component {
         var renderedExamsList = [];
         for (var key in this.state.examsList) {
             var exam = this.state.examsList[key];
-            var schema = this.state.schemasList[exam.schema_id];
-            var statistics = this.state.examStatistics[key];
             renderedExamsList.push(
-                <Examinfo
+                <ExamCard
                     key={exam.id}
                     user={this.props.user}
                     exam={exam}
-                    schema={schema}
-                    statistics={statistics}
+                    schema={this.state.schemasList[exam.schema_id]}
+                    statistics={this.state.statisticsList[exam.id]}
+                    users={this.state.usersList}
                     onExamFinalizedCallback={this.onExamFinalized}
                 />
             )

@@ -132,6 +132,7 @@ class ApiExamController extends Controller {
             $stat[$row->eid][$row->cid][$scoUID]['all_count']++;
             if ($row->t_accepted) {
                 $stat[$row->eid][$row->cid][$scoUID]['accepted_count']++;
+                if (($row->points_max-$row->points_min)!=0)
                 $stat[$row->eid][$row->cid][$scoUID]['accepted_sum'] += ($row->scores_sum-$row->points_min)/($row->points_max-$row->points_min);
             }
             $stat[$row->eid][$row->cid][$scoUID]['tasks'][$row->tid]=$row;

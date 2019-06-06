@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
+import ExamCardCompetences from './ExamCardCompetences';
 import Axios from 'axios';
 import { Link } from 'react-router-dom';
+import ExamCardReport from './ExamCardReport';
 
 
-export default class Examinfo extends Component {
+export default class ExamCard extends Component {
 
     constructor(props) {
         super(props);
@@ -13,42 +15,8 @@ export default class Examinfo extends Component {
     render() {
         console.log(this.props);
 
-        var renderedCompetences = [];
-        for (var ckey in this.props.schema.competences) {
-            var competence = this.props.schema.competences[ckey];
-            var canScore = this.props.exam.allowed_competences[competence.id];
-
-            var renderedStatsByUser = [];
-
-            // for (var uid in this.props.statistics[competence.id]) {
-            //     var examiner = this.props.dictionary.examiners[uid];
-            //     var allTasks = this.props.statistics[competence.id][uid].all_count;
-            //     var usedTasks = this.props.statistics[competence.id][uid].accepted_count;
-            //     var avgScore = (usedTasks>0) ? this.props.statistics[competence.id][uid].accepted_sum/usedTasks : 0;
-            //     if (this.props.statistics[competence.id][uid].accepted_sum > 0) {
-            //         renderedStatsByUser.push(
-            //             <div key={uid}>{examiner.firstname.substring(0,1)}. {examiner.surname}: <strong>{Math.ceil(avgScore*10000)/100} %</strong> ({usedTasks} / {allTasks})</div>
-            //         )
-            //     }
-            // }
-            renderedCompetences.push(
-                <div key={competence.id} className="row pl-4 border-top" >
-                    <div className="col-sm p-1">
-                        {competence.name}
-                    </div>
-                    <div className="col-sm p-1">
-                        {canScore &&
-                            <Link to={"/assessment/"+this.props.exam.id+"/"+competence.id} className="btn btn-sm btn-outline-primary">Oceniaj</Link>
-                        }
-                    </div>
-                    <div className="col-sm p-1">
-                        {renderedStatsByUser}
-                    </div>
-                </div>
-            );
-        }
         return (
-            <div className="Examinfo card mt-5" id={"exam"+this.props.exam.id}>
+            <div className="ExamCard card mt-5" id={"exam"+this.props.exam.id}>
                 <h5 className="card-header">{this.props.exam.firstname} {this.props.exam.surname}</h5>
                 <div className="card-body">
                     <table className="table table-sm table-bordered">
@@ -68,11 +36,17 @@ export default class Examinfo extends Component {
                         </tbody>
                     </table>
                 </div>
-                <div className="card-body">
-                    <div className="container border-bottom">
-                        {renderedCompetences}
-                    </div>
-                </div>
+                <ExamCardCompetences
+                    exam={this.props.exam}
+                    schema={this.props.schema}
+                    statistics={this.props.statistics}
+                    users={this.props.users}
+                />
+                <ExamCardReport
+                    exam={this.props.exam}
+                    schema={this.props.schema}
+                    statistics={this.props.statistics}
+                />
                 {(this.props.exam.created_by===this.props.user.id) && (
                      <div className="card-body">
                         <div className="row pl-4" >
