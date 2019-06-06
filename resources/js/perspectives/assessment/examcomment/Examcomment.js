@@ -4,7 +4,6 @@ import CKEditor from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import PleaseWait from '../../../components/PleaseWait';
 import {CKEDITOR_CONFIGURATION,COMMENT_SEND_DELAY} from '../exam/Taskcomment';
-import Flags from './Flags';
 
 export default class Examcomment extends Component {
 
@@ -32,13 +31,13 @@ export default class Examcomment extends Component {
     }
 
     updateContents() {
-        Axios.get('/api2/exam/get/'+this.props.examId).then((response)=>{
+        Axios.get(`/api/exam/${this.props.examId}/get`).then((response)=>{
             console.log(response.data);
             this.setState({
                 examOriginal: response.data
             });
         })
-        Axios.get('/api2/archive/preview/long/'+this.props.examId).then((response)=>{
+        Axios.get(`/api/exam/${this.props.examId}/long/html`).then((response)=>{
             var summaryHtmlOriginal = response.data.split(/<!-- EXAM COMMENT SEPARATOR -->/);
             this.setState({
                 summaryHtmlBefore: summaryHtmlOriginal[0],
@@ -70,12 +69,6 @@ export default class Examcomment extends Component {
                                 data={this.state.comment}
                                 onChange={this.commentChanged}
                             />
-                            <div className="m-5">
-                                <Flags
-                                    exam={this.state.examOriginal}
-                                    onFlagUpdatedCallback={this.onFlagUpdated}
-                                />
-                            </div>
                             <div className="text-center m-2 position-relative">
                                 {this.state.isSaving &&
                                     <PleaseWait size="2.5em" prefix="Zapisywanie" />
@@ -166,6 +159,8 @@ export default class Examcomment extends Component {
                     this.setState({
                         comment: newComments.join('<br />')
                     })
+                } else {
+                    alert("W systemie nie ma komentarzy do zaimportowania.")
                 }
 
             })

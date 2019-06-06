@@ -5,7 +5,11 @@ export function formatDateTime(str) {
 }
 
 export function formatScore(val) {
-    return (Math.ceil(val*100*100)/100).toString().replace(".", ",")+"%";
+    return normalizeScore(val).toString().replace(".", ",")+"%";
+}
+
+export function normalizeScore(val) {
+    return (Math.ceil(val*10000)/100);
 }
 
 export function resolveUserNames(ids, users) {

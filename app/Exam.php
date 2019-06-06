@@ -3,7 +3,6 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use PhpOffice\PhpSpreadsheet\Writer\Exception;
 
 class Exam extends Model {
 
@@ -27,6 +26,12 @@ class Exam extends Model {
 
         }
         return $result;
+    }
+
+    public function getConfigAttribute($value) {
+        $result = new \stdClass();
+        if ($value===null) return $result;
+        return json_decode($value);
     }
 
     // RELATIONSHIPS

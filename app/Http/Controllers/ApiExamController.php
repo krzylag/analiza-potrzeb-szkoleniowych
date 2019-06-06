@@ -14,10 +14,11 @@ use App\Score;
 use App\Taskcomment;
 
 use App\Http\Traits\GetExam;
+use App\Http\Traits\GetSchema;
 
 class ApiExamController extends Controller {
 
-    use GetExam;
+    use GetExam, GetSchema;
 
     function createNew(Request $request) {
         $payload = $request->all();
@@ -59,6 +60,14 @@ class ApiExamController extends Controller {
                 )
             ));
         }
+    }
+
+    public function getShort($examId) {
+        return Exam::find($examId);
+    }
+
+    public function getComplete($examId) {
+        return $this->getCompleteExam($examId);
     }
 
     function listUnfinishedExamsForMember($forUid) {
@@ -408,25 +417,42 @@ class ApiExamController extends Controller {
         return $result;
     }
 
-    public function setCompetenceFlag(Request $request) {
+    // public function setCompetenceFlag(Request $request) {
+    //     $payload = $request->all();
+    //     $exam = Exam::with('competences')->find($payload['examId']);
+    //     $competence = $exam->competences->find($payload['competenceId']);
+    //     //dd($payload);
+    //     //return $competence;
+    //     $config = $competence->pivot->config;
+    //     if ($config==null) {
+    //         $config = array();
+    //     } else {
+    //         $config = json_decode($config, $assoc=true);
+    //     }
+    //     $config['flag_name'] = $payload['flagName'];
+
+    //     $exam->competences()->updateExistingPivot($payload['competenceId'], ['config'=>json_encode($config)]);
+    //     $exam->save();
+
+    //     return array(
+    //         "result" => true
+    //     );
+    // }
+
+    public function setTrainingOverride(Request $request) {
         $payload = $request->all();
-        $exam = Exam::with('competences')->find($payload['examId']);
-        $competence = $exam->competences->find($payload['competenceId']);
-        //dd($payload);
-        //return $competence;
-        $config = $competence->pivot->config;
-        if ($config==null) {
-            $config = array();
-        } else {
-            $config = json_decode($config, $assoc=true);
+        $exam = Exam::find($payload['exam_id']);
+
+        $config = $exam->config;
+        if (!isset($config->overrides)) {
+            $config->overrides = new \stdClass();
         }
-        $config['flag_name'] = $payload['flagName'];
-
-        $exam->competences()->updateExistingPivot($payload['competenceId'], ['config'=>json_encode($config)]);
+        $config->overrides->{$payload['training_id']} = $payload['override'];
+        $exam->config=json_encode($config);
         $exam->save();
-
         return array(
-            "result" => true
+            "result" => true,
+            "exam" => $exam
         );
     }
 

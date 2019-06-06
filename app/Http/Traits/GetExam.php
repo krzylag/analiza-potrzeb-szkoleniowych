@@ -5,8 +5,116 @@ namespace App\Http\Traits;
 use App\User;
 use App\Exam;
 use Illuminate\Support\Facades\DB;
+use App\Http\Traits\GetSchema;
 
 trait GetExam {
+
+    use GetSchema;
+
+    // Zwraca kompletny stan egzaminu. Łączy w jedno exam, schema i statistics.
+    public function getCompleteExam($examId) {
+        $exam = Exam::with('schema')->find($examId)->toArray();
+        $schema = $this->getSchemaStructureArray($exam['schema_id']);
+        $scoring = $this->getExamsScoring([$exam['id']]);
+        $users = (User::all())->keyBy('id');
+
+        foreach ($scoring[$examId]['tasks'] AS $task) {
+            $schema['tasks'][$task['id']]['users']=[];
+            foreach ($task['questions'] AS $question) {
+                $schema['questions'][$question['id']]['sum']=$question['sum'];
+                $schema['questions'][$question['id']]['count']=$question['count'];
+                $schema['questions'][$question['id']]['avg']=$question['avg'];
+                $schema['questions'][$question['id']]['users']=$question['users'];
+                foreach ($question['users'] AS $user) {
+                    if (!isset($schema['tasks'][$task['id']]['users'][$user['id']])) {
+                        $schema['tasks'][$task['id']]['users'][$user['id']]=[
+                            'id' => $user['id'],
+                            'display' => $users[$user['id']]->surname.' '.$users[$user['id']]->firstname
+                        ];
+                    }
+                }
+            }
+            $schema['tasks'][$task['id']]['accepted']=$task['accepted'];
+            $schema['tasks'][$task['id']]['count']=$task['count'];
+            $schema['tasks'][$task['id']]['count_max']=$task['count_max'];
+            $schema['tasks'][$task['id']]['sum']=$task['sum'];
+            $schema['tasks'][$task['id']]['sum_max']=$task['sum_max'];
+            $schema['tasks'][$task['id']]['avg']=$task['avg'];
+            $schema['tasks'][$task['id']]['avg_formatted']=str_replace(".", ",", ceil($task['avg']*10000)/100);
+        }
+
+        foreach ($schema['trainings'] AS $training) {
+            $schema['trainings'][$training['id']]['avg']=0;
+            $schema['trainings'][$training['id']]['avg_formatted']=0;
+            $schema['trainings'][$training['id']]['sum']=0;
+            $schema['trainings'][$training['id']]['count']=0;
+            $schema['trainings'][$training['id']]['count_accepted']=0;
+            $schema['trainings'][$training['id']]['result_override_id']=0;
+            $schema['trainings'][$training['id']]['users']=[];
+            foreach ($schema['trainings'][$training['id']]['tasks'] AS $taskId) {
+                if ($schema['tasks'][$taskId]['accepted']==true) {
+                    $schema['trainings'][$training['id']]['count_accepted']++;
+                    if ($schema['tasks'][$taskId]['count']==$schema['tasks'][$taskId]['count_max']) {
+                        $schema['trainings'][$training['id']]['count']++;
+                        $schema['trainings'][$training['id']]['sum'] += $schema['tasks'][$taskId]['avg'];
+                    }
+                    foreach ($schema['tasks'][$taskId]['users'] AS $user) {
+                        if (!isset($schema['trainings'][$training['id']]['users'][$user['id']])) {
+                            $schema['trainings'][$training['id']]['users'][$user['id']]=$user;
+                        }
+                    }
+                }
+            }
+            if ($schema['trainings'][$training['id']]['count'] > 0) {
+                $schema['trainings'][$training['id']]['avg'] = $schema['trainings'][$training['id']]['sum'] / $schema['trainings'][$training['id']]['count'];
+                $schema['trainings'][$training['id']]['avg_formatted'] = str_replace(".", ",", ceil($schema['trainings'][$training['id']]['avg']*10000)/100);
+            }
+        }
+
+        foreach ($schema['competences'] AS $competence) {
+            $schema['competences'][$competence['id']]['users']=[];
+            foreach ($competence['tasks'] AS $taskId) {
+                foreach ($schema['tasks'][$taskId]['users'] AS $user) {
+                    if (!isset($schema['competences'][$competence['id']]['users'][$user['id']])) {
+                        $schema['competences'][$competence['id']]['users'][$user['id']]=$user;
+                    }
+                }
+            }
+        }
+
+        $exam['competences']=$schema['competences'];
+        $exam['trainings']=$schema['trainings'];
+        $exam['tasks']=$schema['tasks'];
+        $exam['questions']=$schema['questions'];
+        return $exam;
+    }
+
+    // Przetwarza wyniki z getCompleteExam tak, aby nie posługiwać się słownikami, ale mieć od razu obiekty w obiektach.
+    public function getCompleteExamStructurized($examId) {
+        $exam = $this->getCompleteExam($examId);
+        foreach ($exam['tasks'] AS $task) {
+            foreach($task['questions'] AS $questionId) {
+                $exam['tasks'][$task['id']]['questions'][$questionId]=$exam['questions'][$questionId];
+                unset($exam['questions'][$questionId]);
+            }
+        }
+        foreach ($exam['trainings'] AS $training) {
+            foreach($training['tasks'] AS $taskId) {
+                $exam['trainings'][$training['id']]['tasks'][$taskId]=$exam['tasks'][$taskId];
+            }
+            if (isset($exam['config']->overrides)) {
+
+                $exam['trainings'][$training['id']]['result_override_id']=$exam['config']->overrides->{$training['id']};
+            }
+        }
+        foreach ($exam['competences'] AS $competence) {
+            foreach($competence['tasks'] AS $taskId) {
+                $exam['competences'][$competence['id']]['tasks'][$taskId]=$exam['tasks'][$taskId];
+                unset($exam['tasks'][$taskId]);
+            }
+        }
+        return $exam;
+    }
 
     public function getUnfinishedExamsForMember($forUid) {
         $user = User::find($forUid);
@@ -112,6 +220,7 @@ trait GetExam {
                     "threshold"     => (float) $row->t_threshold,
                     "accepted"      => ($row->t_accepted==true),
                     "sum"           => 0,
+                    "sum_max"       => 0,
                     "count"         => 0,
                     "count_max"     => 0,
                     "avg"           => null,
@@ -130,6 +239,7 @@ trait GetExam {
                     "users"         => []
                 ];
                 $result[$row->e_id]['tasks'][$row->t_id]['count_max']++;
+                $result[$row->e_id]['tasks'][$row->t_id]['sum_max'] += (float) $row->q_max;
             }
             if ($row->u_id!==null) {
                 $result[$row->e_id]['tasks'][$row->t_id]['questions'][$row->q_id]['users'][$row->u_id]=[

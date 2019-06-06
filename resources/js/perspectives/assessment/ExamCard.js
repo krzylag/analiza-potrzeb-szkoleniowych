@@ -46,6 +46,7 @@ export default class ExamCard extends Component {
                     exam={this.props.exam}
                     schema={this.props.schema}
                     statistics={this.props.statistics}
+                    requestExamRefreshCallback={this.props.requestExamRefreshCallback}
                 />
                 {(this.props.exam.created_by===this.props.user.id) && (
                      <div className="card-body">

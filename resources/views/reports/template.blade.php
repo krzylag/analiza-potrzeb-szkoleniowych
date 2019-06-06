@@ -63,6 +63,12 @@
             .color-bad {
                 color: #900000;
             }
+            .background-good {
+                background-color: #90FF90;
+            }
+            .background-bad {
+                background-color: #FF9090;
+            }
             .color-grayout {
                 color: #909090;
             }

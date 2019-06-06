@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Http\Traits\GetExam;
 use App\Exam;
 use PDF;
 
-class ApiArchiveController extends Controller
-{
+class ApiArchiveController extends Controller {
+
+    use GetExam;
 
     public function listExams(Request $request) {
         $filters = $request->query('filters');
@@ -197,25 +199,26 @@ class ApiArchiveController extends Controller
     }
 
     public function getReportData($examId) {
-        $exam = Exam::with('schema')->find($examId);
-        return array(
-            "exam_city" => $exam->city,
-            "exam_date" => (new \DateTime($exam->created_at))->format("Y-m-d"),
-            "exam_comment" => $exam->comment,
-            "exam_header_text" => $exam->schema->fullname,
-            "examinee_name" => $exam->surname." ".$exam->firstname,
-            "examinee_workplace" => $exam->workplace,
-            "details" => $this->getExamStatisticsArray($examId)
-        );
+        // $exam = Exam::with('schema')->find($examId);
+        // return array(
+        //     "exam_city" => $exam->city,
+        //     "exam_date" => (new \DateTime($exam->created_at))->format("Y-m-d"),
+        //     "exam_comment" => $exam->comment,
+        //     "exam_header_text" => $exam->schema->fullname,
+        //     "examinee_name" => $exam->surname." ".$exam->firstname,
+        //     "examinee_workplace" => $exam->workplace,
+        //     "details" => $this->getExamStatisticsArray($examId)
+        // );
+        return $this->getCompleteExamStructurized($examId);
     }
 
-    public function htmlToPdf($type, $examId) {
+    public function htmlToPdf($examId, $type) {
         $exam = Exam::find($examId);
         $user = \Auth::user();
         if (!$user->capabilities->can_search) {
             return "Nie masz uprawnień dostępu do archiwum.";
         } else if (!empty($exam)) {
-            $reportData = $this->getReportData($examId);
+            $reportData = $this->getCompleteExamStructurized($examId);
             $reportData['report_type'] = $type;
             $pdf = PDF::loadView("reports.default", $reportData);
             $date = (\DateTime::createFromFormat("Y-m-d H:i:s", $exam->created_at))->format('Y-m-d');
@@ -227,13 +230,13 @@ class ApiArchiveController extends Controller
 
     }
 
-    public function htmlToHtml($type, $examId) {
+    public function htmlToHtml($examId, $type) {
         $exam = Exam::find($examId);
         $user = \Auth::user();
         if (!$user->capabilities->can_search) {
             return "Nie masz uprawnień dostępu do archiwum.";
         } else if (!empty($exam)) {
-            $reportData = $this->getReportData($examId);
+            $reportData = $this->getCompleteExamStructurized($examId);
             $reportData['report_type'] = $type;
             $rendered = view("reports.default", $reportData);
             return $rendered;

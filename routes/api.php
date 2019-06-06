@@ -34,10 +34,19 @@ Route::group(['prefix'=>'user', 'middleware' => 'auth:api'], function() {
 
 });
 
-Route::group(['prefix'=>'exam'], function() {
-//Route::group(['prefix'=>'exam', 'middleware' => 'auth:api'], function() {
+//Route::group(['prefix'=>'exam'], function() {
+Route::group(['prefix'=>'exam', 'middleware' => 'auth:api'], function() {
+
+    Route::get ('/{examId}/get',                'ApiExamController@getShort');
+    Route::get ('/{examId}/get/complete',       'ApiExamController@getComplete');
+    Route::get ('/{examId}/get/structurized',   'ApiExamController@getCompleteExamStructurized');
+
+    Route::post('/{examId}/training/{taskId}/override/{overrideId}',   'ApiExamController@setTrainingOverride');
 
     Route::get ('/list/for/{memberId}',         'ApiExamController@listUnfinishedExamsForMember');
     Route::get ('/scoring/{examIds}',           'ApiExamController@listExamsScoring');
+
+    Route::get('/{examId}/{type}/pdf',          'ApiArchiveController@htmlToPdf');
+    Route::get('/{examId}/{type}/html',         'ApiArchiveController@htmlToHtml');
 
 });

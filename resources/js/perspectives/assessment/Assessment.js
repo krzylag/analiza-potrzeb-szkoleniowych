@@ -20,6 +20,7 @@ export default class Assessment extends Component {
             // examStatistics: null
         }
         this.onExamFinalized=this.onExamFinalized.bind(this);
+        this.pullUnfinishedExams=this.pullUnfinishedExams.bind(this);
     }
 
     componentDidMount() {
@@ -179,6 +180,7 @@ export default class Assessment extends Component {
                     schema={this.state.schemasList[exam.schema_id]}
                     statistics={this.state.statisticsList[exam.id]}
                     users={this.state.usersList}
+                    requestExamRefreshCallback={this.pullUnfinishedExams}
                     onExamFinalizedCallback={this.onExamFinalized}
                 />
             )

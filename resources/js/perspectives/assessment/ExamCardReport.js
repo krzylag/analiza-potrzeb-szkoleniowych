@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { formatScore } from '../../helpers/Formatters';
+import ExamCardOverrideEditor from './ExamCardOverrideEditor';
 
 export default class ExamCardReport extends Component {
 
@@ -21,7 +22,6 @@ export default class ExamCardReport extends Component {
                             <th>#</th>
                             <th>szkolenie</th>
                             <th>wynik</th>
-                            <th>na podstawie</th>
                             <th>rezultat</th>
                         </tr>
                     </thead>
@@ -40,20 +40,17 @@ export default class ExamCardReport extends Component {
                 <th>{training.order_signature}</th>
                 <td>{training.fullname}</td>
                 <td>{formatScore(this._calcPercentageOfActiveTasksInTraining(training))}</td>
-                <td>{this._calcActiveTasksInTraining(training)}</td>
-                <td>{this._getResultAfterOverrides()}</td>
+                <td>
+                    <ExamCardOverrideEditor
+                        exam={this.props.exam}
+                        training={training}
+                        currentScore={this._calcPercentageOfActiveTasksInTraining(training)}
+                        requestExamRefreshCallback={this.props.requestExamRefreshCallback}
+                    />
+                </td>
             </tr>
 
         )
-    }
-
-    _calcActiveTasksInTraining(training) {
-        var activeCount=0;
-        for(var tkey in training.tasks) {
-            var statTask = this.props.statistics.tasks[tkey];
-            if (statTask.accepted) activeCount++;
-        }
-        return activeCount;
     }
 
     _calcPercentageOfActiveTasksInTraining(training) {
@@ -69,8 +66,5 @@ export default class ExamCardReport extends Component {
         return (count>0) ? (sum/count) : 0;
     }
 
-    _getResultAfterOverrides() {
-        return 'asfd';
-    }
 }
 

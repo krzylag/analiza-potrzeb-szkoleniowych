@@ -48,6 +48,12 @@ export default class ExamCardCompetences extends Component {
             );
         }
 
+        var completedTasksInComp = this._calcActiveAndCompletedTasksInCompetence(competence);
+        var activeTasksInComp = this._calcActiveTasksInCompetence(competence);
+        var rowClass = '';
+        if (activeTasksInComp > completedTasksInComp) {
+            rowClass += ' progress-bar progress-bar-striped progress-bar-animated bg-danger';
+        }
         return (
             <tr key={competence.id}>
                 <th>{competence.order_signature}</th>
@@ -61,8 +67,8 @@ export default class ExamCardCompetences extends Component {
                 </td>
                 <td>{renderAssignedUsers}</td>
                 <td>{this._calcAllTasksInCompetence(competence)}</td>
-                <td>{this._calcActiveTasksInCompetence(competence)}</td>
-                <td>{this._calcActiveAndCompletedTasksInCompetence(competence)}</td>
+                <td>{activeTasksInComp}</td>
+                <td className={rowClass}>{completedTasksInComp}</td>
             </tr>
 
         )
