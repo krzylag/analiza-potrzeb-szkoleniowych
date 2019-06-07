@@ -21,6 +21,7 @@ export default class ExamCardReport extends Component {
                         <tr>
                             <th>#</th>
                             <th>szkolenie</th>
+                            <th>zadania</th>
                             <th>wynik</th>
                             <th>rezultat</th>
                         </tr>
@@ -35,10 +36,20 @@ export default class ExamCardReport extends Component {
 
     renderTrainingRow(training) {
 
+        var activeTasksCount = this._countActiveTasksInTraining(training);
+        var taskClasses = '';
+        if (activeTasksCount==0) {
+            taskClasses += ' progress-bar progress-bar-striped progress-bar-animated bg-danger';
+        } else if (activeTasksCount<4) {
+            taskClasses += ' progress-bar progress-bar-striped progress-bar-animated bg-warning text-dark';
+        }
         return (
             <tr key={training.id}>
                 <th>{training.order_signature}</th>
                 <td>{training.fullname}</td>
+                <td>
+                    <span className={taskClasses}>{this._countActiveTasksInTraining(training)}</span>
+                </td>
                 <td>{formatScore(this._calcPercentageOfActiveTasksInTraining(training))}</td>
                 <td>
                     <ExamCardOverrideEditor
@@ -51,6 +62,16 @@ export default class ExamCardReport extends Component {
             </tr>
 
         )
+    }
+
+    _countActiveTasksInTraining(training) {
+        var count=0;
+
+        for(var tId in training.tasks) {
+            var task = this.props.statistics.tasks[tId];
+            if (task.accepted) count++;
+        }
+        return count;
     }
 
     _calcPercentageOfActiveTasksInTraining(training) {

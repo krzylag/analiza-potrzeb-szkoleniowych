@@ -15,12 +15,14 @@ export default class Assessment extends Component {
             schemasList: null,
             examsList: null,
             statisticsList: null,
+            selectedExamId: null
 
             // memberExams: null,
             // examStatistics: null
         }
         this.onExamFinalized=this.onExamFinalized.bind(this);
         this.pullUnfinishedExams=this.pullUnfinishedExams.bind(this);
+        this.expandExam=this.expandExam.bind(this);
     }
 
     componentDidMount() {
@@ -172,6 +174,7 @@ export default class Assessment extends Component {
         var renderedExamsList = [];
         for (var key in this.state.examsList) {
             var exam = this.state.examsList[key];
+            var isSelected = (this.state.selectedExamId===exam.id);
             renderedExamsList.push(
                 <ExamCard
                     key={exam.id}
@@ -180,7 +183,9 @@ export default class Assessment extends Component {
                     schema={this.state.schemasList[exam.schema_id]}
                     statistics={this.state.statisticsList[exam.id]}
                     users={this.state.usersList}
+                    isExpanded={isSelected}
                     requestExamRefreshCallback={this.pullUnfinishedExams}
+                    requestExamExpandCallback={this.expandExam}
                     onExamFinalizedCallback={this.onExamFinalized}
                 />
             )
@@ -196,5 +201,11 @@ export default class Assessment extends Component {
         var memberExams = this.state.memberExams;
         delete(memberExams[exam.id]);
         this.setState({memberExams});
+    }
+
+    expandExam(exam) {
+        this.setState({
+            selectedExamId: (exam.id===this.state.selectedExamId) ? null : exam.id
+        });
     }
 }

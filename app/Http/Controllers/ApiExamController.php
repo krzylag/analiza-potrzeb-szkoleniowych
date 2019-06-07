@@ -451,8 +451,22 @@ class ApiExamController extends Controller {
         $exam->config=json_encode($config);
         $exam->save();
         return array(
-            "result" => true,
-            "exam" => $exam
+            "result" => true
+        );
+    }
+
+    public function setCompetenceUsersAssignment(Request $request) {
+        $payload = $request->all();
+        $exam = Exam::find($payload['exam_id']);
+        $usersIds = ($payload['users']==0) ? [] : explode(",", $payload['users']);
+        DB::update('UPDATE exams_competences SET allowed_users=? WHERE exam_id=? AND competence_id=?', [
+            json_encode($usersIds),
+            $payload['exam_id'],
+            $payload['competence_id'],
+        ]);
+
+        return array(
+            "result" => true
         );
     }
 

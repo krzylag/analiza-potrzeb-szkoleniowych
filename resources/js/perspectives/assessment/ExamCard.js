@@ -10,27 +10,34 @@ export default class ExamCard extends Component {
     constructor(props) {
         super(props);
         this.clickedFinalizeExam = this.clickedFinalizeExam.bind(this);
+        this.toggleExpand = this.toggleExpand.bind(this);
     }
 
     render() {
         console.log(this.props);
 
+        var examCardClasses = 'ExamCard card mt-5';
+        if (this.props.isExpanded) {
+            examCardClasses += ' is-expanded';
+        } else {
+            examCardClasses += ' is-contracted';
+        }
         return (
-            <div className="ExamCard card mt-5" id={"exam"+this.props.exam.id}>
-                <h5 className="card-header">{this.props.exam.firstname} {this.props.exam.surname}</h5>
-                <div className="card-body">
+            <div className={examCardClasses} id={"exam"+this.props.exam.id}>
+                <h5 className="card-header" onClick={this.toggleExpand}>{this.props.exam.firstname} {this.props.exam.surname}</h5>
+                <div className="card-body" onClick={this.toggleExpand}>
                     <table className="table table-sm table-bordered">
                         <tbody>
                             <tr>
-                                <td>Egzaminowany:</td>
+                                <th>egzaminowany:</th>
                                 <td>{this.props.exam.firstname} {this.props.exam.surname} {this.props.exam.workplace}</td>
                             </tr>
                             <tr>
-                                <td>Schemat:</td>
+                                <th>schemat:</th>
                                 <td>{this.props.schema.fullname}</td>
                             </tr>
                             <tr>
-                                <td>Miejscowość, data:</td>
+                                <th>miejscowość, data:</th>
                                 <td>{this.props.exam.city}, {this.props.exam.date}</td>
                             </tr>
                         </tbody>
@@ -41,6 +48,7 @@ export default class ExamCard extends Component {
                     schema={this.props.schema}
                     statistics={this.props.statistics}
                     users={this.props.users}
+                    requestExamRefreshCallback={this.props.requestExamRefreshCallback}
                 />
                 <ExamCardReport
                     exam={this.props.exam}
@@ -78,6 +86,10 @@ export default class ExamCard extends Component {
                 this.props.onExamFinalizedCallback(response.data);
             })
         }
+    }
+
+    toggleExpand() {
+        this.props.requestExamExpandCallback(this.props.exam);
     }
 
 }

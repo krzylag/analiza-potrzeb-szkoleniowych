@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { resolveUserNames } from '../../helpers/Formatters';
+import ExamCardCompetencesUserEditor from './ExamCardCompetencesUserEditor';
 
 export default class ExamCardCompetences extends Component {
 
@@ -41,13 +41,6 @@ export default class ExamCardCompetences extends Component {
 
     renderCompetenceRow(competence, canScore) {
 
-        var renderAssignedUsers = [];
-        for(var uId in this.props.exam.competences_users[competence.id]) {
-            renderAssignedUsers.push(
-                <div key={uId}>{resolveUserNames(this.props.exam.competences_users[competence.id][uId], this.props.users)}</div>
-            );
-        }
-
         var completedTasksInComp = this._calcActiveAndCompletedTasksInCompetence(competence);
         var activeTasksInComp = this._calcActiveTasksInCompetence(competence);
         var rowClass = '';
@@ -65,10 +58,20 @@ export default class ExamCardCompetences extends Component {
                         <div className="btn btn-outline-dark d-block disabled">{competence.name}</div>
                     }
                 </td>
-                <td>{renderAssignedUsers}</td>
+                <td>
+                    <ExamCardCompetencesUserEditor
+                        exam={this.props.exam}
+                        competence={competence}
+                        assignedIds={this.props.exam.competences_users[competence.id]}
+                        users={this.props.users}
+                        requestExamRefreshCallback={this.props.requestExamRefreshCallback}
+                    />
+                </td>
                 <td>{this._calcAllTasksInCompetence(competence)}</td>
                 <td>{activeTasksInComp}</td>
-                <td className={rowClass}>{completedTasksInComp}</td>
+                <td>
+                    <span className={rowClass}>{completedTasksInComp}</span>
+                </td>
             </tr>
 
         )

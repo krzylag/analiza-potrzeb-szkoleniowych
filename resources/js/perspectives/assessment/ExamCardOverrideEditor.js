@@ -27,19 +27,19 @@ export default class ExamCardOverrideEditor extends Component {
         var currentState = '';
         switch (this.state.currentValue) {
             case OVERRIDE_ACCEPTED:
-                currentState = (<span className="text-primary">szkolenie uznane</span>);
+                currentState = (<span className="text-status text-primary">szkolenie uznane</span>);
                 break;
             case OVERRIDE_NOEFFECT:
-                currentState = (<span className="text-primary">nie podlega</span>);
+                currentState = (<span className="text-status text-primary">nie podlega</span>);
                 break;
             case OVERRIDE_HIDDEN:
-                currentState = (<span className="text-muted">szkolenie ukryte</span>);
+                currentState = (<span className="text-status text-muted">szkolenie ukryte</span>);
                 break;
             default:
                 if (normalizeScore(this.props.training.score_threshold) <= normalizeScore(this.props.currentScore)) {
-                    currentState = (<span className="text-success">pozytywny</span>);
+                    currentState = (<span className="text-status text-success">pozytywny</span>);
                 } else {
-                    currentState = (<span className="text-danger">negatywny</span>);
+                    currentState = (<span className="text-status text-danger">negatywny</span>);
                 }
         }
 
