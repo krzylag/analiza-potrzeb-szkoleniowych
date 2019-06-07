@@ -148,7 +148,7 @@ trait GetExam {
                     if ($allowedUserId==$user->id) {
                         $result[$exam->id]['allowed_competences'][$competence->id]=true;
                     }
-                    $result[$exam->id]['competences_users'][$competence->id][$allowedUserId]=$allowedUserId;
+                    $result[$exam->id]['competences_users'][$competence->id][$allowedUserId]=(int)$allowedUserId;
                 }
 
             }

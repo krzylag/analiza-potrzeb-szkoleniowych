@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Axios from 'axios';
 import PleaseWait from '../../components/PleaseWait';
 import ExamCard from './ExamCard';
-import Competenceinfo from './Competenceinfo';
+import CompetenceCard from './CompetenceCard';
 import Exam from './exam/Exam';
 import Examcomment from './examcomment/Examcomment';
 
@@ -22,6 +22,7 @@ export default class Assessment extends Component {
         }
         this.onExamFinalized=this.onExamFinalized.bind(this);
         this.pullUnfinishedExams=this.pullUnfinishedExams.bind(this);
+        this.pullStatistics=this.pullStatistics.bind(this);
         this.expandExam=this.expandExam.bind(this);
     }
 
@@ -71,7 +72,7 @@ export default class Assessment extends Component {
         });
     }
 
-    pullStatistics() {
+    pullStatistics(onDone=null) {
         var examsIds = [];
         if (this.state.examsList!==null) {
             for(var eId in this.state.examsList) {
@@ -80,8 +81,11 @@ export default class Assessment extends Component {
         }
         if (this.state.examsList!==null && examsIds.length>0) {
             var exams = examsIds.join(",");
-            Axios.get(`api/exam/scoring/${exams}`).then((response)=>{
+            Axios.get(`/api/exam/scoring/${exams}`).then((response)=>{
                 this.setState({statisticsList: response.data});
+                if (typeof(onDone)==='function') {
+                    onDone(response.data);
+                }
             }).catch((error)=>{
                 console.error(error);
             });
@@ -89,42 +93,29 @@ export default class Assessment extends Component {
     }
 
     render() {
-        // if (this.state.memberExams===null || this.state.examStatistics===null || this.state.usersList===null || this.state.schemasList===null || this.state.examsList===null) {
-        //     return ( <PleaseWait /> );
-        // }
         if (this.state.usersList===null || this.state.schemasList===null || this.state.examsList===null || this.state.statisticsList===null) {
             return ( <PleaseWait /> );
         }
 
-        // console.log(this.state);
-
         // Jeśli examId, competenceId podane jako parametry - pokaż listę zadań dla egzaminu
         if (this.props.params[0]!==null && this.props.params[1]!==null && this.props.params[2]===null
                 && !isNaN(this.props.params[0]) && !isNaN(this.props.params[1])) {
-            var exam = this.state.memberExams[this.props.params[0]];
-            var competence = null;
-            for (var cid in exam.competences) {
-                if (exam.competences[cid].id===parseInt(this.props.params[1])) {
-                    competence = exam.competences[cid];
-                    break;
-                }
-            }
-            competence.tasks.sort(function(a,b) {
-                if (isNaN(a.order_signature)) return -1;
-                if (isNaN(b.order_signature)) return 1;
-                if (a.order_signature===b.order_signature)
-                    return a.hash > b.hash;
-                else
-                    return parseInt(a.order_signature) > parseInt(b.order_signature);
-            });
-            var allowedUsers = JSON.parse(competence.pivot.allowed_users);
-            var canScore = (allowedUsers.indexOf(this.props.dictionary.user.id) >= 0);
+
+            var exam = this.state.examsList[this.props.params[0]];
+            var schema = this.state.schemasList[exam.schema_id];
+            var statistics = this.state.statisticsList[exam.id];
+            var competence =  schema.competences[this.props.params[1]];
+            var allowedUsers = exam.competences_users[competence.id];
+            var canScore = (allowedUsers[this.props.user.id]===this.props.user.id);
             return (
-                <Competenceinfo
+                <CompetenceCard
                     dictionary={this.props.dictionary}
+                    user={this.props.user}
                     exam={exam}
-                    competence={competence}
+                    statistics={statistics}
+                    competenceId={competence.id}
                     canScore={canScore}
+                    requestStatisticsRefreshCallback={this.pullStatistics}
                 />
             );
         }

@@ -14,7 +14,6 @@ export default class ExamCard extends Component {
     }
 
     render() {
-        console.log(this.props);
 
         var examCardClasses = 'ExamCard card mt-5';
         if (this.props.isExpanded) {
@@ -23,7 +22,7 @@ export default class ExamCard extends Component {
             examCardClasses += ' is-contracted';
         }
         return (
-            <div className={examCardClasses} id={"exam"+this.props.exam.id}>
+            <div className={examCardClasses} id={"exam-"+this.props.exam.id}>
                 <h5 className="card-header" onClick={this.toggleExpand}>{this.props.exam.firstname} {this.props.exam.surname}</h5>
                 <div className="card-body" onClick={this.toggleExpand}>
                     <table className="table table-sm table-bordered">
