@@ -46,6 +46,13 @@ export default class CompetenceCard extends Component {
 
             var schemaTask = this.state.schema.tasks[_competence.tasks[tkey]];
             var statTask = this.props.statistics.tasks[_competence.tasks[tkey]];
+            var trainingNames = [];
+            for (var cKey in this.state.schema.competences) {
+                var comp = this.state.schema.competences[cKey];
+                if (comp.tasks[schemaTask.id]===schemaTask.id) {
+                    trainingNames.push(comp.name);
+                }
+            }
 
             if (statTask.accepted===true) {
                 usedSeconds += schemaTask.time_available;
@@ -61,6 +68,7 @@ export default class CompetenceCard extends Component {
                     competence={_competence}
                     task={schemaTask}
                     statistics={statTask}
+                    trainingNames={trainingNames}
                     isChecked={statTask.accepted}
                     requestStatisticsRefreshCallback={this.props.requestStatisticsRefreshCallback}
                 />
@@ -89,9 +97,9 @@ export default class CompetenceCard extends Component {
                         <tr>
                             <th>#</th>
                             <th>zadanie</th>
+                            <th>przypisanie do</th>
                             <th>czas</th>
                             <th>czy wybrane?</th>
-                            <th>ocenianie</th>
                             <th>status</th>
                         </tr>
                     </thead>

@@ -28,7 +28,13 @@ export default class CompetenceCardTask extends Component {
         return (
             <tr className="CompetenceCardTask">
                 <td>{this.props.task.order_signature}</td>
-                <td>{this.props.task.name}</td>
+                <td>
+                <Link
+                        to={"/assessment/"+this.props.exam.id+"/"+this.props.competence.id+"/"+this.props.task.id}
+                        className="btn btn-outline-primary"
+                    >{this.props.task.name}</Link>
+                </td>
+                <td>{this.props.trainingNames.join(", ")}</td>
                 <td>{Math.floor(this.props.task.time_available/60)} min</td>
                 <td className="text-center align-middle">
                     {this.state.isAwaitingForRefresh &&
@@ -41,12 +47,6 @@ export default class CompetenceCardTask extends Component {
                             onClick={this.onCheckboxClick}
                         />
                     }
-                </td>
-                <td>
-                    <Link
-                        to={"/assessment/"+this.props.exam.id+"/"+this.props.competence.id+"/"+this.props.task.id}
-                        className="btn btn-outline-primary btn-sm"
-                    >Wejdź</Link>
                 </td>
                 <td>
                     <div className={statClasses}>
