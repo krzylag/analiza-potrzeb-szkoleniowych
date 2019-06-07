@@ -20,9 +20,11 @@ export default class CompetenceCardTask extends Component {
         var isCheckedClass = (this.props.isChecked===true) ? ' is-checked' : '';
         var isCheckedStyle = (this.props.isChecked===true) ? {backgroundImage: 'url('+tick+')'} : {};
         var isIncomplete = (this.props.isChecked===true && this.props.statistics.count < this.props.statistics.count_max);
+        var isComplete = (this.props.isChecked===true && this.props.statistics.count == this.props.statistics.count_max);
 
         var statClasses = 'lineheight11';
         if (isIncomplete) statClasses += ' progress-bar progress-bar-striped progress-bar-animated bg-danger';
+        if (isComplete) statClasses += ' progress-bar progress-bar-striped bg-success';
         return (
             <tr className="CompetenceCardTask">
                 <td>{this.props.task.order_signature}</td>
