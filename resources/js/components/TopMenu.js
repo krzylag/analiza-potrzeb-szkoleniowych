@@ -11,7 +11,7 @@ export default class Topmenu extends Component {
         var renderedMenu = [];
         var renderedName = '';
 
-        if (typeof(this.props.dictionary.user)==='undefined' || this.props.dictionary.user===null) {
+        if (typeof(this.props.user)==='undefined' || this.props.user===null) {
             renderedMenu = (
                 <PleaseWait key="PleaseWait" />
             )
@@ -21,7 +21,7 @@ export default class Topmenu extends Component {
             var renderedLinksManagement = [];
             for (var perId in PERSPECTIVES) {
                 var per = PERSPECTIVES[perId];
-                if (per.testUser(this.props.dictionary.user)) {
+                if (per.testUser(this.props.user)) {
                     var linkClass;
                     if (perId===this.props.perspective.id) {
                         linkClass = ' active';
@@ -60,7 +60,7 @@ export default class Topmenu extends Component {
             }
 
             renderedName = (
-                <div key="user" className="navbar-text text-light">{this.props.dictionary.user.firstname} {this.props.dictionary.user.surname}</div>
+                <div key="user" className="navbar-text text-light">{this.props.user.firstname} {this.props.user.surname}</div>
             );
 
         }

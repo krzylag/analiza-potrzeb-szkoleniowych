@@ -42,7 +42,7 @@
                         @case(1)
                             <tr>
                                 <th>{{$training['order_signature']}}</th>
-                                <td>{{$training['fullname']}}{{$training['result_override_id']}}</td>
+                                <td>{{$training['fullname']}}</td>
                                 <td class="text-center"
                                     <strong>{{$training['avg_formatted']}} %</strong>
                                 </td>
@@ -56,7 +56,7 @@
                         @case(2)
                             <tr>
                                 <th>{{$training['order_signature']}}</th>
-                                <td>{{$training['fullname']}}{{$training['result_override_id']}}</td>
+                                <td>{{$training['fullname']}}</td>
                                 <td class="text-center"
                                     <strong>--</strong>
                                 </td>
@@ -73,7 +73,7 @@
                         @default
                             <tr>
                                 <th>{{$training['order_signature']}}</th>
-                                <td>{{$training['fullname']}}{{$training['result_override_id']}}</td>
+                                <td>{{$training['fullname']}}</td>
                                 <td class="text-center"
                                     <strong>{{$training['avg_formatted']}} %</strong>
                                 </td>

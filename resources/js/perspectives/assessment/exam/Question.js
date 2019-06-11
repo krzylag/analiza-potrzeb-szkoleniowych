@@ -66,7 +66,7 @@ export default class Question extends Component {
             questionId: this.props.question.id,
             value:  value
         }
-        Axios.post("/api2/exam/grading/set-score", callParams).then((response)=>{
+        Axios.post(`/api/exam/${callParams.examId}/competence/${callParams.competenceId}/task/${callParams.taskId}/question/${callParams.questionId}/set-score`, callParams).then((response)=>{
             var qId = parseInt(response.data.question_id)
             var score = parseFloat(response.data.score)
             this.props.onScoringButtonClickedCallback(qId, score, ()=>{

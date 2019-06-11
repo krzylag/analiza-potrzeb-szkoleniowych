@@ -53,7 +53,7 @@ export default class Examcomment extends Component {
                 <PleaseWait />
             )
         }
-        var canEditComment = (this.props.dictionary.user.capabilities.is_admin || this.state.examOriginal.created_by==this.props.dictionary.user.id);
+        var canEditComment = (this.props.user.capabilities.is_admin || this.state.examOriginal.created_by==this.props.user.id);
         return (
             <div className="Examcomment">
                 {this.state.summaryHtmlBefore!==null &&
@@ -114,13 +114,13 @@ export default class Examcomment extends Component {
                 isWaitingForSave: false,
                 isSaving: true
             });
-            Axios.post("/api2/exam/set-comment", {
+            Axios.post(`/api/exam/${this.state.examOriginal.id}/set-comment`, {
                 examId: this.state.examOriginal.id,
                 comment: this.state.comment
             }).then((response)=>{
                 //console.log(response.data)
             }).catch((error)=>{
-
+                console.error(error);
             }).then(()=>{
                 this.timeoutId=null;
                 this.setState({
@@ -138,7 +138,7 @@ export default class Examcomment extends Component {
 
     importClicked() {
         if (confirm("Cały komentarz zostanie bezpowrotnie zastąpiony sumą komentarzy cząstkowych. Będą one wymagały dalszej obróbki. Czy kontynuować?")) {
-            Axios.get('/api2/exam/get-default-comment/'+this.props.examId).then((response)=>{
+            Axios.get(`/api/exam/${this.props.examId}/get-default-comment/`).then((response)=>{
                 var newComments = [];
                 for (var ckey in response.data) {
                     var competence = response.data[ckey];

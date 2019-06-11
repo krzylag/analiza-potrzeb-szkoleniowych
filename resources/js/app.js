@@ -17,7 +17,6 @@ import {BrowserRouter, Route} from 'react-router-dom';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import User from './types/User';
-import Axios from 'axios';
 
 import Topmenu from './components/TopMenu';
 import Footer from './components/Footer';
@@ -45,45 +44,18 @@ export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            dictionary: {
-                user: null,
-                schemas: null,
-                examiners: null
-            }
+            user: null
         }
     }
 
     componentDidMount() {
         new User().then((response) => {
-            var oldDict = this.state.dictionary;
-            oldDict.user = response;
-            this.setState({dictionary: oldDict});
-        })
-        Axios.get('/api2/dictionary/get').then((response) => {
-            var dictionary = this.state.dictionary;
-            var schemas = [];
-            for (var key in response.data.schemas) {
-                var schema = response.data.schemas[key];
-                var competences = [];
-                for(var cKey in schema.competences) {
-                    competences[schema.competences[cKey].id]=schema.competences[cKey];
-                }
-                schema.competences = competences;
-                schemas[schema.id]=schema;
-            }
-            dictionary.schemas = schemas;
-            var examiners = [];
-            for (var key in response.data.examiners) {
-                var examiner = response.data.examiners[key];
-                examiners[examiner.id]=examiner;
-            }
-            dictionary.examiners = examiners;
-            this.setState({dictionary});
+            this.setState({user: response});
         })
     }
 
     render() {
-        if (this.state.dictionary.user===null || this.state.dictionary.schemas===null) {
+        if (this.state.user===null) {
             return ( <PleaseWait /> );
         }
         var perspective = (typeof(this.props.perspective)!=='undefined' && typeof(PERSPECTIVES[this.props.perspective])!=='undefined') ? PERSPECTIVES[this.props.perspective] : PERSPECTIVE_DEFAULT;
@@ -97,8 +69,7 @@ export default class App extends Component {
             case 'assessment':
                 renderPerspective = (
                     <Assessment
-                        dictionary={this.state.dictionary}
-                        user={this.state.dictionary.user}
+                        user={this.state.user}
                         params={params}
                     />
                 );
@@ -106,8 +77,7 @@ export default class App extends Component {
             case 'newexam':
                 renderPerspective = (
                     <Newexam
-                        dictionary={this.state.dictionary}
-                        user={this.state.dictionary.user}
+                        user={this.state.user}
                         params={params}
                     />
                 );
@@ -115,7 +85,7 @@ export default class App extends Component {
             case 'archive':
                 renderPerspective = (
                     <Archive
-                        dictionary={this.state.dictionary}
+                        user={this.state.user}
                         params={params}
                     />
                 );
@@ -123,7 +93,6 @@ export default class App extends Component {
             case 'settings':
                 renderPerspective = (
                     <Settings
-                        dictionary={this.state.dictionary}
                         params={params}
                     />
                 );
@@ -131,7 +100,6 @@ export default class App extends Component {
             case 'users':
                 renderPerspective = (
                     <Users
-                        dictionary={this.state.dictionary}
                         params={params}
                     />
                 );
@@ -145,7 +113,7 @@ export default class App extends Component {
             <div className="App">
                 <Topmenu
                     perspective={perspective}
-                    dictionary={this.state.dictionary}
+                    user={this.state.user}
                 />
                 <div className="content">
                     <div className="container rounded border border-light">

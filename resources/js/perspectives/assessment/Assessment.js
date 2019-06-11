@@ -92,7 +92,6 @@ export default class Assessment extends Component {
             var canScore = (allowedUsers[this.props.user.id]===this.props.user.id);
             return (
                 <CompetenceCard
-                    dictionary={this.props.dictionary}
                     user={this.props.user}
                     exam={exam}
                     statistics={statistics}
@@ -131,7 +130,7 @@ export default class Assessment extends Component {
                 return (
                     <Examcomment
                         examId={parseInt(this.props.params[2])}
-                        dictionary={this.props.dictionary}
+                        user={this.props.user}
                     />
                 );
         }

@@ -79,7 +79,7 @@ export default class ExamCard extends Component {
     clickedFinalizeExam() {
         if (confirm("Czy na pewno zakończyć egzamin dla "+this.props.exam.surname+" "+this.props.exam.firstname+"?")) {
             console.log("finalize");
-            Axios.post('/api2/exam/finalize', {
+            Axios.post(`/api/exam/${this.props.exam.id}/finalize`, {
                 examId: this.props.exam.id
             }).then((response)=>{
                 this.props.onExamFinalizedCallback(response.data);

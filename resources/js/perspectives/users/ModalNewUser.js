@@ -168,7 +168,7 @@ export default class ModalNewUser extends Component {
         } else {
             this.setState({formIsSending: true, duplicatedEmail: false, formNotCompleted: false});
             var payload = this.getPayload();
-            Axios.post('/api2/user/add', payload).then((response)=>{
+            Axios.post(`/api/user/add`, payload).then((response)=>{
                 this.setState({formIsSending: false});
                 if (response.data.result===true) {
                     this.closeModal(null, true);
@@ -186,7 +186,7 @@ export default class ModalNewUser extends Component {
 
     closeModalDelete() {
         if (confirm("Czy na pewno usunąć użytkownika z systemu?")) {
-            Axios.post('/api2/user/delete', {
+            Axios.post(`/api/user/${this.state.defaults.id}/delete`, {
                 id: (this.state.defaults!==null && !isNaN(this.state.defaults.id)) ? this.state.defaults.id : null
             }).then((response)=>{
                 this.setState({formIsSending: false});

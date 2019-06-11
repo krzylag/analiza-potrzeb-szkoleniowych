@@ -38,7 +38,7 @@ class ApiSchemaController extends Controller {
         }
     }
 
-    function import(Request $request) {
+    function upload(Request $request) {
         $file = $request->file('uploaded');
 
 

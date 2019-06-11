@@ -15,8 +15,6 @@ export default class Examslist extends Component {
     constructor(props) {
         super(props);
         this.onRevertClicked = this.onRevertClicked.bind(this);
-       // this.onPdfClicked = this.onPdfClicked.bind(this);
-        this.onViewClicked = this.onViewClicked.bind(this);
     }
 
     render() {
@@ -86,9 +84,9 @@ export default class Examslist extends Component {
     }
 
     renderExamButtons(exam) {
-        var canEditComment = (this.props.dictionary.user.id===exam.created_by || this.props.dictionary.user.capabilities.is_admin);
+        var canEditComment = (this.props.user.id===exam.created_by || this.props.user.capabilities.is_admin);
         var finishedDaysAgo = (moment.duration((new moment()).diff((new moment(exam.updated_at))))).get("days");
-        var canRevertCompletion = ((this.props.dictionary.user.id===exam.created_by && finishedDaysAgo===0) || this.props.dictionary.user.capabilities.is_admin);
+        var canRevertCompletion = ((this.props.user.id===exam.created_by && finishedDaysAgo===0) || this.props.user.capabilities.is_admin);
 
         return (
             <div>
@@ -97,8 +95,8 @@ export default class Examslist extends Component {
                         <img className="button-image" src={edit} />
                     </Link>
                 }
-                <a className="btn" href={"/api2/archive/preview/long/"+exam.id} target="_blank"><img className="button-image" src={view} /></a>
-                <a className="btn" href={"/api2/archive/pdf/short/"+exam.id} target="_blank"><img className="button-image" src={pdf} /></a>
+                <a className="btn" href={`/archive/exam/${exam.id}/long/html`} target="_blank"><img className="button-image" src={view} /></a>
+                <a className="btn" href={`/archive/exam/${exam.id}/short/pdf`} target="_blank"><img className="button-image" src={pdf} /></a>
                 {canRevertCompletion &&
                     <button type="button" className="btn btn-danger" onClick={(ev) => (this.onRevertClicked(ev, exam.id))}>
                         <img className="button-image" src={revert} />
@@ -108,16 +106,10 @@ export default class Examslist extends Component {
         )
     }
 
-    onViewClicked(ev, eid) {
-        Axios.get('/api2/archive/report/full/'+eid).then((response)=>{
-            console.log(response.data);
-        });
-    }
-
 
     onRevertClicked(ev, eid) {
         if (confirm("Czy na pewno przywrócić egzamin do edycji?")) {
-            Axios.post('/api2/exam/revert', {
+            Axios.post(`/api/exam/${eid}/revert`, {
                 examId: eid
             }).then((response)=>{
                 this.props.onExamRevertedCallback(response.data);

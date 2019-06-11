@@ -14,7 +14,6 @@ class ApiUserController extends Controller
     }
 
     public function getCurrentUser() {
-       // dd(\Auth::user()->capabilities);
         return \Auth::user();
     }
 

@@ -174,7 +174,7 @@ export default class Newexam extends Component {
     onStartClicked() {
         var payload = this.getFormPayload();
         this.setState({isSending: true});
-        Axios.post("/api2/exam/new", payload).then((response) => {
+        Axios.post("/api/exam/new", payload).then((response) => {
             this.saveToCookie();
             document.location=document.location.origin+"/assessment";
         })

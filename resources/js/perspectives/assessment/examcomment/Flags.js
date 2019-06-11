@@ -93,7 +93,7 @@ export default class Flags extends Component {
                 newCompetence[flag.name]=false;
             }
         };
-        Axios.post('/api2/exam/set-flag', {
+        Axios.post(`/api/exam/${this.props.exam.id}/set-flag`, {
             examId: this.props.exam.id,
             competenceId: cId,
             flagName: fName

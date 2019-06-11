@@ -55,7 +55,7 @@ export default class FileImport extends Component {
             var data = new FormData();
             data.append('uploaded', this.state.file, this.state.file.name);
             var settings = { headers: { 'content-type': 'multipart/form-data' } };
-            Axios.post("/api2/schema/import", data, settings).then((response)=>{
+            Axios.post("/api/schema/upload", data, settings).then((response)=>{
                 if (response.data.result===false) {
                     if (response.data.errors.length>0) alert("Import nieudany.\n"+response.data.errors.join("\n"));
                     this.setState({

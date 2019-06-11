@@ -38,7 +38,7 @@ export default class Archive extends Component {
                     onFiltersChangedCallback={this.onFiltersChanged}
                 />
                 <Examslist
-                    dictionary={this.props.dictionary}
+                    user={this.props.user}
                     exams={this.state.exams}
                     onExamRevertedCallback={this.onExamReverted}
                 />
@@ -69,7 +69,7 @@ export default class Archive extends Component {
 
     pullNewArchive() {
         this.setState({exams: null})
-        Axios.get('/api2/archive/list', {
+        Axios.get('/api/archive/list', {
             params: {
                 filters: this.state.filters
             }

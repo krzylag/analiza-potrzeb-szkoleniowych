@@ -18,7 +18,7 @@ export default class User {
         var context = this;
 
         return new Promise(function(resolve,reject) {
-            Axios.get('/api2/user').then((response)=>{
+            Axios.get('/api/user/get').then((response)=>{
                 context.id = parseInt(response.data.id);
                 context.firstname = response.data.firstname;
                 context.surname = response.data.surname;
