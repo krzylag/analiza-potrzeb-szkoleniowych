@@ -41,7 +41,12 @@ Route::group(['prefix'=>'exam', 'middleware' => 'auth:api'], function() {
     Route::get ('/{examId}/get/complete',       'ApiExamController@getComplete');
     Route::get ('/{examId}/get/structurized',   'ApiExamController@getCompleteExamStructurized');
 
-    Route::post('/{examId}/competence/{competenceId}/task/{taskId}/toggle-accepted',   'ApiExamController@toggleAcceptedTask');
+    Route::post('/{examId}/competence/{competenceId}/task/{taskId}/toggle-accepted',    'ApiExamController@toggleAcceptedTask');
+
+    Route::get ('/{examId}/competence/{competenceId}/task/{taskId}/get/schema',         'ApiExamController@listTasksDictionary');
+    Route::get ('/{examId}/competence/{competenceId}/task/{taskId}/get/statistics',     'ApiExamController@listTasksScores');
+    Route::get ('/{examId}/competence/{competenceId}/task/{taskId}/get/comment',        'ApiExamController@getTaskComment');
+    Route::post('/{examId}/competence/{competenceId}/task/{taskId}/set/comment',        'ApiExamController@setTaskComment');
 
     Route::post('/{examId}/training/{taskId}/override/{overrideId}',   'ApiExamController@setTrainingOverride');
     Route::post('/{examId}/competence/{competenceId}/users/{users}',   'ApiExamController@setCompetenceUsersAssignment');

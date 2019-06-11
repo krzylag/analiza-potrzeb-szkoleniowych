@@ -4,6 +4,7 @@ import Axios from 'axios';
 import Question from './Question';
 import Taskcomment from './Taskcomment';
 import PleaseWait from '../../../components/PleaseWait';
+import { formatScore } from '../../../helpers/Formatters';
 
 export default class Exam extends Component {
 
@@ -12,8 +13,12 @@ export default class Exam extends Component {
         this.state = {
             timeStart: null,
             timeString: null,
-            questions: null,
-            scores: null
+            // questions: null,
+            // scores: null,
+
+            taskSchema: null,
+            taskStatistics: null,
+
         }
         this.onStartZegaraClicked = this.onStartZegaraClicked.bind(this);
         this.onScoringButtonClicked = this.onScoringButtonClicked.bind(this);
@@ -21,8 +26,8 @@ export default class Exam extends Component {
     }
 
     componentDidMount() {
-        this.pullQuestions();
-        this.pullScores();
+        this.pullTaskSchema();
+        this.pullTaskStatistics();
     }
 
     componentWillUnmount() {
@@ -32,45 +37,68 @@ export default class Exam extends Component {
         }
     }
 
+    pullTaskSchema() {
+        Axios.get(`/api/exam/${this.props.exam.id}/competence/${this.props.competence.id}/task/${this.props.taskId}/get/schema`).then((response)=>{
+            this.setState({taskSchema: response.data});
+        }).catch((error)=>{
+            console.error(error);
+        });
+    }
+
+    pullTaskStatistics(onDone=null) {
+        Axios.get(`/api/exam/${this.props.exam.id}/competence/${this.props.competence.id}/task/${this.props.taskId}/get/statistics`).then((response)=>{
+            this.setState({taskStatistics: response.data}, ()=>{
+                if(typeof(onDone)==='function') {
+                    onDone();
+                }
+            });
+        }).catch((error)=>{
+            console.error(error);
+        });
+    }
+
     render() {
-        var descriptionToRender = "<div>"+this.props.task.description.split("\n").join('</div><div>')+"</div>";
+        if (this.state.taskSchema===null || this.state.taskStatistics===null) return ( <PleaseWait /> );
+
+        var descriptionToRender = "<div>"+this.state.taskSchema.description.split("\n").join('</div><div>')+"</div>";
         var questionsToRender = [];
         var pointsSum = 0;
-        if (this.state.questions!==null && this.state.scores!==null) {
-            for(var qkey in this.state.questions) {
-                var question = this.state.questions[qkey];
+
+            for(var qId in this.state.taskSchema.questions) {
+                var question = this.state.taskSchema.questions[qId];
+                var userScore=(typeof(this.state.taskStatistics[question.id])!=='undefined' && typeof(this.state.taskStatistics[question.id]['users'][this.props.user.id])!=='undefined') ? this.state.taskStatistics[question.id]['users'][this.props.user.id] : null;
                 questionsToRender.push(
                     <Question
-                        key={qkey}
-                        order={parseInt(qkey)+1}
+                        key={question.id}
+                        order={question.order_signature}
                         exam={this.props.exam}
                         competence={this.props.competence}
-                        task={this.props.task}
+                        task={this.state.taskSchema}
                         question={question}
-                        score={this.state.scores[question.id]}
+                        score={userScore}
                         onScoringButtonClickedCallback={this.onScoringButtonClicked}
                     />
                 )
-                if (typeof(this.state.scores[question.id]) && this.state.scores[question.id]!==null) {
-                    pointsSum += this.state.scores[question.id];
+                if (userScore!==null) {
+                    pointsSum += userScore.score;
                 }
             }
-        }
+
         return (
         <div className="Exam">
             <p>
                 <Link to={"/assessment/"+this.props.exam.id+"/"+this.props.competence.id} className="btn btn-outline-primary">Powrót do wyboru zadania</Link>
             </p>
             <div className="card">
-                <div className="card-header">{this.props.task.name}</div>
+                <div className="card-header">{this.state.taskSchema.name}</div>
                 <div className="card-body">
                     <small dangerouslySetInnerHTML={{__html: descriptionToRender}} />
                     <p className="mt-2 mb-2">
-                        Wymagany poziom zaliczenia: <strong>{Math.floor(this.props.task.score_threshold*10000)/100} %</strong>
-                        &nbsp;({Math.ceil(this.props.task.computed_summary.points_threshold)} / {this.props.task.computed_summary.points_max})
+                        Wymagany poziom zaliczenia: <strong>{formatScore(this.state.taskSchema.score_threshold)}</strong>
+                        &nbsp;({Math.ceil(this.state.taskSchema.points_threshold)} / {this.state.taskSchema.questions_count})
                     </p>
                     <p className="mt-2 mb-2">
-                        Czas trwania: <strong>{Math.floor(this.props.task.time_available/60)} min</strong>
+                        Czas trwania: <strong>{Math.floor(this.state.taskSchema.time_available/60)} min</strong>
                     </p>
                 </div>
                 <div className="card-body sticky-top bg-light border-top border-bottom">
@@ -87,8 +115,8 @@ export default class Exam extends Component {
                                 </div>
                             }
                             <div className="suma">
-                                {pointsSum} / {this.props.task.computed_summary.points_max}
-                                <br /><small>( {Math.round(10000*pointsSum/this.props.task.computed_summary.points_max)/100} % )</small>
+                                {pointsSum} / {this.state.taskSchema.points_max}
+                                <br /><small>( {formatScore(pointsSum/this.state.taskSchema.points_max)} )</small>
                             </div>
                         </div>
                     }
@@ -100,7 +128,7 @@ export default class Exam extends Component {
                     <table className="table">
                         <thead>
                             <tr>
-                                <th colSpan={2}>{this.props.task.table_header}</th>
+                                <th colSpan={2}>{this.state.taskSchema.table_header}</th>
                                 <th>ocena</th>
                             </tr>
                         </thead>
@@ -110,14 +138,14 @@ export default class Exam extends Component {
                     </table>
                 </div>
             </div>
-            {this.props.task.can_comment===1 &&
+            {this.state.taskSchema.can_comment &&
                 <div className="card mt-4">
                     <div className="card-header">Komentarz oceniającego</div>
                     <div className="card-body">
                         <Taskcomment
                             exam={this.props.exam}
                             competence={this.props.competence}
-                            task={this.props.task}
+                            task={this.state.taskSchema}
                         />
                     </div>
                 </div>
@@ -126,28 +154,10 @@ export default class Exam extends Component {
         );
     }
 
-    pullQuestions() {
-        Axios.get("/api2/exam/grading/get-tasks/"+this.props.exam.id+"/"+this.props.competence.id+"/"+this.props.task.id).then((response)=>{
-            response.data.questions.sort(function(a,b) {
-                return a.hash > b.hash;
-            });
-            this.setState({questions: response.data.questions});
-        });
-    }
 
-    pullScores() {
-        Axios.get("/api2/exam/grading/get-scores/"+this.props.exam.id+"/"+this.props.competence.id+"/"+this.props.task.id).then((response)=>{
-            for (var key in response.data) {
-                if (response.data[key]!==null) response.data[key]=parseFloat(response.data[key]);
-            }
-            this.setState({scores: response.data});
-        });
-    }
-
-    onScoringButtonClicked(qId, score) {
-        var scores = this.state.scores;
-        scores[qId]=score;
-        this.setState({scores});
+    onScoringButtonClicked(qId, score, onDone) {
+        this.pullTaskStatistics(onDone);
+        this.props.requestStatisticsRefreshCallback();
     }
 
     onStartZegaraClicked() {
@@ -155,7 +165,7 @@ export default class Exam extends Component {
             if (this.state.timeStart===null) this.setState({timeStart: new Date()});
             this.clockIntervalId = setInterval(()=>{
                 var now = new Date();
-                var diff = Math.floor(this.props.task.time_available-((now-this.state.timeStart)/1000));
+                var diff = Math.floor(this.state.taskSchema.time_available-((now-this.state.timeStart)/1000));
                 this.setState({
                     timeString: ('00'+Math.floor(diff/60)).slice(-2)+' : '+('00'+(diff%60)).slice(-2)
                 })

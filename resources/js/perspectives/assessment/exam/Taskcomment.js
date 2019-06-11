@@ -55,7 +55,7 @@ export default class Taskcomment extends Component {
     }
 
     pullTaskComment() {
-        Axios.get('/api2/exam/grading/get-comment/'+this.props.exam.id+"/"+this.props.competence.id+"/"+this.props.task.id).then((response)=>{
+        Axios.get(`/api/exam/${this.props.exam.id}/competence/${this.props.competence.id}/task/${this.props.task.id}/get/comment`).then((response)=>{
             if (typeof(response.data.comment)!=='undefined' && response.data.comment!==null) {
                 this.setState({comment: response.data.comment});
             } else {
@@ -88,7 +88,7 @@ export default class Taskcomment extends Component {
                 isWaitingForSave: false,
                 isSaving: true
             });
-            Axios.post("/api2/exam/grading/set-comment", {
+            Axios.post(`/api/exam/${this.props.exam.id}/competence/${this.props.competence.id}/task/${this.props.task.id}/set/comment`, {
                 examId: this.props.exam.id,
                 competenceId: this.props.competence.id,
                 taskId: this.props.task.id,
@@ -96,7 +96,8 @@ export default class Taskcomment extends Component {
             }).then((response)=>{
                 // console.log(response.data)
             }).catch((error)=>{
-
+                console.error(error);
+                this.pullTaskComment();
             }).then(()=>{
                 this.timeoutId=null;
                 this.setState({

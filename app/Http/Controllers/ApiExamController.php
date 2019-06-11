@@ -15,10 +15,11 @@ use App\Taskcomment;
 
 use App\Http\Traits\GetExam;
 use App\Http\Traits\GetSchema;
+use App\Http\Traits\GetTask;
 
 class ApiExamController extends Controller {
 
-    use GetExam, GetSchema;
+    use GetExam, GetSchema, GetTask;
 
     function createNew(Request $request) {
         $payload = $request->all();
@@ -207,8 +208,11 @@ class ApiExamController extends Controller {
     }
 
     public function listTasksDictionary($examId, $competenceId, $taskId) {
-        $task = Task::with('questions')->find($taskId);
-        return $task;
+        return $this->getTaskStructure($examId, $taskId);
+    }
+
+    public function listTasksScores($examId, $competenceId, $taskId) {
+        return $this->getTaskStatistics($examId, $taskId);
     }
 
     public function listQuestionScores($examId, $competenceId, $taskId) {

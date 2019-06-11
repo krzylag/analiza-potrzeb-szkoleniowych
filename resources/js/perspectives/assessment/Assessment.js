@@ -16,9 +16,6 @@ export default class Assessment extends Component {
             examsList: null,
             statisticsList: null,
             selectedExamId: null
-
-            // memberExams: null,
-            // examStatistics: null
         }
         this.onExamFinalized=this.onExamFinalized.bind(this);
         this.pullUnfinishedExams=this.pullUnfinishedExams.bind(this);
@@ -27,20 +24,6 @@ export default class Assessment extends Component {
     }
 
     componentDidMount() {
-        // Axios.get("/api2/exam/list-unfinished-for-member/"+this.props.dictionary.user.id).then((response) => {
-        //     var memberExams = {};
-        //     for(var ekey in response.data.exams) {
-        //         var exam = response.data.exams[ekey];
-        //         for (var ckey in exam.competences) {
-        //             exam.competences[ckey].tasks.sort(function(a,b) {
-        //                 return a.order_signature > b.order_signature;
-        //             })
-        //         }
-        //         memberExams[exam.id] = exam;
-        //     }
-        //     var examStatistics = response.data.statistics;
-        //     this.setState({memberExams, examStatistics});
-        // });
         this.pullUsersList();
         this.pullSchemasList();
         this.pullUnfinishedExams();
@@ -123,29 +106,21 @@ export default class Assessment extends Component {
         // Jeśli examId, competenceId, taskId podane jako parametry - pokaż ekran oceny
         if (this.props.params[0]!==null && this.props.params[1]!==null && this.props.params[2]!==null
                 && !isNaN(this.props.params[0]) && !isNaN(this.props.params[1]) && !isNaN(this.props.params[2])) {
-            var exam = this.state.memberExams[this.props.params[0]];
-            var competence = null;
-            for (var cid in exam.competences) {
-                if (exam.competences[cid].id===parseInt(this.props.params[1])) {
-                    competence = exam.competences[cid];
-                    break;
-                }
-            }
-            var task = null;
-            for (var tid in competence.tasks) {
-                if (competence.tasks[tid].id===parseInt(this.props.params[2])) {
-                    task = competence.tasks[tid];
-                    break;
-                }
-            }
-            var allowedUsers = JSON.parse(competence.pivot.allowed_users);
-            var canScore = (allowedUsers.indexOf(this.props.dictionary.user.id) >= 0);
+            var exam = this.state.examsList[this.props.params[0]];
+            var schema = this.state.schemasList[exam.schema_id];
+            var competence =  schema.competences[this.props.params[1]];
+            var taskId = competence.tasks[this.props.params[2]];
+            var allowedUsers = exam.competences_users[competence.id];
+            var canScore = (allowedUsers[this.props.user.id]===this.props.user.id);
+            if (!exam || !competence || !taskId) return (`Ocena ${this.props.params[0]}/${this.props.params[1]}/${this.props.params[2]} jest niemożliwa.`);
             return (
                 <Exam
                     exam={exam}
                     competence={competence}
-                    task={task}
+                    taskId={taskId}
+                    user={this.props.user}
                     canScore={canScore}
+                    requestStatisticsRefreshCallback={this.pullStatistics}
                 />
             );
         }

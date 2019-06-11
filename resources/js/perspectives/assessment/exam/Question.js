@@ -14,6 +14,7 @@ export default class Question extends Component {
     }
 
     render() {
+
         var hintHtml = (this.props.question.hint!==null && this.props.question.hint!=='') ? '<p>'+this.props.question.hint.split("\n").join('</p><p>')+'</p>' : null;
         return (
             <tr className="Question">
@@ -43,7 +44,7 @@ export default class Question extends Component {
         var buttonsToRender=[];
         for (var pgkey in possibleGrades) {
             var value = possibleGrades[pgkey];
-            var isActive = (this.props.score===value);
+            var isActive = (this.props.score!==null && this.props.score.score===value);
             buttonsToRender.push(
                 <Scoringbutton
                     key={value}
@@ -68,11 +69,14 @@ export default class Question extends Component {
         Axios.post("/api2/exam/grading/set-score", callParams).then((response)=>{
             var qId = parseInt(response.data.question_id)
             var score = parseFloat(response.data.score)
-            this.props.onScoringButtonClickedCallback(qId, score);
+            this.props.onScoringButtonClickedCallback(qId, score, ()=>{
+                this.setState({isSaving: false});
+            });
         }).catch((error)=>{
-
-        }).then(()=>{
+            console.error(error);
             this.setState({isSaving: false});
+        }).then(()=>{
+
         });
     }
 
