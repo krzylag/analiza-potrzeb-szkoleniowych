@@ -324,27 +324,21 @@ class ApiExamController extends Controller {
 
     public function finalizeExam(Request $request) {
         $payload = $request->all();
-        $user = \Auth::user();
         $exam = Exam::find($payload['examId']);
-        if ($exam->created_by==$user->id) {
-            $examStats = $this->listUnfinishedForMember($user->id);
-            $result = array();
-            foreach(array_keys($examStats['statistics'][$exam->id]) AS $competId) {
-                if (!isset($result[$competId])) {
-                    $result[$competId]['competence_id']=intval($competId);
-                    $result[$competId]['count']=0;
-                    $result[$competId]['sum']=0;
-                    $result[$competId]['avg']=0;
-                }
-                foreach($examStats['statistics'][$payload['examId']][$competId] AS $byUser) {
-                    $result[$competId]['count'] += $byUser['accepted_count'];
-                    $result[$competId]['sum'] += $byUser['accepted_sum'];
-                    $result[$competId]['avg'] = ($result[$competId]['count']>0) ? $result[$competId]['sum']/$result[$competId]['count'] : 0;
-                }
-            }
-            $exam->results = json_encode($result);
-            $exam->save();
+        $fullExam = $this->getCompleteExam($exam->id);
+        $examResults = new \stdClass();
+        foreach ($fullExam['trainings'] AS $training) {
+            $examResults->{$training['id']} = new \stdClass();
+            $examResults->{$training['id']}->shortname=$training['shortname'];
+            $examResults->{$training['id']}->fullname=$training['fullname'];
+            $examResults->{$training['id']}->threshold=$training['score_threshold'];
+            $examResults->{$training['id']}->avg=$training['avg_rounded'];
+            $examResults->{$training['id']}->passed=($training['avg_rounded']>=$training['score_threshold']);
+            $examResults->{$training['id']}->override_id=(isset($exam->config->overrides) && isset($exam->config->overrides->{$training['id']})) ? $exam->config->overrides->{$training['id']} : 0;
+            $examResults->{$training['id']}->override=$examResults->{$training['id']}->override_id > 0;
         }
+        $exam->results = json_encode($examResults);
+        $exam->save();
         return $exam;
     }
 

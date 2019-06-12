@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
 import Axios from 'axios';
+import { formatScore } from '../../helpers/Formatters';
+import { OVERRIDE_ACCEPTED, OVERRIDE_NOEFFECT, OVERRIDE_HIDDEN } from '../assessment/ExamCardOverrideEditor';
 
 import view from '../../images/view.png';
 import edit from '../../images/edit.png';
 import pdf from '../../images/pdf.png';
 import revert from '../../images/revert.png';
-
-import FLAGS from '../assessment/examcomment/Flags';
 
 export default class Examslist extends Component {
 
@@ -23,7 +23,7 @@ export default class Examslist extends Component {
             var exam = this.props.exams[key];
             renderedExams.push(this.renderExam(exam));
         }
-        console.log(this.props.exams);
+
         return (
             <div className="Examslist">
                 <table className="table table-sm">
@@ -45,10 +45,9 @@ export default class Examslist extends Component {
     }
 
     renderExam(exam) {
-        var createdAt = new moment(exam.created_at);
         return (
             <tr key={exam.id}>
-                <td>{createdAt.format("YYYY-MM-DD")}</td>
+                <td>{exam.date}</td>
                 <td>{exam.schema.shortname}</td>
                 <td>{exam.surname} {exam.firstname}</td>
                 <td>{this.renderExamResult(exam)}</td>
@@ -58,27 +57,38 @@ export default class Examslist extends Component {
     }
 
     renderExamResult(exam) {
-        var renderedByCompetence = [];
-        for(var ckey in exam.competences) {
-            var competence = exam.competences[ckey];
-            var result = exam.results_competences[ckey];
-            var config = (competence.pivot.config!==null) ? JSON.parse(competence.pivot.config) : {};
-            var configFlag = (typeof(config['flag_name'])!=='undefined') ? config['flag_name'] : null;
-            console.log(configFlag);
-            var scoringClass = (parseFloat(competence.score_threshold)<=result.avg) ? ' text-success' : ' text-danger';
-            if (configFlag=='flag_forcepass' || configFlag=='flag_notrelevant') {
-                scoringClass = ' text-primary';
+
+        var renderedTrainings = [];
+        for(var tkey in exam.results) {
+            var training = exam.results[tkey];
+
+            var scoringClass = '';
+            if (training.override) {
+                if (training.override_id===OVERRIDE_ACCEPTED) {
+                    scoringClass = ' text-success';
+                } else if (training.override_id===OVERRIDE_NOEFFECT) {
+                    scoringClass = ' text-primary';
+                } else if (training.override_id===OVERRIDE_HIDDEN) {
+                    scoringClass = ' text-muted';
+                }
+            } else if (!training.override && training.passed) {
+                scoringClass = ' text-success';
+            } else {
+                scoringClass = ' text-danger';
             }
-            renderedByCompetence.push(
-                <div key={competence.id} className={"d-flex flex-row justify-content-start align-items-center"+scoringClass}>
-                    <div><strong>{Math.ceil(result.avg*10000)/100}%</strong></div>
-                    <div className="ml-3">{competence.name}</div>
-                </div>
-            )
+
+            if (!training.override || training.override_id!=OVERRIDE_HIDDEN) {
+                renderedTrainings.push(
+                    <div key={tkey} className={"d-flex flex-row justify-content-start align-items-center"+scoringClass}>
+                        <div><strong>{formatScore(training.avg)}</strong></div>
+                        <div className="ml-3">{training.shortname}</div>
+                    </div>
+                );
+            }
         }
         return (
             <div>
-                {renderedByCompetence}
+                {renderedTrainings}
             </div>
         )
     }
@@ -91,7 +101,7 @@ export default class Examslist extends Component {
         return (
             <div>
                 {canEditComment &&
-                    <Link className="btn " alt="Edytuj komentarz" to={"/assessment/comment/edit/"+exam.id}>
+                    <Link className="btn " alt="Edytuj komentarz" to={"/archive/comment/edit/"+exam.id}>
                         <img className="button-image" src={edit} />
                     </Link>
                 }

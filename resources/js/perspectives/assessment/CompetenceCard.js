@@ -31,9 +31,6 @@ export default class CompetenceCard extends Component {
 
         if (this.state.schema===null) return ( <PleaseWait /> );
 
-        console.log(this.props);
-        console.log(this.state);
-
         var usedSeconds = 0;
         var avgScoreSum = 0;
         var avgScoreCount = 0;

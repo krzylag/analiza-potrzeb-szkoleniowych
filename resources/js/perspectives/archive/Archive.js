@@ -3,6 +3,7 @@ import Axios from 'axios';
 import Filters from './Filters';
 import Examslist from './Examslist';
 import PleaseWait from '../../components/PleaseWait';
+import Examcomment from '../assessment/examcomment/Examcomment';
 
 export default class Archive extends Component {
 
@@ -28,6 +29,18 @@ export default class Archive extends Component {
     }
 
     render() {
+        // Jeśli statycznie wskazano .../comment/edit/{examId}, - pokaż ekran edycji komentarza
+        if (this.props.params[0]!==null && this.props.params[1]!==null && this.props.params[2]!==null
+            && this.props.params[0]==='comment' && this.props.params[1]==='edit' && !isNaN(this.props.params[2])) {
+                return (
+                    <Examcomment
+                        examId={parseInt(this.props.params[2])}
+                        user={this.props.user}
+                        backTo='/archive'
+                    />
+                );
+        }
+
         if (this.state.exams===null) {
             return <PleaseWait size="3em" />
         }
@@ -74,29 +87,11 @@ export default class Archive extends Component {
                 filters: this.state.filters
             }
         }).then((response)=>{
-            console.log(response.data);
-            var exams = [];
+            var exams = {};
             for (var key in response.data) {
-                var exam = response.data[key];
-                var competences = {};
-                for (var ckey in exam.competences) {
-                    competences[exam.competences[ckey].id]=exam.competences[ckey];
-                }
-                exam.competences = competences;
-                exams[exam.id] = exam;
-                exam.results_competences = {};
-                exam.results_flags = {};
-                for (var rkey in exam.results) {
-                    var result = exam.results[rkey];
-                    if (!isNaN(rkey)) {
-                        exam.results_competences[rkey]=result;
-                    } else {
-                        exam.results_flags[rkey]=result;
-                    }
-                }
-                delete(exam.results);
+                var exam=response.data[key];
+                exams[exam.id]=exam;
             }
-            console.log(exams);
             this.setState({exams});
         })
     }

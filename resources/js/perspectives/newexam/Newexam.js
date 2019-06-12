@@ -78,11 +78,6 @@ export default class Newexam extends Component {
             return <PleaseWait />
         }
 
-        console.log({
-            s: this.state.schemasList,
-            u: this.state.usersList
-        })
-
         return (
             <div className="Newexam">
                 <h3>Rozpoczynasz nowy egzamin</h3>
@@ -238,7 +233,7 @@ export default class Newexam extends Component {
                 examinersOptionsSelected: examinersOptions,
                 startIsEnabled: false
             }, ()=>{
-                console.log(this.state);
+                //
             })
         }
     }

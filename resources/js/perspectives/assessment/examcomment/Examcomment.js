@@ -3,6 +3,7 @@ import Axios from 'axios';
 import CKEditor from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import PleaseWait from '../../../components/PleaseWait';
+import { Link } from 'react-router-dom';
 import {CKEDITOR_CONFIGURATION,COMMENT_SEND_DELAY} from '../exam/Taskcomment';
 
 export default class Examcomment extends Component {
@@ -22,7 +23,6 @@ export default class Examcomment extends Component {
         this.commentChanged = this.commentChanged.bind(this);
         this.pushChangedComment = this.pushChangedComment.bind(this);
         this.importClicked = this.importClicked.bind(this);
-        this.onFlagUpdated = this.onFlagUpdated.bind(this);
         this.timeoutId = null;
     }
 
@@ -32,7 +32,6 @@ export default class Examcomment extends Component {
 
     updateContents() {
         Axios.get(`/api/exam/${this.props.examId}/get`).then((response)=>{
-            console.log(response.data);
             this.setState({
                 examOriginal: response.data
             });
@@ -56,6 +55,7 @@ export default class Examcomment extends Component {
         var canEditComment = (this.props.user.capabilities.is_admin || this.state.examOriginal.created_by==this.props.user.id);
         return (
             <div className="Examcomment">
+                <Link to={this.props.backTo} className="btn btn-outline-primary">Powrót</Link>
                 {this.state.summaryHtmlBefore!==null &&
                     <div dangerouslySetInnerHTML={{__html: this.state.summaryHtmlBefore}} />
                 }
@@ -118,7 +118,7 @@ export default class Examcomment extends Component {
                 examId: this.state.examOriginal.id,
                 comment: this.state.comment
             }).then((response)=>{
-                //console.log(response.data)
+                //
             }).catch((error)=>{
                 console.error(error);
             }).then(()=>{
@@ -127,7 +127,6 @@ export default class Examcomment extends Component {
                     isWaitingForSave: false,
                     isSaving: false
                 });
-                // console.log('timeout cleared');
             });
 
     }
@@ -167,7 +166,4 @@ export default class Examcomment extends Component {
         }
     }
 
-    onFlagUpdated() {
-        this.updateContents();
-    }
 }

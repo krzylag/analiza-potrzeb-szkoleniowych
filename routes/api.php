@@ -72,6 +72,6 @@ Route::group(['prefix'=>'exam', 'middleware' => 'auth:api'], function() {
 
 Route::group(['prefix'=>'archive', 'middleware' => 'auth:api'], function() {
 
-    Route::get('/list',                             'ApiArchiveController@listExams');
+    Route::get('/list',                             'ApiArchiveController@listFinishedExams');
 
 });

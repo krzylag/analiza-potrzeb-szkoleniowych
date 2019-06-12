@@ -89,7 +89,6 @@ export default class ExamCardCompetencesUserEditor extends Component {
             values.push(this.state.selectedOptions[key].value)
         }
         values = (values.length>0) ? values.join(",") : 0;
-        console.log(values);
         Axios.post(`/api/exam/${this.props.exam.id}/competence/${this.props.competence.id}/users/${values}`, {
             exam_id: this.props.exam.id,
             competence_id: this.props.competence.id,

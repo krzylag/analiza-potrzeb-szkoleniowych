@@ -12,63 +12,77 @@ class ApiArchiveController extends Controller {
 
     use GetExam;
 
-    public function listExams(Request $request) {
+    public function listFinishedExams(Request $request) {
         $filters = $request->query('filters');
         if ($filters!=='' && $filters!==null) $filters = json_decode($filters);
-        if ($filters->not_before !==null && $filters->not_before!=='') $filters->not_before = new \DateTime($filters->not_before); else $filters->not_before=null;
-        if ($filters->not_after !==null && $filters->not_after!=='') $filters->not_after = new \DateTime($filters->not_after); else $filters->not_after=null;
-        //dd($filters);
 
-        $exams = Exam::with('schema')->with('competences')->where('results', '<>', null)->get();
-        $output = array();
-        foreach($exams AS $exam) {
-            $toRemove = false;
+        if (isset($filters->not_before) && $filters->not_before !==null && $filters->not_before!=='') {
+            $notBefore = new \DateTime($filters->not_before);
+        } else {
+            $notBefore=null;
+        }
 
-            if ($filters->only_succeed) {
-                $toRemove2 = false;
-                foreach($exam->results AS $key=>$result) {
-                    if ($result['avg'] < floatval($exam->competences->find($result['competence_id'])->score_threshold)) {
-                        $toRemove2=true;
+        if (isset($filters->not_after) && $filters->not_after !==null && $filters->not_after!=='') {
+            $notAfter = new \DateTime($filters->not_after);
+        } else {
+            $notAfter=null;
+        }
+
+        if (isset($filters->surname) && $filters->surname !==null && $filters->surname!=='') {
+            $surname = $filters->surname;
+        } else {
+            $surname=null;
+        }
+
+        if (isset($filters->only_failed) && $filters->only_failed==true) {
+            $onlyFailed=true;
+        } else {
+            $onlyFailed=false;
+        }
+
+        if (isset($filters->only_succeed) && $filters->only_succeed==true) {
+            $onlySucceeded=true;
+        } else {
+            $onlySucceeded=false;
+        }
+
+        $exams = Exam::with('schema')
+            ->where('results', '<>', null)
+            ->when($notBefore, function($query) use ($notBefore) {
+                $query->where('date', '>=', $notBefore->format("Y-m-d"));
+            })
+            ->when($notAfter, function($query) use ($notAfter) {
+                $query->where('date', '<=', $notAfter->format("Y-m-d"));
+            })
+            ->when($surname, function($query) use ($surname) {
+                $query->where('surname', 'like', '%'.$surname.'%')->orWhere('firstname', 'like', '%'.$surname.'%');
+            })
+            ->get();
+
+        foreach ($exams AS $examKey => $exam) {
+            if ($onlyFailed) {
+                $hasFailedParts = false;
+                foreach($exam->results AS $tResult) {
+                    if ($tResult['passed']==false && $tResult['override']==false) {
+                        $hasFailedParts=true;
                         break;
                     }
                 }
-                if ($toRemove2) $toRemove = true;
+                if (!$hasFailedParts) $exams->forget($examKey);
             }
-
-            if ($filters->only_failed) {
-                $toRemove2 = true;
-                foreach($exam->results AS $key=>$result) {
-                    if ($result['avg'] < floatval($exam->competences->find($result['competence_id'])->score_threshold)) {
-                        $toRemove2=false;
+            if ($onlySucceeded) {
+                $hasFailedParts = false;
+                foreach($exam->results AS $tResult) {
+                    if ($tResult['passed']==false && $tResult['override']==false) {
+                        $hasFailedParts=true;
                         break;
                     }
                 }
-                if ($toRemove2) $toRemove = true;
-            }
-
-            if ($filters->not_before!==null) {
-                $examDate = \DateTime::createFromFormat("Y-m-d H:i:s", $exam->created_at);
-                if ($examDate < $filters->not_before) $toRemove = true;
-            }
-
-            if ($filters->not_after!==null) {
-                $examDate = \DateTime::createFromFormat("Y-m-d H:i:s", $exam->created_at);
-                if ($examDate > $filters->not_after) $toRemove = true;
-            }
-
-            if ($filters->surname!==null) {
-                if (stripos($exam->surname, $filters->surname)===false) $toRemove = true;
-            }
-
-            if ($filters->schema_name!==null) {
-                if (stripos($exam->schema->shortname, $filters->schema_name)===false) $toRemove = true;
-            }
-
-            if (!$toRemove) {
-                $output[$exam->id]=$exam;
+                if ($hasFailedParts) $exams->forget($examKey);
             }
         }
-        return $output;
+        return $exams;
+
     }
 
 

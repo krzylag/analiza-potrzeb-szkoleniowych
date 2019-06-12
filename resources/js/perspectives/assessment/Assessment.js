@@ -47,7 +47,8 @@ export default class Assessment extends Component {
 
     pullUnfinishedExams() {
         Axios.get(`/api/exam/list/for/${this.props.user.id}`).then((response)=>{
-            this.setState({examsList: response.data}, ()=>{
+            var examsList = (Object.keys(response.data).length==0) ? {} : response.data;
+            this.setState({examsList}, ()=>{
                 this.pullStatistics();
             });
         }).catch((error)=>{
@@ -72,6 +73,8 @@ export default class Assessment extends Component {
             }).catch((error)=>{
                 console.error(error);
             });
+        } else if (this.state.examsList!==null && examsIds.length==0) {
+            this.setState({statisticsList: {}});
         }
     }
 
@@ -131,6 +134,7 @@ export default class Assessment extends Component {
                     <Examcomment
                         examId={parseInt(this.props.params[2])}
                         user={this.props.user}
+                        backTo='/assessment'
                     />
                 );
         }
@@ -158,14 +162,15 @@ export default class Assessment extends Component {
         return (
             <div className="Assessment">
                 {renderedExamsList}
+                {(Object.keys(this.state.examsList).length==0) &&
+                    <div>Nie masz trwających egzaminów</div>
+                }
             </div>
         );
     }
 
     onExamFinalized(exam) {
-        var memberExams = this.state.memberExams;
-        delete(memberExams[exam.id]);
-        this.setState({memberExams});
+        this.pullUnfinishedExams();
     }
 
     expandExam(exam) {

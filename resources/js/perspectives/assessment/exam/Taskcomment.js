@@ -94,7 +94,7 @@ export default class Taskcomment extends Component {
                 taskId: this.props.task.id,
                 text: this.state.comment
             }).then((response)=>{
-                // console.log(response.data)
+                //
             }).catch((error)=>{
                 console.error(error);
                 this.pullTaskComment();
@@ -104,7 +104,6 @@ export default class Taskcomment extends Component {
                     isWaitingForSave: false,
                     isSaving: false
                 });
-                // console.log('timeout cleared');
             });
 
     }

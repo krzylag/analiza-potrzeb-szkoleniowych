@@ -11,11 +11,14 @@ trait GetExam {
 
     use GetSchema;
 
-    // Zwraca kompletny stan egzaminu. Łączy w jedno exam, schema i statistics.
+    // Zwraca kompletny stan egzaminu. Łączy w jedno exam, schema, statistics, comments.
     public function getCompleteExam($examId) {
         $exam = Exam::with('schema')->find($examId)->toArray();
         $schema = $this->getSchemaStructureArray($exam['schema_id']);
         $scoring = $this->getExamsScoring([$exam['id']]);
+        $comments = $this->getExamsComments($exam['id']);
+        if (isset($comments[$examId])) $comments=$comments[$examId]; else $comments=null;
+
         $users = (User::all())->keyBy('id');
 
         foreach ($scoring[$examId]['tasks'] AS $task) {
@@ -40,11 +43,14 @@ trait GetExam {
             $schema['tasks'][$task['id']]['sum']=$task['sum'];
             $schema['tasks'][$task['id']]['sum_max']=$task['sum_max'];
             $schema['tasks'][$task['id']]['avg']=$task['avg'];
-            $schema['tasks'][$task['id']]['avg_formatted']=str_replace(".", ",", ceil($task['avg']*10000)/100);
+            $schema['tasks'][$task['id']]['avg_rounded']=ceil($task['avg']*10000)/10000;
+            $schema['tasks'][$task['id']]['avg_formatted']=str_replace(".", ",", $schema['tasks'][$task['id']]['avg_rounded']*100);
+            $schema['tasks'][$task['id']]['comments']=[];
         }
 
         foreach ($schema['trainings'] AS $training) {
             $schema['trainings'][$training['id']]['avg']=0;
+            $schema['trainings'][$training['id']]['avg_rounded']=0;
             $schema['trainings'][$training['id']]['avg_formatted']=0;
             $schema['trainings'][$training['id']]['sum']=0;
             $schema['trainings'][$training['id']]['count']=0;
@@ -67,10 +73,10 @@ trait GetExam {
             }
             if ($schema['trainings'][$training['id']]['count'] > 0) {
                 $schema['trainings'][$training['id']]['avg'] = $schema['trainings'][$training['id']]['sum'] / $schema['trainings'][$training['id']]['count'];
-                $schema['trainings'][$training['id']]['avg_formatted'] = str_replace(".", ",", ceil($schema['trainings'][$training['id']]['avg']*10000)/100);
+                $schema['trainings'][$training['id']]['avg_rounded'] = ceil($schema['trainings'][$training['id']]['avg']*10000)/10000;
+                $schema['trainings'][$training['id']]['avg_formatted'] = str_replace(".", ",", $schema['trainings'][$training['id']]['avg_rounded']*100);
             }
         }
-
         foreach ($schema['competences'] AS $competence) {
             $schema['competences'][$competence['id']]['users']=[];
             foreach ($competence['tasks'] AS $taskId) {
@@ -81,6 +87,12 @@ trait GetExam {
                 }
             }
         }
+        if ($comments!=null) {
+            foreach ($comments['tasks'] AS $task) {
+                $schema['tasks'][$task['id']]['comments']=$task['users'];
+            }
+        }
+
 
         $exam['competences']=$schema['competences'];
         $exam['trainings']=$schema['trainings'];
@@ -157,7 +169,11 @@ trait GetExam {
     }
 
     public function getExamsScoring($examsIds) {
-        $exams = Exam::whereIn('id', $examsIds)->get();
+        if (is_array($examsIds)) {
+            $exams = Exam::whereIn('id', $examsIds)->get();
+        } else {
+            $exams = Exam::where('id', $examsIds)->get();
+        }
         $result=[];
         $examsIds=[];
         foreach ($exams AS $exam) {
@@ -269,4 +285,33 @@ trait GetExam {
         return $result;
     }
 
+    public function getExamsComments($examsIds) {
+        if (is_array($examsIds)) {
+            $exams = Exam::with('taskcomments')->whereIn('id', $examsIds)->get();
+        } else {
+            $exams = Exam::with('taskcomments')->where('id', $examsIds)->get();
+        }
+        foreach($exams AS $exam) {
+            $result[$exam->id]=[
+                "id"        => $exam->id,
+                "comment"   => $exam->comment,
+                "tasks"     =>  []
+            ];
+            foreach ($exam->taskcomments AS $tComment) {
+                if (!isset($result[$exam->id]['tasks'][$tComment->task_id])) {
+                    $result[$exam->id]['tasks'][$tComment->task_id]=[
+                        "id"        => $tComment->task_id,
+                        "users"     => []
+                    ];
+                }
+                $result[$exam->id]['tasks'][$tComment->task_id]['users'][$tComment->user_id]=[
+                    "id"            => $tComment->id,
+                    "user_id"       => $tComment->user_id,
+                    "task_id"       => $tComment->task_id,
+                    "comment"       => $tComment->comment
+                ];
+            }
+        }
+        return $result;
+    }
 }
