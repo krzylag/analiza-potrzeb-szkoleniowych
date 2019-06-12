@@ -34,6 +34,12 @@ class ApiArchiveController extends Controller {
             $surname=null;
         }
 
+        if (isset($filters->schema_name) && $filters->schema_name !==null && $filters->schema_name!=='') {
+            $schemaName = $filters->schema_name;
+        } else {
+            $schemaName=null;
+        }
+
         if (isset($filters->only_failed) && $filters->only_failed==true) {
             $onlyFailed=true;
         } else {
@@ -56,6 +62,10 @@ class ApiArchiveController extends Controller {
             })
             ->when($surname, function($query) use ($surname) {
                 $query->where('surname', 'like', '%'.$surname.'%')->orWhere('firstname', 'like', '%'.$surname.'%');
+            })->when($schemaName, function($query) use ($schemaName) {
+                $query->whereHas('schema', function($queryInner) use ($schemaName) {
+                    $queryInner->where('shortname', 'like', '%'.$schemaName.'%');
+                });
             })
             ->get();
 

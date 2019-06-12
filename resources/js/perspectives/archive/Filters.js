@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import moment from 'moment';
 
 export default class Filters extends Component {
 
@@ -7,12 +8,11 @@ export default class Filters extends Component {
         this.state = {
             surname: (this.props.filters.surname!==null) ? this.props.filters.surname : '',
             schema_name: (this.props.filters.schema_name!==null) ? this.props.filters.schema_name : '',
-            not_before: (this.props.filters.not_before!==null) ? this.props.filters.not_before : '',
+            not_before: (this.props.filters.not_before!==null) ? this.props.filters.not_before : moment().subtract(2,'months').startOf('month').format("YYYY-MM-DD"),
             not_after: (this.props.filters.not_after!==null) ? this.props.filters.not_after : '',
             only_failed: (this.props.filters.only_failed!==null) ? this.props.filters.only_failed : false,
             only_succeed: (this.props.filters.only_succeed!==null) ? this.props.filters.only_succeed : false,
         };
-
         this.onChangeSurname = this.onChangeSurname.bind(this);
         this.onChangeSchemaName = this.onChangeSchemaName.bind(this);
         this.onChangeNotBefore = this.onChangeNotBefore.bind(this);

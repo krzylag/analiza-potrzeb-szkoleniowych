@@ -101,14 +101,14 @@ export default class Examslist extends Component {
         return (
             <div>
                 {canEditComment &&
-                    <Link className="btn " alt="Edytuj komentarz" to={"/archive/comment/edit/"+exam.id}>
+                    <Link className="btn btn-sm" alt="Edytuj komentarz" to={"/archive/comment/edit/"+exam.id}>
                         <img className="button-image" src={edit} />
                     </Link>
                 }
-                <a className="btn" href={`/archive/exam/${exam.id}/long/html`} target="_blank"><img className="button-image" src={view} /></a>
-                <a className="btn" href={`/archive/exam/${exam.id}/short/pdf`} target="_blank"><img className="button-image" src={pdf} /></a>
+                <a className="btn btn-sm" href={`/archive/exam/${exam.id}/long/html`} target="_blank"><img className="button-image" src={view} /></a>
+                <a className="btn btn-sm" href={`/archive/exam/${exam.id}/short/pdf`} target="_blank"><img className="button-image" src={pdf} /></a>
                 {canRevertCompletion &&
-                    <button type="button" className="btn btn-danger" onClick={(ev) => (this.onRevertClicked(ev, exam.id))}>
+                    <button type="button" className="btn  btn-sm btn-danger" onClick={(ev) => (this.onRevertClicked(ev, exam.id))}>
                         <img className="button-image" src={revert} />
                     </button>
                 }

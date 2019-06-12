@@ -3,6 +3,7 @@ import ExamCardCompetences from './ExamCardCompetences';
 import Axios from 'axios';
 import { Link } from 'react-router-dom';
 import ExamCardReport from './ExamCardReport';
+import { resolveUserNames } from '../../helpers/Formatters';
 
 
 export default class ExamCard extends Component {
@@ -39,23 +40,31 @@ export default class ExamCard extends Component {
                                 <th>miejscowość, data:</th>
                                 <td>{this.props.exam.city}, {this.props.exam.date}</td>
                             </tr>
+                            <tr>
+                                <th>przewodniczący:</th>
+                                <td>{resolveUserNames(this.props.exam.created_by, this.props.users)}</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
-                <ExamCardCompetences
-                    exam={this.props.exam}
-                    schema={this.props.schema}
-                    statistics={this.props.statistics}
-                    users={this.props.users}
-                    requestExamRefreshCallback={this.props.requestExamRefreshCallback}
-                />
-                <ExamCardReport
-                    exam={this.props.exam}
-                    schema={this.props.schema}
-                    statistics={this.props.statistics}
-                    requestExamRefreshCallback={this.props.requestExamRefreshCallback}
-                />
-                {(this.props.exam.created_by===this.props.user.id) && (
+                {this.props.isExpanded &&
+                    <ExamCardCompetences
+                        exam={this.props.exam}
+                        schema={this.props.schema}
+                        statistics={this.props.statistics}
+                        users={this.props.users}
+                        requestExamRefreshCallback={this.props.requestExamRefreshCallback}
+                    />
+                }
+                {this.props.isExpanded &&
+                    <ExamCardReport
+                        exam={this.props.exam}
+                        schema={this.props.schema}
+                        statistics={this.props.statistics}
+                        requestExamRefreshCallback={this.props.requestExamRefreshCallback}
+                    />
+                }
+                {this.props.isExpanded && (this.props.exam.created_by===this.props.user.id) &&
                      <div className="card-body">
                         <div className="row pl-4" >
                             <div className="col-sm p-1">
@@ -71,7 +80,7 @@ export default class ExamCard extends Component {
                             </div>
                         </div>
                     </div>
-                )}
+                }
             </div>
         );
     }
