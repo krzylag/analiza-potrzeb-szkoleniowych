@@ -46,6 +46,7 @@ Route::group(['prefix'=>'exam', 'middleware' => 'auth:api'], function() {
     Route::get ('/{examId}/set-flag',               'ApiExamController@setCompetenceFlag');
     Route::post('/{examId}/finalize',               'ApiExamController@finalizeExam');
     Route::post('/{examId}/revert',                 'ApiExamController@revertFinalizedExam');
+    Route::post('/{examId}/delete',                 'ApiExamController@deleteExam');
 
     Route::post('/{examId}/set-comment',            'ApiExamController@setExamComment');
     Route::get ('/{examId}/get-default-comment',    'ApiExamController@getDefaultExamComment');

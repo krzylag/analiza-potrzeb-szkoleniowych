@@ -3,8 +3,11 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Exam extends Model {
+
+    use SoftDeletes;
 
     // The table associated with the model.
     protected $table = 'exams';
@@ -55,5 +58,6 @@ class Exam extends Model {
     public function tasks() {
         return $this->belongsToMany('App\Task', 'exams_tasks', 'exam_id', 'task_id')->withPivot(['is_accepted', 'user_id']);
     }
+
 
 }

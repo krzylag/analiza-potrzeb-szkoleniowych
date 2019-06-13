@@ -175,6 +175,18 @@ class ApiExamController extends Controller {
 
     }
 
+    function deleteExam(Request $request) {
+        $payload = $request->all();
+        $user = Auth::user();
+        $exam = Exam::find($payload['examId']);
+        if ($exam->created_by==$user->id || $user->capabilities->is_admin===true) {
+            $exam->delete();
+            return json_encode(["result"=>true]);
+        } else {
+            return json_encode(["result"=>false]);
+        }
+    }
+
     function toggleAcceptedTask(Request $request) {
         $payload = $request->all();
         $user = \Auth::user();

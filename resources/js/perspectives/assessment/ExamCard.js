@@ -16,6 +16,7 @@ export default class ExamCard extends Component {
         }
         this.clickedFinalizeExam = this.clickedFinalizeExam.bind(this);
         this.toggleExpand = this.toggleExpand.bind(this);
+        this.clickedExamDelete = this.clickedExamDelete.bind(this);
     }
 
     render() {
@@ -111,6 +112,14 @@ export default class ExamCard extends Component {
                                     <img src="/images/refresh.svg"/>
                                 </button>
                             </div>
+                            {userIsChairman && !this.state.examFinishAwaiting &&
+                                <div className="col-sm p-1">
+                                    <button type="button" className="btn btn-outline-danger btn-special-delete" onClick={this.clickedExamDelete}>
+                                        Skasuj bezpowrotnie
+                                    </button>
+                                </div>
+                            }
+
                         </div>
                     </div>
                 }
@@ -136,6 +145,24 @@ export default class ExamCard extends Component {
                 }
             });
         })
+    }
+
+    clickedExamDelete() {
+        this.setState({examFinishAwaiting:true}, ()=>{
+            if (confirm("Czy na pewno NIEODWOŁALNIE SKASOWAĆ egzamin dla "+this.props.exam.surname+" "+this.props.exam.firstname+"?")) {
+                Axios.post(`/api/exam/${this.props.exam.id}/delete`, {
+                    examId: this.props.exam.id
+                }).then((response)=>{
+                    this.props.requestExamRefreshCallback();
+                }).catch((error)=>{
+                    this.setState({examFinishAwaiting:false},()=>{
+                        this.props.requestExamRefreshCallback();
+                    });
+                });
+            } else {
+                this.setState({examFinishAwaiting:false});
+            }
+        });
     }
 
     toggleExpand() {
