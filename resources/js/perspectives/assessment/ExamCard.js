@@ -112,15 +112,14 @@ export default class ExamCard extends Component {
                                     <img src="/images/refresh.svg"/>
                                 </button>
                             </div>
-                            {userIsChairman && !this.state.examFinishAwaiting &&
-                                <div className="col-sm p-1">
-                                    <button type="button" className="btn btn-outline-danger btn-special-delete" onClick={this.clickedExamDelete}>
-                                        Skasuj bezpowrotnie
-                                    </button>
-                                </div>
-                            }
-
                         </div>
+                    </div>
+                }
+                {this.props.isExpanded && (userIsChairman || this.props.user.capabilities.is_admin) && !this.state.examFinishAwaiting &&
+                    <div className="card-body text-right">
+                        <button type="button" className="btn btn-outline-danger btn-special-delete" onClick={this.clickedExamDelete}>
+                            Skasuj bezpowrotnie
+                        </button>
                     </div>
                 }
             </div>
