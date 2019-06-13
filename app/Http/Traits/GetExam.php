@@ -131,7 +131,7 @@ trait GetExam {
     public function getUnfinishedExamsForMember($forUid) {
         $user = User::find($forUid);
         $result = [];
-        foreach ( $user->exams()->with('competences')->where('results', '=', null)->get() AS $exam) {
+        foreach ( $user->exams()->with('competences')->with('users')->where('results', '=', null)->get() AS $exam) {
             if (!isset($result[$exam->id])){
                 $result[$exam->id] = [
                     "id"                    => $exam->id,
@@ -149,7 +149,8 @@ trait GetExam {
                         "member"                => false
                     ],
                     "allowed_competences"   => [],
-                    "competences_users"     => []
+                    "competences_users"     => [],
+                    "exam_members"          => []
                 ];
             }
             $result[$exam->id]['roles'][$exam->pivot->role]=true;
@@ -163,6 +164,11 @@ trait GetExam {
                     $result[$exam->id]['competences_users'][$competence->id][$allowedUserId]=(int)$allowedUserId;
                 }
 
+            }
+            foreach ($exam->users AS $user) {
+                if ($user->pivot->role=='member') {
+                    $result[$exam->id]['exam_members'][$user->id]=$user->id;
+                }
             }
         }
         return $result;

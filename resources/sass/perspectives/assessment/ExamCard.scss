@@ -9,4 +9,12 @@
         margin: 0.1em;
         border: 1px solid black;
     }
+
+    .btn-special-refresh {
+        display: inline-block;
+        img {
+            height: 2em;
+            width: 2em;
+        }
+    }
 }

@@ -31,7 +31,7 @@ export default class ExamCardCompetencesUserEditor extends Component {
 
     render() {
 
-        if (this.state.isUnderEdit) {
+        if (!this.props.isDisabled && this.state.isUnderEdit) {
             return this.renderEdit();
         } else {
             return this.renderLook();
@@ -67,9 +67,11 @@ export default class ExamCardCompetencesUserEditor extends Component {
         }
         return (
             <div className="ExamCardCompetencesUserEditor">
-                <button type="button" className="btn btn-default float-right" onClick={this.setUnderEdit}>
-                    <img src="/images/edit.png" />
-                </button>
+                {!this.props.isDisabled &&
+                    <button type="button" className="btn btn-default float-right" onClick={this.setUnderEdit}>
+                        <img src="/images/edit.png" />
+                    </button>
+                }
                 {renderedUserNames}
             </div>
         );

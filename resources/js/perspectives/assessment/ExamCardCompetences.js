@@ -23,10 +23,9 @@ export default class ExamCardCompetences extends Component {
                             <th rowSpan="2">#</th>
                             <th rowSpan="2">kompetencja</th>
                             <th rowSpan="2">przydział</th>
-                            <th colSpan="3">zadania</th>
+                            <th colSpan="2">zadania</th>
                         </tr>
                         <tr>
-                            <th>możliwe</th>
                             <th>zaznaczone</th>
                             <th>kompletne</th>
                         </tr>
@@ -64,13 +63,13 @@ export default class ExamCardCompetences extends Component {
                         competence={competence}
                         assignedIds={this.props.exam.competences_users[competence.id]}
                         users={this.props.users}
+                        isDisabled={!this.props.userIsChairman}
                         requestExamRefreshCallback={this.props.requestExamRefreshCallback}
                     />
                 </td>
-                <td>{this._calcAllTasksInCompetence(competence)}</td>
-                <td>{activeTasksInComp}</td>
+                <td>{activeTasksInComp} / {this._calcAllTasksInCompetence(competence)}</td>
                 <td>
-                    <span className={rowClass}>{completedTasksInComp}</span>
+                    <span className={rowClass}>{completedTasksInComp} / {activeTasksInComp}</span>
                 </td>
             </tr>
 

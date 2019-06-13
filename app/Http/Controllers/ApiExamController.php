@@ -455,13 +455,44 @@ class ApiExamController extends Controller {
 
     public function setCompetenceUsersAssignment(Request $request) {
         $payload = $request->all();
-        $exam = Exam::find($payload['exam_id']);
         $usersIds = ($payload['users']==0) ? [] : explode(",", $payload['users']);
+
+        // Ustawienie userów do wybranej kompetencji
         DB::update('UPDATE exams_competences SET allowed_users=? WHERE exam_id=? AND competence_id=?', [
             json_encode($usersIds),
             $payload['exam_id'],
             $payload['competence_id'],
         ]);
+
+        // Zbudowanie listy IDków wszystkich userów którzy powinni widzieć egzamin w roli "member"
+        $currentMembersIDs=[];
+        $currentUE=DB::select("SELECT allowed_users FROM exams_competences WHERE exam_id=?", [
+            $payload['exam_id']
+        ]);
+        foreach ($currentUE AS $row) {
+            foreach (json_decode($row->allowed_users) AS $uId) {
+                $currentMembersIDs[(int)$uId]=(int)$uId;
+            }
+        }
+
+        // Upewnienie się że lista userów w exams_competences jest spójna z listą memberów w users_exams
+        $exam = Exam::with('users')->find($payload['exam_id']);
+        $users = $exam->users->keyBy('id');
+        foreach ($users AS $user) {
+            if($user->pivot->role=='member' && !isset($currentMembersIDs[$user->id])) {
+                // $exam->users()->detach($user->id);
+                DB::delete('DELETE FROM users_exams WHERE exam_id=? AND user_id=? AND `role`=?', [
+                    $exam->id,
+                    $user->id,
+                    'member'
+                ]);
+            }
+        }
+        foreach ($currentMembersIDs AS $mId) {
+            if (!isset($users[$mId]) || $users[$mId]->pivot->role!=='member') {
+                $exam->users()->attach($mId, ['role' => 'member']);
+            }
+        }
 
         return array(
             "result" => true

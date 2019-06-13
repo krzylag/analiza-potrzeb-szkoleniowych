@@ -45,11 +45,11 @@ export default class Assessment extends Component {
         });
     }
 
-    pullUnfinishedExams() {
+    pullUnfinishedExams(onDone=null) {
         Axios.get(`/api/exam/list/for/${this.props.user.id}`).then((response)=>{
             var examsList = (Object.keys(response.data).length==0) ? {} : response.data;
             this.setState({examsList}, ()=>{
-                this.pullStatistics();
+                this.pullStatistics(onDone);
             });
         }).catch((error)=>{
             console.error(error);
