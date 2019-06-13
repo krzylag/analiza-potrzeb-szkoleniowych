@@ -52,7 +52,9 @@ class ApiArchiveController extends Controller {
             $onlySucceeded=false;
         }
 
-        $exams = Exam::with('schema')
+        $exams = Exam::with(['schema' => function($query) {
+                $query->withTrashed();
+            }])
             ->where('results', '<>', null)
             ->when($notBefore, function($query) use ($notBefore) {
                 $query->where('date', '>=', $notBefore->format("Y-m-d"));

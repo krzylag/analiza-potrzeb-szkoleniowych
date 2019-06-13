@@ -81,18 +81,19 @@ export default class Archive extends Component {
     };
 
     pullNewArchive() {
-        this.setState({exams: null})
-        Axios.get('/api/archive/list', {
-            params: {
-                filters: this.state.filters
-            }
-        }).then((response)=>{
-            var exams = {};
-            for (var key in response.data) {
-                var exam=response.data[key];
-                exams[exam.id]=exam;
-            }
-            this.setState({exams});
+        this.setState({exams: null}, ()=>{
+            Axios.get('/api/archive/list', {
+                params: {
+                    filters: this.state.filters
+                }
+            }).then((response)=>{
+                var exams = {};
+                for (var key in response.data) {
+                    var exam=response.data[key];
+                    exams[exam.id]=exam;
+                }
+                this.setState({exams});
+            })
         })
     }
 }
