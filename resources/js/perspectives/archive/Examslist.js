@@ -29,8 +29,7 @@ export default class Examslist extends Component {
                 <table className="table table-sm">
                     <thead>
                         <tr>
-                            <th>data</th>
-                            <th>schemat</th>
+                            <th>data / schemat</th>
                             <th>egzaminowany</th>
                             <th>wynik</th>
                             <th>czynności</th>
@@ -47,8 +46,7 @@ export default class Examslist extends Component {
     renderExam(exam) {
         return (
             <tr key={exam.id}>
-                <td>{exam.date}</td>
-                <td>{exam.schema.shortname}</td>
+                <td>{exam.date}<br />{exam.schema.shortname}</td>
                 <td>{exam.surname} {exam.firstname}</td>
                 <td>{this.renderExamResult(exam)}</td>
                 <td>{this.renderExamButtons(exam)}</td>
