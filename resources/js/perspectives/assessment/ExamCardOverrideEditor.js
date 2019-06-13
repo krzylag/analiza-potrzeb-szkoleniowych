@@ -37,9 +37,9 @@ export default class ExamCardOverrideEditor extends Component {
                 break;
             default:
                 if (normalizeScore(this.props.training.score_threshold) <= normalizeScore(this.props.currentScore)) {
-                    currentState = (<span className="text-status text-success">pozytywny</span>);
+                    currentState = (<span className="text-status text-success">szkolenie uznane</span>);
                 } else {
-                    currentState = (<span className="text-status text-danger">negatywny</span>);
+                    currentState = (<span className="text-status text-danger">szkolenie do realizacji</span>);
                 }
         }
 
