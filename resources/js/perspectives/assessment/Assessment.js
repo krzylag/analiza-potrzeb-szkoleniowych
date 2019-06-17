@@ -152,6 +152,7 @@ export default class Assessment extends Component {
                     <Examcomment
                         examId={parseInt(this.props.params[2])}
                         user={this.props.user}
+                        users={this.state.usersList}
                         backTo='/assessment'
                     />
                 );

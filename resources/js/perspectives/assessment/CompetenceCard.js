@@ -4,6 +4,7 @@ import CompetenceCardTask from './CompetenceCardTask';
 import Axios from 'axios';
 import { normalizeScore } from '../../helpers/Formatters';
 import PleaseWait from '../../components/PleaseWait';
+import CompetenceCardComment from './CompetenceCardComment';
 
 export default class CompetenceCard extends Component {
 
@@ -104,6 +105,11 @@ export default class CompetenceCard extends Component {
                         {renderedTasks}
                     </tbody>
                 </table>
+                <CompetenceCardComment
+                    user={this.props.user}
+                    exam={this.props.exam}
+                    competence={_competence}
+                />
             </div>
         );
     }

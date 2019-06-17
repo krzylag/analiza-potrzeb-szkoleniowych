@@ -5,6 +5,7 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import PleaseWait from '../../../components/PleaseWait';
 import { Link } from 'react-router-dom';
 import {CKEDITOR_CONFIGURATION,COMMENT_SEND_DELAY} from '../exam/Taskcomment';
+import { resolveUserNames } from '../../../helpers/Formatters';
 
 export default class Examcomment extends Component {
 
@@ -143,15 +144,8 @@ export default class Examcomment extends Component {
                     var competence = response.data[ckey];
                     for (var ukey in competence.users) {
                         var user = competence.users[ukey];
-                        var newComment = [
-                            '<strong>'+competence.competence_name+' ('+user.user_name+')</strong>'
-                        ];
-                        for (var tkey in user.tasks) {
-                            var task = user.tasks[tkey];
-                            newComment.push('<strong>'+task.task_name+':</strong>');
-                            newComment.push(task.task_comment);
-                        }
-                        newComments.push(newComment.join('<br />'));
+                        newComments.push('<strong>'+competence.name+' ('+resolveUserNames(ukey, this.props.users)+')</strong>');
+                        newComments.push(user);
                     }
                 }
                 if (newComments.length>0) {
