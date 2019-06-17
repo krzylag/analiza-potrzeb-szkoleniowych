@@ -192,6 +192,23 @@ class ApiExamController extends Controller {
         }
     }
 
+    function takeoverExam(Request $request) {
+        $payload = $request->all();
+        $user = Auth::user();
+        $exam = Exam::find($payload['examId']);
+        if ($exam) {
+            $exam->created_by=$user->id;
+            $exam->save();
+            // DB::update("UPDATE users_exams SET user_id=? WHERE exam_id=? AND `role`='chairman'", [
+            //     $user->id,
+            //     $payload['examId']
+            // ]);
+            return json_encode(["result"=>true]);
+        } else {
+            return json_encode(["result"=>false]);
+        }
+    }
+
     function toggleAcceptedTask(Request $request) {
         $payload = $request->all();
         $user = \Auth::user();

@@ -51,12 +51,7 @@ export default class Assessment extends Component {
     }
 
     pullSchemasList() {
-        if (this.props.perspective.id==='allexams') {
-            var url = '/api/schema/list/with-deleted';
-        } else {
-            var url = '/api/schema/list';
-        }
-        Axios.get(url).then((response)=>{
+        Axios.get('/api/schema/list/with-deleted').then((response)=>{
             this.setState({schemasList: response.data});
         }).catch((error)=>{
             console.error(error);
