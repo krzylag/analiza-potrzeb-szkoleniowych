@@ -128,10 +128,17 @@ trait GetExam {
         return $exam;
     }
 
-    public function getUnfinishedExamsForMember($forUid) {
-        $forUser = User::find((int)$forUid);
+    public function getUnfinishedExamsForMember($forUid=0) {
+        if ($forUid===null) {
+            $forUser=null;
+            $exams = Exam::with('competences')->with('users')->where('results', '=', null)->get();
+        } else {
+            $forUser = User::find((int)$forUid);
+            $exams = $forUser->exams()->with('competences')->with('users')->where('results', '=', null)->get();
+        }
+        //return $exams;
         $result = [];
-        foreach ( $forUser->exams()->with('competences')->with('users')->where('results', '=', null)->get() AS $exam) {
+        foreach ($exams AS $exam) {
             if (!isset($result[$exam->id])){
                 $result[$exam->id] = [
                     "id"                    => $exam->id,
@@ -153,12 +160,12 @@ trait GetExam {
                     "exam_members"          => []
                 ];
             }
-            $result[$exam->id]['roles'][$exam->pivot->role]=true;
+            if (isset($exam->pivot)) $result[$exam->id]['roles'][$exam->pivot->role]=true;
             foreach ($exam->competences->keyBy('id') AS $competence) {
                 $result[$exam->id]['allowed_competences'][$competence->id]=false;
                 $allowedUsers = json_decode($competence->pivot->allowed_users);
                 foreach($allowedUsers AS $allowedUserId) {
-                    if ($allowedUserId==$forUser->id) {
+                    if ($forUser!==null && $allowedUserId==$forUser->id) {
                         $result[$exam->id]['allowed_competences'][$competence->id]=true;
                     }
                     $result[$exam->id]['competences_users'][$competence->id][$allowedUserId]=(int)$allowedUserId;

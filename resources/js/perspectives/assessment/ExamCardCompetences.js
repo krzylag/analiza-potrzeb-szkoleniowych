@@ -50,11 +50,14 @@ export default class ExamCardCompetences extends Component {
             <tr key={competence.id}>
                 <th>{competence.order_signature}</th>
                 <td>
-                    {canScore &&
+                    {canScore && !this.props.readOnly &&
                         <Link to={"/assessment/"+this.props.exam.id+"/"+competence.id} className="btn btn-outline-primary d-block">{competence.name}</Link>
                     }
-                    {!canScore &&
+                    {!canScore && !this.props.readOnly &&
                         <div className="btn btn-outline-dark d-block disabled">{competence.name}</div>
+                    }
+                    {this.props.readOnly &&
+                        <div>{competence.name}</div>
                     }
                 </td>
                 <td>
@@ -63,7 +66,7 @@ export default class ExamCardCompetences extends Component {
                         competence={competence}
                         assignedIds={this.props.exam.competences_users[competence.id]}
                         users={this.props.users}
-                        isDisabled={!this.props.userIsChairman}
+                        isDisabled={(!this.props.userIsChairman || this.props.readOnly)}
                         requestExamRefreshCallback={this.props.requestExamRefreshCallback}
                     />
                 </td>

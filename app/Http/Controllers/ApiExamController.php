@@ -75,11 +75,16 @@ class ApiExamController extends Controller {
         return $this->getUnfinishedExamsForMember($forUid);
     }
 
+    function listUnfinishedExams() {
+        return $this->getUnfinishedExamsForMember(null);
+    }
+
     function listExamsScoring($examIds) {
-        $candidates = explode(",",$examIds);
-        array_walk($candidates, function($val) {
-            return (int) trim($val);
-        });
+        $candidates = [];
+        foreach (explode(",",$examIds) AS $id) {
+            $id = (int) trim($id);
+            if (!isset($candidates[$id])) $candidates[$id]=$id;
+        }
         return $this->getExamsScoring($candidates);
     }
 

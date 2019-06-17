@@ -56,6 +56,7 @@ export default class ExamCardReport extends Component {
                         exam={this.props.exam}
                         training={training}
                         currentScore={this._calcPercentageOfActiveTasksInTraining(training)}
+                        readOnly={this.props.readOnly}
                         requestExamRefreshCallback={this.props.requestExamRefreshCallback}
                     />
                 </td>

@@ -63,6 +63,7 @@ Route::group(['prefix'=>'exam', 'middleware' => 'auth:api'], function() {
 
     Route::post('/{examId}/competence/{competenceId}/task/{taskId}/question/{questionId}/set-score',          'ApiExamController@setQuestionScore');
 
+    Route::get ('/list/',                           'ApiExamController@listUnfinishedExams');
     Route::get ('/list/for/{memberId}',             'ApiExamController@listUnfinishedExamsForMember');
     Route::get ('/scoring/{examIds}',               'ApiExamController@listExamsScoring');
 
