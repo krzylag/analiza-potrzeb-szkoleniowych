@@ -30,7 +30,7 @@ export default class Settings extends Component {
     }
 
     pullUsersList() {
-        Axios.get("/api/user/list").then((response)=>{
+        Axios.get("/api/user/list/with-deleted").then((response)=>{
             this.setState({usersList: response.data});
         }).catch((error)=>{
             console.error(error);
