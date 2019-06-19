@@ -10,7 +10,7 @@ export default class ExamCardCompetences extends Component {
 
         for (var ckey in this.props.schema.competences) {
             var competence = this.props.schema.competences[ckey];
-            var canScore = this.props.exam.allowed_competences[competence.id];
+            var canScore = (typeof(this.props.exam.allowed_competences)!=='undefined' && this.props.exam.allowed_competences[competence.id]==true);
             renderedCompetences.push(this.renderCompetenceRow(competence, canScore));
         }
 
@@ -42,6 +42,7 @@ export default class ExamCardCompetences extends Component {
 
         var completedTasksInComp = this._calcActiveAndCompletedTasksInCompetence(competence);
         var activeTasksInComp = this._calcActiveTasksInCompetence(competence);
+        var assignedIds = (typeof(this.props.exam.competences_users)!=='undefined') ? this.props.exam.competences_users[competence.id] : [];
         var rowClass = '';
         if (activeTasksInComp > completedTasksInComp) {
             rowClass += ' progress-bar progress-bar-striped progress-bar-animated bg-danger';
@@ -64,7 +65,7 @@ export default class ExamCardCompetences extends Component {
                     <ExamCardCompetencesUserEditor
                         exam={this.props.exam}
                         competence={competence}
-                        assignedIds={this.props.exam.competences_users[competence.id]}
+                        assignedIds={assignedIds}
                         users={this.props.users}
                         isDisabled={(!this.props.userIsChairman || this.props.readOnly)}
                         requestExamRefreshCallback={this.props.requestExamRefreshCallback}
