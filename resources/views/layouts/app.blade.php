@@ -12,6 +12,8 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
+    <script crossorigin="anonymous" src="https://polyfill.io/v3/polyfill.min.js"></script>
+
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
 
