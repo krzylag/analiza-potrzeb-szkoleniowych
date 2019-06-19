@@ -87,7 +87,7 @@ class ApiUserController extends Controller
 
     public function list($withDeleted=false) {
         if ($withDeleted=='with-deleted') {
-            $users = User::withTrashed()->all();
+            $users = User::withTrashed()->get();
         } else {
             $users = User::all();
         }
