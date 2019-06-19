@@ -35,7 +35,7 @@ export const PERSPECTIVES = {
     'newexam':      new Perspective('newexam', "Nowy", 'usage', ['is_admin', 'can_lead']),
     'archive':      new Perspective('archive', "Zakończone", 'usage', ['is_admin', 'can_lead', 'can_search']),
     'users':        new Perspective('users', "Użytkownicy", 'management', ['is_admin', 'can_manage_users']),
-    'allexams':     new Perspective('allexams', "Wszystkie egzaminy", 'management', ['is_admin']),
+    'allexams':     new Perspective('allexams', "Egzaminy w toku", 'management', ['is_admin']),
     'settings':     new Perspective('settings', "Schematy", 'management', ['is_admin', 'can_manage_schemas'])
 };
 

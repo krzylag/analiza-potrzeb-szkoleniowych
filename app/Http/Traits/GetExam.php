@@ -19,7 +19,7 @@ trait GetExam {
         $comments = $this->getExamsComments($exam['id']);
         if (isset($comments[$examId])) $comments=$comments[$examId]; else $comments=null;
 
-        $users = (User::all())->keyBy('id');
+        $users = (User::withTrashed()->get())->keyBy('id');
 
         foreach ($scoring[$examId]['tasks'] AS $task) {
             $schema['tasks'][$task['id']]['users']=[];
