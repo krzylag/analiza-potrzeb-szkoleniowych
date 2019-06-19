@@ -31,7 +31,7 @@ export default class CompetenceCardTask extends Component {
                 <td>
                 <Link
                         to={"/assessment/"+this.props.exam.id+"/"+this.props.competence.id+"/"+this.props.task.id}
-                        className="btn btn-outline-primary"
+                        className=""
                     >{this.props.task.name}</Link>
                 </td>
                 <td>{this.props.trainingNames.join(", ")}</td>

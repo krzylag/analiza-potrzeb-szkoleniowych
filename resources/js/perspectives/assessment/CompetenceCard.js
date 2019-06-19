@@ -45,13 +45,12 @@ export default class CompetenceCard extends Component {
             var schemaTask = this.state.schema.tasks[_competence.tasks[tkey]];
             var statTask = this.props.statistics.tasks[_competence.tasks[tkey]];
             var trainingNames = [];
-            for (var cKey in this.state.schema.competences) {
-                var comp = this.state.schema.competences[cKey];
-                if (comp.tasks[schemaTask.id]===schemaTask.id) {
-                    trainingNames.push(comp.name);
+            for (var tKey in this.state.schema.trainings) {
+                var schemaTraining = this.state.schema.trainings[tKey];
+                if (typeof(schemaTraining.tasks[schemaTask.id])!=='undefined') {
+                    trainingNames.push(schemaTraining.shortname);
                 }
             }
-
             if (statTask.accepted===true) {
                 usedSeconds += schemaTask.time_available;
                 if (statTask.avg!==null) {
@@ -95,7 +94,7 @@ export default class CompetenceCard extends Component {
                         <tr>
                             <th>#</th>
                             <th>zadanie</th>
-                            <th>przypisanie do</th>
+                            <th>w szkoleniu</th>
                             <th>czas</th>
                             <th>czy wybrane?</th>
                             <th>status</th>
