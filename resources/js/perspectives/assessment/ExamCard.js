@@ -17,9 +17,11 @@ export default class ExamCard extends Component {
         this.clickedFinalizeExam = this.clickedFinalizeExam.bind(this);
         this.toggleExpand = this.toggleExpand.bind(this);
         this.clickedExamDelete = this.clickedExamDelete.bind(this);
+        this.clickedExamTakeover = this.clickedExamTakeover.bind(this);
     }
 
     render() {
+
         var userIsChairman = (this.props.user.id===this.props.exam.created_by);
 
         var canExamBeFinalized = this._canExamBeFinalized();
@@ -70,6 +72,7 @@ export default class ExamCard extends Component {
                         statistics={this.props.statistics}
                         users={this.props.users}
                         userIsChairman={userIsChairman}
+                        readOnly={(this.props.isPerspectiveAllExams===true)}
                         requestExamRefreshCallback={this.props.requestExamRefreshCallback}
                     />
                 }
@@ -78,10 +81,11 @@ export default class ExamCard extends Component {
                         exam={this.props.exam}
                         schema={this.props.schema}
                         statistics={this.props.statistics}
+                        readOnly={(this.props.isPerspectiveAllExams===true)}
                         requestExamRefreshCallback={this.props.requestExamRefreshCallback}
                     />
                 }
-                {this.props.isExpanded && userIsChairman &&
+                {this.props.isExpanded && userIsChairman && this.props.isPerspectiveAllExams===false &&
                      <div className="card-body">
                         <div className="row pl-4 text-center" >
                             <div className="col-sm p-1">
@@ -120,6 +124,11 @@ export default class ExamCard extends Component {
                         <button type="button" className="btn btn-outline-danger btn-special-delete" onClick={this.clickedExamDelete}>
                             Skasuj bezpowrotnie
                         </button>
+                        {!userIsChairman && this.props.user.capabilities.is_admin && this.props.isPerspectiveAllExams &&
+                            <button type="button" className="btn btn-outline-danger btn-special-takeover" onClick={this.clickedExamTakeover}>
+                                Przejmij na własność
+                            </button>
+                        }
                     </div>
                 }
             </div>
@@ -162,6 +171,22 @@ export default class ExamCard extends Component {
                 this.setState({examFinishAwaiting:false});
             }
         });
+    }
+
+    clickedExamTakeover() {
+            if (confirm("Czy na pewno zamienić przewodniczącego egzaminu "+this.props.exam.surname+" "+this.props.exam.firstname+" na siebie?")) {
+                Axios.post(`/api/exam/${this.props.exam.id}/takeover`, {
+                    examId: this.props.exam.id
+                }).then((response)=>{
+                    this.props.requestExamRefreshCallback();
+                }).catch((error)=>{
+                    this.setState({examFinishAwaiting:false},()=>{
+                        this.props.requestExamRefreshCallback();
+                    });
+                });
+            } else {
+                this.setState({examFinishAwaiting:false});
+            }
     }
 
     toggleExpand() {

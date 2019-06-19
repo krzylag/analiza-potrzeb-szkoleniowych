@@ -47,9 +47,11 @@ export default class ExamCardOverrideEditor extends Component {
             return (
                 <div className="ExamCardOverrideEditor">
                     {currentState}
-                    <button type="button" className="btn btn-default" onClick={this.setUnderEdit}>
-                        <img src="/images/edit.png" />
-                    </button>
+                    {!this.props.readOnly &&
+                        <button type="button" className="btn btn-default" onClick={this.setUnderEdit}>
+                            <img src="/images/edit.png" />
+                        </button>
+                    }
                 </div>
 
             )

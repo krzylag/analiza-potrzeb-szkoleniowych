@@ -35,6 +35,7 @@ export const PERSPECTIVES = {
     'newexam':      new Perspective('newexam', "Nowy", 'usage', ['is_admin', 'can_lead']),
     'archive':      new Perspective('archive', "Zakończone", 'usage', ['is_admin', 'can_lead', 'can_search']),
     'users':        new Perspective('users', "Użytkownicy", 'management', ['is_admin', 'can_manage_users']),
+    'allexams':     new Perspective('allexams', "Egzaminy w toku", 'management', ['is_admin']),
     'settings':     new Perspective('settings', "Schematy", 'management', ['is_admin', 'can_manage_schemas'])
 };
 
@@ -70,6 +71,7 @@ export default class App extends Component {
                 renderPerspective = (
                     <Assessment
                         user={this.state.user}
+                        perspective={perspective}
                         params={params}
                     />
                 );
@@ -100,6 +102,15 @@ export default class App extends Component {
             case 'users':
                 renderPerspective = (
                     <Users
+                        params={params}
+                    />
+                );
+                break;
+            case 'allexams':
+                renderPerspective = (
+                    <Assessment
+                        user={this.state.user}
+                        perspective={perspective}
                         params={params}
                     />
                 );

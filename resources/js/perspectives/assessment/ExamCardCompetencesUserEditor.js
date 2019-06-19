@@ -15,7 +15,7 @@ export default class ExamCardCompetencesUserEditor extends Component {
 
         for (var ukey in this.props.users) {
             var user = this.props.users[ukey];
-            this.state.possibleOptions.push(this._createOption(user));
+            if (user.deleted_at===null) this.state.possibleOptions.push(this._createOption(user));
         }
 
         for (var ukey in this.props.assignedIds) {

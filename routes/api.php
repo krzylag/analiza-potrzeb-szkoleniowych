@@ -47,6 +47,7 @@ Route::group(['prefix'=>'exam', 'middleware' => 'auth:api'], function() {
     Route::post('/{examId}/finalize',               'ApiExamController@finalizeExam');
     Route::post('/{examId}/revert',                 'ApiExamController@revertFinalizedExam');
     Route::post('/{examId}/delete',                 'ApiExamController@deleteExam');
+    Route::post('/{examId}/takeover',               'ApiExamController@takeoverExam');
 
     Route::post('/{examId}/set-comment',            'ApiExamController@setExamComment');
     Route::get ('/{examId}/get-default-comment',    'ApiExamController@getDefaultExamComment');
@@ -58,11 +59,16 @@ Route::group(['prefix'=>'exam', 'middleware' => 'auth:api'], function() {
     Route::get ('/{examId}/competence/{competenceId}/task/{taskId}/get/comment',        'ApiExamController@getTaskComment');
     Route::post('/{examId}/competence/{competenceId}/task/{taskId}/set/comment',        'ApiExamController@setTaskComment');
 
+    Route::get ('/{examId}/competence/{competenceId}/get-comment',                      'ApiExamController@getCompetenceComment');
+    Route::get ('/{examId}/competence/{competenceId}/get-default-comment',              'ApiExamController@getDefaultCompetenceComment');
+    Route::post('/{examId}/competence/{competenceId}/set-comment',                      'ApiExamController@setCompetenceComment');
+
     Route::post('/{examId}/training/{taskId}/override/{overrideId}',                    'ApiExamController@setTrainingOverride');
     Route::post('/{examId}/competence/{competenceId}/users/{users}',                    'ApiExamController@setCompetenceUsersAssignment');
 
     Route::post('/{examId}/competence/{competenceId}/task/{taskId}/question/{questionId}/set-score',          'ApiExamController@setQuestionScore');
 
+    Route::get ('/list/',                           'ApiExamController@listUnfinishedExams');
     Route::get ('/list/for/{memberId}',             'ApiExamController@listUnfinishedExamsForMember');
     Route::get ('/scoring/{examIds}',               'ApiExamController@listExamsScoring');
 

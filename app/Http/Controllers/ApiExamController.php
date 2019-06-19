@@ -75,11 +75,16 @@ class ApiExamController extends Controller {
         return $this->getUnfinishedExamsForMember($forUid);
     }
 
+    function listUnfinishedExams() {
+        return $this->getUnfinishedExamsForMember(null);
+    }
+
     function listExamsScoring($examIds) {
-        $candidates = explode(",",$examIds);
-        array_walk($candidates, function($val) {
-            return (int) trim($val);
-        });
+        $candidates = [];
+        foreach (explode(",",$examIds) AS $id) {
+            $id = (int) trim($id);
+            if (!isset($candidates[$id])) $candidates[$id]=$id;
+        }
         return $this->getExamsScoring($candidates);
     }
 
@@ -181,6 +186,23 @@ class ApiExamController extends Controller {
         $exam = Exam::find($payload['examId']);
         if ($exam->created_by==$user->id || $user->capabilities->is_admin===true) {
             $exam->delete();
+            return json_encode(["result"=>true]);
+        } else {
+            return json_encode(["result"=>false]);
+        }
+    }
+
+    function takeoverExam(Request $request) {
+        $payload = $request->all();
+        $user = Auth::user();
+        $exam = Exam::find($payload['examId']);
+        if ($exam) {
+            $exam->created_by=$user->id;
+            $exam->save();
+            DB::update("UPDATE users_exams SET user_id=? WHERE exam_id=? AND `role`='chairman'", [
+                $user->id,
+                $payload['examId']
+            ]);
             return json_encode(["result"=>true]);
         } else {
             return json_encode(["result"=>false]);
@@ -378,12 +400,79 @@ class ApiExamController extends Controller {
         return $exam;
     }
 
+    public function getCompetenceComment($examId, $competenceId) {
+        $competenceInstance = DB::select("SELECT id,comment FROM exams_competences WHERE exam_id=? AND competence_id=?", [
+            $examId,
+            $competenceId
+        ]);
+        if (sizeof($competenceInstance)>0) {
+            $competenceInstance=reset($competenceInstance);
+            $comments = ($competenceInstance->comment===null) ? new \stdClass() : json_decode($competenceInstance->comment);
+            return json_encode([
+                "result" => true,
+                "comments" => $comments
+            ]);
+        } else {
+            return json_encode([
+                "result" => false,
+                "comments" => null
+            ]);
+        }
+    }
+
+    public function setCompetenceComment(Request $request) {
+        $payload = $request->all();
+        $user = \Auth::user();
+        $exam = Exam::find($payload['examId']);
+        $competenceInstance = DB::select("SELECT id,comment FROM exams_competences WHERE exam_id=? AND competence_id=?", [
+            $exam->id,
+            $payload['competenceId']
+        ]);
+        if (sizeof($competenceInstance)>0) {
+            $competenceInstance=reset($competenceInstance);
+            $comments = ($competenceInstance->comment===null) ? new \stdClass() : json_decode($competenceInstance->comment);
+            $comments->{$user->id}=$payload['comment'];
+            DB::update('UPDATE exams_competences SET comment=? where id = ?', [
+                json_encode($comments),
+                $competenceInstance->id
+            ]);
+            return json_encode([
+                "result" => true
+            ]);
+        } else {
+            return json_encode([
+                "result" => false
+            ]);
+        }
+    }
+
     public function getExam($examId) {
         // $user = \Auth::user();
         return Exam::with('schema')->with('taskcomments')->with("competences")->find($examId);
     }
 
     public function getDefaultExamComment($examId) {
+        $exam = Exam::find($examId);
+        $comments = DB::select("
+            SELECT
+                ec.id, ec.competence_id, ec.comment, c.name
+            FROM exams_competences AS ec
+            LEFT JOIN competences AS c ON c.id=ec.competence_id
+            WHERE ec.exam_id = ?", [
+            $exam->id
+        ]);
+        $result = array();
+        foreach ($comments AS $row) {
+            $comment = new \stdClass();
+            $comment->id=$row->competence_id;
+            $comment->name=$row->name;
+            $comment->users=($row->comment!==null) ? json_decode($row->comment) : new \stdClass();
+            $result[$row->competence_id]= $comment;
+        }
+        return $result;
+    }
+
+    public function getDefaultCompetenceComment($examId, $competenceId) {
         $exam = Exam::find($examId);
         $comments = DB::select('
             SELECT
@@ -400,9 +489,10 @@ class ApiExamController extends Controller {
             LEFT JOIN competences_tasks AS ct ON ct.task_id = t.id
             LEFT JOIN competences AS c ON c.id = ct.competence_id
             LEFT JOIN exams_tasks AS et ON et.exam_id=tc.exam_id AND et.task_id=tc.task_id AND et.user_id=tc.user_id
-            WHERE tc.exam_id = ? AND et.is_accepted=1
+            WHERE tc.exam_id = ? AND et.is_accepted=1 AND c.id = ?
         ', array(
-            $exam->id
+            $exam->id,
+            $competenceId
         ));
         $result = array();
         foreach ($comments AS $comment) {

@@ -29,8 +29,21 @@ export default class Assessment extends Component {
         this.pullUnfinishedExams();
     }
 
+    componentDidUpdate(prevProps) {
+        if (this.props.perspective.id!==prevProps.perspective.id) {
+            this.setState({
+                schemasList: null,
+                examsList: null,
+                statisticsList: null
+            }, ()=>{
+                this.pullSchemasList();
+                this.pullUnfinishedExams();
+            });
+        }
+    }
+
     pullUsersList() {
-        Axios.get("/api/user/list").then((response)=>{
+        Axios.get("/api/user/list/with-deleted").then((response)=>{
             this.setState({usersList: response.data});
         }).catch((error)=>{
             console.error(error);
@@ -38,7 +51,7 @@ export default class Assessment extends Component {
     }
 
     pullSchemasList() {
-        Axios.get("/api/schema/list").then((response)=>{
+        Axios.get('/api/schema/list/with-deleted').then((response)=>{
             this.setState({schemasList: response.data});
         }).catch((error)=>{
             console.error(error);
@@ -46,7 +59,12 @@ export default class Assessment extends Component {
     }
 
     pullUnfinishedExams(onDone=null) {
-        Axios.get(`/api/exam/list/for/${this.props.user.id}`).then((response)=>{
+        if (this.props.perspective.id==='allexams') {
+            var url = '/api/exam/list';
+        } else {
+            var url = `/api/exam/list/for/${this.props.user.id}`
+        }
+        Axios.get(url).then((response)=>{
             var examsList = (Object.keys(response.data).length==0) ? {} : response.data;
             this.setState({examsList}, ()=>{
                 this.pullStatistics(onDone);
@@ -134,6 +152,7 @@ export default class Assessment extends Component {
                     <Examcomment
                         examId={parseInt(this.props.params[2])}
                         user={this.props.user}
+                        users={this.state.usersList}
                         backTo='/assessment'
                     />
                 );
@@ -153,6 +172,7 @@ export default class Assessment extends Component {
                     statistics={this.state.statisticsList[exam.id]}
                     users={this.state.usersList}
                     isExpanded={isSelected}
+                    isPerspectiveAllExams={(this.props.perspective.id==='allexams')}
                     requestExamRefreshCallback={this.pullUnfinishedExams}
                     requestExamExpandCallback={this.expandExam}
                     onExamFinalizedCallback={this.onExamFinalized}

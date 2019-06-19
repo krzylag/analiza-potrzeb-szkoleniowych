@@ -16,7 +16,6 @@ export default class Topmenu extends Component {
                 <PleaseWait key="PleaseWait" />
             )
         } else {
-
             var renderedLinksUsage = [];
             var renderedLinksManagement = [];
             for (var perId in PERSPECTIVES) {
