@@ -114,7 +114,7 @@ trait GetExam {
             foreach($training['tasks'] AS $taskId) {
                 $exam['trainings'][$training['id']]['tasks'][$taskId]=$exam['tasks'][$taskId];
             }
-            if (isset($exam['config']->overrides)) {
+            if (isset($exam['config']->overrides) && isset($exam['config']->overrides->{$training['id']})) {
 
                 $exam['trainings'][$training['id']]['result_override_id']=$exam['config']->overrides->{$training['id']};
             }
