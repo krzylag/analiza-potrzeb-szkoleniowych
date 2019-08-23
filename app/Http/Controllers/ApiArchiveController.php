@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Http\Traits\GetExam;
 use App\Exam;
+use Illuminate\Support\Facades\View;
 use PDF;
 
 class ApiArchiveController extends Controller {
@@ -246,7 +247,12 @@ class ApiArchiveController extends Controller {
         } else if (!empty($exam)) {
             $reportData = $this->getCompleteExamStructurized($examId);
             $reportData['report_type'] = $type;
-            $pdf = PDF::loadView("reports.default", $reportData);
+            if (isset($reportData['schema']['config']) && isset($reportData['schema']['config']->report_name) && View::exists("reports.".$reportData['schema']['config']->report_name)) {
+                $reportNameTemplate = "reports.".$reportData['schema']['config']->report_name;
+            } else {
+                $reportNameTemplate = "reports.default";
+            }
+            $pdf = PDF::loadView($reportNameTemplate, $reportData);
             $date = (\DateTime::createFromFormat("Y-m-d H:i:s", $exam->created_at))->format('Y-m-d');
             $fname =  preg_replace("/[^a-zA-Z0-9ĄĆĘÓŚŹŻąćęóśźż_\.\-]/", "", $exam->surname."_".$exam->firstname."_".$date.".pdf");
             return $pdf->stream($fname);
@@ -264,7 +270,12 @@ class ApiArchiveController extends Controller {
         } else if (!empty($exam)) {
             $reportData = $this->getCompleteExamStructurized($examId);
             $reportData['report_type'] = $type;
-            $rendered = view("reports.default", $reportData);
+            if (isset($reportData['schema']['config']) && isset($reportData['schema']['config']->report_name) && View::exists("reports.".$reportData['schema']['config']->report_name)) {
+                $reportNameTemplate = "reports.".$reportData['schema']['config']->report_name;
+            } else {
+                $reportNameTemplate = "reports.default";
+            }
+            $rendered = view($reportNameTemplate, $reportData);
             return $rendered;
         } else {
             return "Nie ma takiego egzaminu";
