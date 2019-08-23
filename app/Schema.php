@@ -30,6 +30,12 @@ class Schema extends Model {
         return $result;
     }
 
+    public function getConfigAttribute($value) {
+        $result = new \stdClass();
+        if ($value===null) return $result;
+        return json_decode($value);
+    }
+
     // RELATIONS
 
     public function competences() {
